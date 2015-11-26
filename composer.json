@@ -1,0 +1,7 @@
+{
+  "require": {
+    "dg/twitter-php": "*",
+    "cleanse/discord-hypertext": "dev-master"
+  },
+  "minimum-stability": "stable"
+}

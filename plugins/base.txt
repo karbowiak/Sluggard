@@ -1,0 +1,20 @@
+<?php
+
+class <name>
+{
+    var $config;
+    var $discord;
+
+    function init($config, $discord)
+    {
+        $this->config = $config;
+        $this->discord = $discord;
+    }
+
+    function onMessage($message)
+    {
+        if (command($message, "!<msg>")) {
+           $this->discord->api("channel")->messages()->create($this->config["discord"]["channel"], "{$typeName} ({$place}) - Buy: {$buyPrice} ISK / Sell: {$sellPrice} ISK");
+        }
+    }
+}
