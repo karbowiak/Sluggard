@@ -1,7 +1,15 @@
 {
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Devristo/phpws"
+    }
+  ],
   "require": {
     "dg/twitter-php": "*",
-    "cleanse/discord-hypertext": "dev-master"
+    "team-reflex/discord-php": "dev-master",
+    "devristo/phpws": "dev-master",
+    "ratchet/pawl": "dev-master"
   },
   "minimum-stability": "stable"
 }
