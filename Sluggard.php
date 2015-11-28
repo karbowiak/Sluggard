@@ -12,16 +12,15 @@ else
 // Init the discord library
 $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
 $token = $discord->token["token"];
-$gateway = $discord->api("gateway")->show()["url"]."/";
+$gateway = $discord->api("gateway")->show()["url"] . "/";
 
 // Load the library files
-foreach(glob(__DIR__ . "/library/*.php") as $lib)
+foreach (glob(__DIR__ . "/library/*.php") as $lib)
     require_once($lib);
 
 // Load the plugins
 $plugins = array();
-foreach(glob(__DIR__ . "/plugins/*.php") as $plugin)
-{
+foreach (glob(__DIR__ . "/plugins/*.php") as $plugin) {
     require_once($plugin);
     $fileName = str_replace(".php", "", basename($plugin));
     $p = new $fileName();
@@ -55,14 +54,10 @@ $loop->addPeriodicTimer(30, function () use ($logger, $client) {
     );
 });
 
-// Plugin tick timer (2 seconds)
-$loop->addPeriodicTimer(2, function () use ($logger, $client, $plugins) {
-    try {
-        foreach($plugins as $plugin)
-            $plugin->tick();
-    } catch (Exception $e) {
-        $logger->err("Error running plugin: " . $e->getMessage());
-    }
+// Plugin tick timer (1 second)
+$loop->addPeriodicTimer(1, function () use ($logger, $client, $plugins) {
+    foreach ($plugins as $plugin)
+        $plugin->tick();
 });
 
 // Setup the connection handlers

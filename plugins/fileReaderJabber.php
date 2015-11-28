@@ -5,7 +5,6 @@ class fileReaderJabber
     var $config;
     var $discord;
     var $db = "/tmp/discord.db";
-    var $lastCheck = 0;
 
     function init($config, $discord)
     {
@@ -26,36 +25,28 @@ class fileReaderJabber
 
     function tick()
     {
-        echo filemtime($this->db)."\n";
-        echo $this->lastCheck."\n";
-        if(filemtime($this->db) >= $this->lastCheck)
+        $data = file($this->db);
+        if(!empty($data))
         {
-            $data = file($this->db);
-            if($data)
+            $message = "";
+            foreach($data as $line)
             {
-                $message = "";
-                foreach($data as $row)
-                {
-                    $row = str_replace("\n", "", str_replace("\r", "", $row));
-                    $channelID = 119136919346085888; // Pings channel on discord
-                    if($row == "" || $row == " ")
-                        continue;
+                $line = str_replace("\n", "", str_replace("\r", "", $line));
+                $channelID = 119136919346085888; // 4M Ping channel on discord, needs to be un-hardcoded at some point
+                // If the line doesn't contain anything, skip it.. happens when jabber is involved.. god i hate jabber
+                if($line == "" || $line == " ")
+                    continue;
 
-                    $message .= $row . " | ";
-                    usleep(300000);
-                }
-
-                // Remove |  from the line or whatever else is at the last two characters in the string
-                $message = substr($message, 0, -2);
-                $this->discord->api("channel")->messages()->create($channelID, "@ everyone | " . $message);
+                $message .= $line . " | ";
             }
-            $h = fopen($this->db, "w+");
-            fclose($h);
-            chmod($this->db, 0777);
-            $data = null;
-            $h = null;
+
+            // Remove |  from the line or whatever else is at the last two characters in the string
+            $message = substr($message, 0, -2);
+            $this->discord->api("channel")->messages()->create($channelID, "@ everyone | " . $message);
+
+            // We're done with the file, lets truncate it (Crude but effective)
+            file_put_contents($this->db, "");
         }
-        $this->lastCheck = time();
     }
 
     function onMessage($message)
