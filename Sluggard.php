@@ -21,11 +21,11 @@ $writer = new Zend\Log\Writer\Stream("php://output");
 $logger->addWriter($writer);
 $client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
 
-// Load the library files
+// Load the library files (Probably a prettier way to do this that i haven't thought up yet)
 foreach (glob(__DIR__ . "/library/*.php") as $lib)
     require_once($lib);
 
-// Load the plugins
+// Load the plugins (Probably a prettier way to do this that i haven't thought up yet)
 $plugins = array();
 foreach (glob(__DIR__ . "/plugins/*.php") as $plugin) {
     require_once($plugin);
@@ -37,7 +37,7 @@ foreach (glob(__DIR__ . "/plugins/*.php") as $plugin) {
 
 // Keep alive timer (Default to 30 seconds heartbeat interval)
 $loop->addPeriodicTimer(30, function () use ($logger, $client) {
-    $logger->info("Sending keepalive");
+    //$logger->info("Sending keepalive"); // schh
     $client->send(
         json_encode(
             array(
