@@ -4,11 +4,13 @@ class priceChecks
 {
     var $config;
     var $discord;
+    var $logger;
 
-    function init($config, $discord)
+    function init($config, $discord, $logger)
     {
         $this->config = $config;
         $this->discord = $discord;
+        $this->logger = $logger;
     }
 
     function information()
@@ -25,8 +27,14 @@ class priceChecks
 
     }
 
-    function onMessage($message, $channelID)
+    function onMessage($msgData)
     {
+        // Bind a few things to vars for the plugins
+        $message = $msgData["message"]["message"];
+        $channelName = $msgData["channel"]["name"];
+        $guildName = $msgData["guild"]["name"];
+        $channelID = $msgData["message"]["channelID"];
+
         if (stringStartsWith($message, "!pc") || stringStartsWith($message, "!jita") || stringStartsWith($message, "!rens") || stringStartsWith($message, "!amarr") || stringStartsWith($message, "!dodixie") || stringStartsWith($message, "!hek")) {
             $d = explode(" ", $message);
             $systemName = strtolower(str_replace("!", "", trim($d[0])));
@@ -104,6 +112,7 @@ class priceChecks
                 if ($systemName != "pc")
                     $place = ucfirst($systemName);
 
+                $this->logger->info("Sending pricing info to {$channelName} on {$guildName}");
                 $this->discord->api("channel")->messages()->create($channelID, "{$typeName} ({$place}) - **Buy:** {$buyPrice} ISK / **Sell:** {$sellPrice} ISK");
             }
         }

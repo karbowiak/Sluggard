@@ -4,11 +4,13 @@ class time
 {
     var $config;
     var $discord;
+    var $logger;
 
-    function init($config, $discord)
+    function init($config, $discord, $logger)
     {
         $this->config = $config;
         $this->discord = $discord;
+        $this->logger = $logger;
     }
 
     function information()
@@ -25,8 +27,13 @@ class time
 
     }
 
-    function onMessage($message, $channelID)
+    function onMessage($msgData)
     {
+        $message = $msgData["message"]["message"];
+        $channelName = $msgData["channel"]["name"];
+        $guildName = $msgData["guild"]["name"];
+        $channelID = $msgData["message"]["channelID"];
+
         if (stringStartsWith($message, "!time")) {
             $date = date("d-m-Y");
             $fullDate = date("Y-m-d H:i:s");
@@ -43,6 +50,8 @@ class time
             $msk = $msk->format("H:i:s");
             $aest = $datetime->setTimezone(new DateTimeZone("Australia/Sydney"));
             $aest = $aest->format("H:i:s");
+
+            $this->logger->info("Sending time info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, "**EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
         }
     }

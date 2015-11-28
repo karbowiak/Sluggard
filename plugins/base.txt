@@ -1,20 +1,39 @@
 <?php
 
-class <name>
+class <>
 {
     var $config;
     var $discord;
+    var $logger;
 
-    function init($config, $discord)
+    function init($config, $discord, $logger)
     {
         $this->config = $config;
         $this->discord = $discord;
+        $this->logger = $logger;
     }
 
-    function onMessage($message)
+    function information()
     {
-        if (command($message, "!<msg>")) {
-           $this->discord->api("channel")->messages()->create($this->config["discord"]["channel"], "{$typeName} ({$place}) - Buy: {$buyPrice} ISK / Sell: {$sellPrice} ISK");
-        }
+        return array(
+            "name" => "",
+            "trigger" => array(),
+            "information" => ""
+        );
+    }
+
+    function tick()
+    {
+    }
+
+    function onMessage($msgData)
+    {
+            $message = $msgData["message"]["message"];
+            $channelName = $msgData["channel"]["name"];
+            $guildName = $msgData["guild"]["name"];
+            $channelID = $msgData["message"]["channelID"];
+
+            $this->logger->info("Sending <> info to {$channelName} on {$guildName}");
+            $this->discord->api("channel")->messages()->create($channelID, $message);
     }
 }

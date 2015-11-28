@@ -6,11 +6,13 @@ class fileReaderJabber
     var $discord;
     var $db = "/tmp/discord.db";
     var $lastCheck = 0;
+    var $logger;
 
-    function init($config, $discord)
+    function init($config, $discord, $logger)
     {
         $this->config = $config;
         $this->discord = $discord;
+        $this->logger = $logger;
         if(!is_file($this->db))
             touch($this->db);
     }
@@ -57,7 +59,7 @@ class fileReaderJabber
         $this->lastCheck = time();
     }
 
-    function onMessage($message)
+    function onMessage($msgData)
     {
     }
 }

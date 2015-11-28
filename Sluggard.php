@@ -14,6 +14,13 @@ $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"][
 $token = $discord->token["token"];
 $gateway = $discord->api("gateway")->show()["url"] . "/";
 
+// Setup the webscoket connection
+$loop = \React\EventLoop\Factory::create();
+$logger = new \Zend\Log\Logger();
+$writer = new Zend\Log\Writer\Stream("php://output");
+$logger->addWriter($writer);
+$client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
+
 // Load the library files
 foreach (glob(__DIR__ . "/library/*.php") as $lib)
     require_once($lib);
@@ -24,16 +31,9 @@ foreach (glob(__DIR__ . "/plugins/*.php") as $plugin) {
     require_once($plugin);
     $fileName = str_replace(".php", "", basename($plugin));
     $p = new $fileName();
-    $p->init($config, $discord);
+    $p->init($config, $discord, $logger);
     $plugins[] = $p;
 }
-
-// Setup the webscoket connection
-$loop = \React\EventLoop\Factory::create();
-$logger = new \Zend\Log\Logger();
-$writer = new Zend\Log\Writer\Stream("php://output");
-$logger->addWriter($writer);
-$client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
 
 // Keep alive timer (Default to 30 seconds heartbeat interval)
 $loop->addPeriodicTimer(30, function () use ($logger, $client) {
@@ -78,7 +78,7 @@ $client->on("connect", function () use ($logger, $client, $token) {
     );
 });
 
-$client->on("message", function ($message) use ($client, $logger, $plugins) {
+$client->on("message", function ($message) use ($client, $logger, $discord, $plugins) {
     // Decode the data
     $data = json_decode($message->getData());
 
@@ -92,18 +92,24 @@ $client->on("message", function ($message) use ($client, $logger, $plugins) {
             break;
 
         case "MESSAGE_CREATE":
-            $msgData = $data->d;
+            $data = $data->d;
 
             // Bind a few things to vars for the plugins
-            $timestamp = $msgData->timestamp;
-            $id = $msgData->id;
-            $content = $msgData->content;
-            $channelID = $msgData->channel_id;
-            $from = $msgData->author->username;
-            $fromID = $msgData->author->id;
+            $msgData = array(
+                "message" => array(
+                    "timestamp" => $data->timestamp,
+                    "id" => $data->id,
+                    "message" => $data->content,
+                    "channelID" => $data->channel_id,
+                    "from" => $data->author->username,
+                    "fromID" => $data->author->id,
+                ),
+                "channel" => $discord->api("channel")->show($data->channel_id),
+                "guild" => $discord->api("guild")->show($discord->api("channel")->show($data->channel_id)["guild_id"])
+            );
 
             foreach ($plugins as $plugin)
-                $plugin->onMessage($content, $channelID);
+                $plugin->onMessage($msgData);
 
             break;
 
