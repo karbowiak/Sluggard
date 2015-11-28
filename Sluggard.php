@@ -11,8 +11,8 @@ else
 
 // Init the discord library
 $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
-// Get the gateway (all we need the discord library for right now anyway, we will map everything from the initial return data to stuff)
-$gateway = $discord->websocketGateway() . "/";
+$token = $discord->token["token"];
+$gateway = $discord->api("gateway")->show()["url"]."/";
 
 // Load the library files
 foreach(glob(__DIR__ . "/library/*.php") as $lib)
@@ -66,14 +66,14 @@ $loop->addPeriodicTimer(2, function () use ($logger, $client, $plugins) {
 });
 
 // Setup the connection handlers
-$client->on("connect", function () use ($logger, $client) {
+$client->on("connect", function () use ($logger, $client, $token) {
     $logger->notice("Connected!");
     $client->send(
         json_encode(
             array(
                 "op" => 2,
                 "d" => array(
-                    "token" => DISCORD_TOKEN,
+                    "token" => $token,
                     "properties" => array(
                         "\$os" => "linux",
                         "\$browser" => "discord.php",
@@ -108,7 +108,6 @@ $client->on("message", function ($message) use ($client, $logger) {
 
             // Bind a few things to vars for the plugins
             $timestamp = $msgData->timestamp;
-            $nonce = $msgData->nonce;
             $id = $msgData->id;
             $content = $msgData->content;
             $channelID = $msgData->channel_id;

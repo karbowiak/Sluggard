@@ -7,7 +7,7 @@
   ],
   "require": {
     "dg/twitter-php": "*",
-    "team-reflex/discord-php": "dev-master",
+    "cleanse/discord-hypertext": "dev-master",
     "devristo/phpws": "dev-master",
     "ratchet/pawl": "dev-master"
   },
