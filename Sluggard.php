@@ -35,11 +35,6 @@ $writer = new Zend\Log\Writer\Stream("php://output");
 $logger->addWriter($writer);
 $client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
 
-// Runtime vars
-$startTime = time();
-$heartbeatInterval = 0;
-$authed = false;
-
 // Keep alive timer (Default to 30 seconds heartbeat interval)
 $loop->addPeriodicTimer(30, function () use ($logger, $client) {
     $logger->info("Sending keepalive");
@@ -83,10 +78,7 @@ $client->on("connect", function () use ($logger, $client, $token) {
     );
 });
 
-$client->on("message", function ($message) use ($client, $logger) {
-    // Nasty, sorry.
-    global $heartbeatInterval, $authed, $plugins;
-
+$client->on("message", function ($message) use ($client, $logger, $plugins) {
     // Decode the data
     $data = json_decode($message->getData());
 
@@ -94,8 +86,9 @@ $client->on("message", function ($message) use ($client, $logger) {
         case "READY":
             $logger->info("Got READY frame");
             $logger->info("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
-            $heartbeatInterval = $data->d->heartbeat_interval / 1000.0;
-            $authed = true;
+            // Can't really use the heartbeat interval for anything, since i can't retroactively change the periodic timers.. but it's usually ~40ish seconds
+            //$heartbeatInterval = $data->d->heartbeat_interval / 1000.0;
+            //$authed = true;
             break;
 
         case "MESSAGE_CREATE":
@@ -109,19 +102,23 @@ $client->on("message", function ($message) use ($client, $logger) {
             $from = $msgData->author->username;
             $fromID = $msgData->author->id;
 
-            try {
-                foreach ($plugins as $plugin)
-                    $plugin->onMessage($content, $channelID); // @todo figure out how to send messages using the new discord library or via websocket
-            } catch (Exception $e) {
-                $logger->err("Error, plugin failed to run: " . $e->getMessage());
-            }
+            foreach ($plugins as $plugin)
+                $plugin->onMessage($content, $channelID);
+
             break;
+
+        case "TYPING_START": // When a person starts typing
+        case "PRESENCE_UPDATE": // When someone logs on/off
+        case "VOICE_STATE_UPDATE": // When someone switches voice channel (should be used for the sound part i guess?)
+        case "CHANNEL_UPDATE": // When a channel gets update
+        case "GUILD_UPDATE": // When the guild (server) gets updated
+            // Ignore them
+            break;
+
         default:
             $logger->err("Unknown case: " . $data->t);
             break;
     }
-    //$logger->notice("Got message: ".$message->getData());
-    //$client->close();
 });
 $client->open()->then(function () use ($logger, $client) {
     $logger->notice("Connection open");
