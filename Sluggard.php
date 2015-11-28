@@ -97,6 +97,10 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
         case "MESSAGE_CREATE":
             $data = $data->d;
 
+            $channelData = $discord->api("channel")->show($data->channel_id);
+            if($channelData["is_private"])
+                $channelData["name"] = $channelData["recipient"]["username"];
+
             $msgData = array(
                 "message" => array(
                     "timestamp" => $data->timestamp,
@@ -106,8 +110,8 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
                     "from" => $data->author->username,
                     "fromID" => $data->author->id,
                 ),
-                "channel" => $discord->api("channel")->show($data->channel_id),
-                "guild" => $discord->api("guild")->show($discord->api("channel")->show($data->channel_id)["guild_id"])
+                "channel" => $channelData,
+                "guild" => $channelData["is_private"] ? array("name" => "private conversation") : $discord->api("guild")->show($channelData["guild_id"])
             );
 
             foreach ($plugins as $plugin)
