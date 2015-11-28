@@ -18,7 +18,7 @@ class priceChecks
         return array(
             "name" => "priceCheck",
             "trigger" => array("pc", "jita", "amarr", "rens", "hek", "dodixie"),
-            "information" => "This is a price fetcher for EVE, you can use !pc for the global market or jita, rens, amarr, dodixie and hek for specific trade hubs. eg: !jita raven"
+            "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
         );
     }
 

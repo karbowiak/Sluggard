@@ -97,34 +97,50 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
         case "MESSAGE_CREATE":
             $data = $data->d;
 
+            // Create the data array for the plugins to use
             $channelData = $discord->api("channel")->show($data->channel_id);
             if($channelData["is_private"])
                 $channelData["name"] = $channelData["recipient"]["username"];
 
             $msgData = array(
                 "message" => array(
+                    "lastSeen" => null, // Fix functions for this
+                    "lastSpoke" => null, // Fix functions for this
                     "timestamp" => $data->timestamp,
                     "id" => $data->id,
                     "message" => $data->content,
                     "channelID" => $data->channel_id,
                     "from" => $data->author->username,
                     "fromID" => $data->author->id,
+                    "fromDiscriminator" => $data->author->discriminator,
+                    "fromAvatar" => $data->author->avatar
                 ),
                 "channel" => $channelData,
                 "guild" => $channelData["is_private"] ? array("name" => "private conversation") : $discord->api("guild")->show($channelData["guild_id"])
             );
 
+            // Update the users status
+            dbExecute("INSERT INTO users (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastSpoke = :lastSpoke, lastWritten = :lastWritten", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
+
+            // Run the plugins
             foreach ($plugins as $plugin)
                 $plugin->onMessage($msgData);
 
             break;
 
         case "TYPING_START": // When a person starts typing
-        case "PRESENCE_UPDATE": // When someone logs on/off
         case "VOICE_STATE_UPDATE": // When someone switches voice channel (should be used for the sound part i guess?)
         case "CHANNEL_UPDATE": // When a channel gets update
         case "GUILD_UPDATE": // When the guild (server) gets updated
             // Ignore them
+            break;
+
+        case "PRESENCE_UPDATE": // Update a users status
+            $id = $data->d->user->id;
+            $lastSeen = date("Y-m-d H:i:s");
+            $lastStatus = $data->d->status;
+            $name = $discord->api("user")->show($id)["username"];
+            dbExecute("INSERT INTO users (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastStatus = :lastStatus", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
             break;
 
         default:
