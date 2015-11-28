@@ -11,6 +11,5 @@ $config["database"] = array(
 
 $config["discord"] = array(
     "email" => "",
-    "password" => "",
-    "guilds" => array()
+    "password" => ""
 );

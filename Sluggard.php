@@ -1,5 +1,8 @@
 <?php
 
+// Just incase we get launched from somewhere else
+chdir(__DIR__);
+
 // Require the vendor stuff
 require_once(__DIR__ . "/vendor/autoload.php");
 
