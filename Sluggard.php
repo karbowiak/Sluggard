@@ -94,7 +94,6 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
         case "MESSAGE_CREATE":
             $data = $data->d;
 
-            // Bind a few things to vars for the plugins
             $msgData = array(
                 "message" => array(
                     "timestamp" => $data->timestamp,
