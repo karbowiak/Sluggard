@@ -115,8 +115,12 @@ $client->on("message", function ($message) use ($client, $logger) {
             $from = $msgData->author->username;
             $fromID = $msgData->author->id;
 
-            foreach($plugins as $plugin)
-                $plugin->onMessage($content, $channelID); // @todo figure out how to send messages using the new discord library or via websocket
+            try {
+                foreach ($plugins as $plugin)
+                    $plugin->onMessage($content, $channelID); // @todo figure out how to send messages using the new discord library or via websocket
+            } catch (Exception $e) {
+                $logger->err("Error, plugin failed to run: " . $e->getMessage());
+            }
             break;
         default:
             $logger->err("Unknown case: " . $data->t);
