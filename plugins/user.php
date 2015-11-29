@@ -26,8 +26,10 @@ class user
 
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
+            $user = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
+
             // Get data for user
-            $userData = dbQueryRow("SELECT * FROM users WHERE name = :name", array(":name" => $data["messageString"]));
+            $userData = dbQueryRow("SELECT * FROM users WHERE (name = :name OR id = :name)", array(":name" => $user));
 
             if ($userData) {
                 $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
