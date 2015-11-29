@@ -25,7 +25,7 @@ class corporationmails
     /**
      * @var
      */
-    var $toCorporationID;
+    var $toIDs;
     /**
      * @var
      */
@@ -61,7 +61,7 @@ class corporationmails
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $this->toCorporationID = 98047305; // 4M-Corp
+        $this->toIDs = array(98047305, 99005805); // 4M-Corp and The-Culture
         $this->toDiscordChannel = 120639051261804544; // Corpmails channel
         $this->newestMailID = getPermCache("newestCorpMailID");
         $this->maxID = 0;
@@ -89,7 +89,7 @@ class corporationmails
 
             foreach($mails as $mail)
             {
-                if($mail["toCorpOrAllianceID"] == $this->toCorporationID && $mail["messageID"] > $this->newestMailID) {
+                if(in_array($mail["toCorpOrAllianceID"], $this->toIDs) && $mail["messageID"] > $this->newestMailID) {
                     $sentBy = $mail["senderName"];
                     $title = $mail["title"];
                     $sentDate = $mail["sentDate"];
