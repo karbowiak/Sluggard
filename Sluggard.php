@@ -94,7 +94,6 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             //$authed = true;
             break;
 
-        case "MESSAGE_UPDATE":
         case "MESSAGE_CREATE":
             $data = $data->d;
 
@@ -135,6 +134,8 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
         case "CHANNEL_UPDATE": // When a channel gets update
         case "GUILD_UPDATE": // When the guild (server) gets updated
         case "GUILD_ROLE_UPDATE": // a role was updated in the guild
+        case "MESSAGE_UPDATE": // a message gets updated, ignore it for now
+            $logger->info("Ignoring: " . $data->t);
             // Ignore them
             break;
 

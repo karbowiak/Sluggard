@@ -17,7 +17,7 @@ class time
     {
         return array(
             "name" => "time",
-            "trigger" => array("time"),
+            "trigger" => array("!time"),
             "information" => "This shows the time for various timezones compared to EVE Time"
         );
     }
@@ -34,7 +34,8 @@ class time
         $guildName = $msgData["guild"]["name"];
         $channelID = $msgData["message"]["channelID"];
 
-        if (stringStartsWith($message, "!time")) {
+        $data = command($message, $this->information()["trigger"]);
+        if (isset($data["trigger"])) {
             $date = date("d-m-Y");
             $fullDate = date("Y-m-d H:i:s");
             $datetime = new DateTime($fullDate);

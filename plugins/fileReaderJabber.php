@@ -36,7 +36,7 @@ class fileReaderJabber
                 $message = "";
                 foreach($data as $row)
                 {
-                    $row = str_replace("\n", "", str_replace("\r", "", $row));
+                    $row = str_replace("\n", "", str_replace("\r", "", str_replace("^@", "", $row)));
                     $channelID = 119136919346085888; // Pings channel on discord
                     if($row == "" || $row == " ")
                         continue;

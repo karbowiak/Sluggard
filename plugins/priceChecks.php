@@ -17,7 +17,7 @@ class priceChecks
     {
         return array(
             "name" => "priceCheck",
-            "trigger" => array("pc", "jita", "amarr", "rens", "hek", "dodixie"),
+            "trigger" => array("!pc", "!jita", "!amarr", "!rens", "!hek", "!dodixie"),
             "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
         );
     }
@@ -35,11 +35,10 @@ class priceChecks
         $guildName = $msgData["guild"]["name"];
         $channelID = $msgData["message"]["channelID"];
 
-        if (stringStartsWith($message, "!pc") || stringStartsWith($message, "!jita") || stringStartsWith($message, "!rens") || stringStartsWith($message, "!amarr") || stringStartsWith($message, "!dodixie") || stringStartsWith($message, "!hek")) {
-            $d = explode(" ", $message);
-            $systemName = strtolower(str_replace("!", "", trim($d[0])));
-            unset($d[0]);
-            $itemName = implode(" ", $d);
+        $data = command($message, $this->information()["trigger"]);
+        if (isset($data["trigger"])) {
+            $systemName = $data["trigger"];
+            $itemName = $data["messageString"];
             $typeID = null;
             $typeName = null;
             $continue = false;
