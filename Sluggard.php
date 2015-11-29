@@ -15,7 +15,7 @@ else
 // Init the discord library
 $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
 $token = $discord->token["token"];
-$gateway = $discord->api("gateway")->show()["url"] . "/";
+$gateway = $discord->api("gateway")->show()["url"] . "/"; // need to end in / for it to not whine about it.. *sigh*
 
 // Setup the webscoket connection
 $loop = \React\EventLoop\Factory::create();
