@@ -79,7 +79,7 @@ class time
         return array(
             "name" => "time",
             "trigger" => array("!time"),
-            "information" => "This shows the time for various timezones compared to EVE Time"
+            "information" => "This shows the time for various timezones compared to EVE Time. Example: **!time**"
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-class userInfo
+class user
 {
     var $config;
     var $discord;
@@ -41,9 +41,9 @@ class userInfo
     function information()
     {
         return array(
-            "name" => "userInfo",
+            "name" => "user",
             "trigger" => array("!user"),
-            "information" => "Shows information on a user"
+            "information" => "Shows Discord information on a user. Example: **!user Karbowiak**"
         );
     }
 }

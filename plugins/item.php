@@ -73,9 +73,9 @@ class item
     function information()
     {
         return array(
-            "name" => "itemInformation",
+            "name" => "item",
             "trigger" => array("!item"),
-            "information" => "Shows information on an item by name or id"
+            "information" => "Shows information on an item by name or id. Example: **!item raven** or **!item 638**"
         );
     }
 }

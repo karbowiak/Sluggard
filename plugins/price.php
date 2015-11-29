@@ -3,7 +3,7 @@
 /**
  * Class priceChecks
  */
-class priceChecks
+class price
 {
     /**
      * @var
@@ -123,9 +123,9 @@ class priceChecks
     function information()
     {
         return array(
-            "name" => "priceCheck",
+            "name" => "price",
             "trigger" => $this->triggers,
-            "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
+            "information" => "Shows price information for items in EVE. Global prefix: **!pc** System prefix: **!jita** (Replace jita with any system name in EVE) Example: **!pc raven** or **!jita raven**"
         );
     }
 }
