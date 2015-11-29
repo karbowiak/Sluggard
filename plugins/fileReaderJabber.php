@@ -1,22 +1,48 @@
 <?php
 
+/**
+ * Class fileReaderJabber
+ */
 class fileReaderJabber
 {
+    /**
+     * @var
+     */
     var $config;
+    /**
+     * @var
+     */
     var $discord;
+    /**
+     * @var string
+     */
     var $db = "/tmp/discord.db";
+    /**
+     * @var int
+     */
     var $lastCheck = 0;
+    /**
+     * @var
+     */
     var $logger;
 
+    /**
+     * @param $config
+     * @param $discord
+     * @param $logger
+     */
     function init($config, $discord, $logger)
     {
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        if(!is_file($this->db))
+        if (!is_file($this->db))
             touch($this->db);
     }
 
+    /**
+     * @return array
+     */
     function information()
     {
         return array(
@@ -26,19 +52,19 @@ class fileReaderJabber
         );
     }
 
+    /**
+     *
+     */
     function tick()
     {
-        if(filemtime($this->db) >= $this->lastCheck)
-        {
+        if (filemtime($this->db) >= $this->lastCheck) {
             $data = file($this->db);
-            if($data)
-            {
+            if ($data) {
                 $message = "";
-                foreach($data as $row)
-                {
+                foreach ($data as $row) {
                     $row = str_replace("\n", "", str_replace("\r", "", str_replace("^@", "", $row)));
                     $channelID = 119136919346085888; // Pings channel on discord
-                    if($row == "" || $row == " ")
+                    if ($row == "" || $row == " ")
                         continue;
 
                     $message .= $row . " | ";
@@ -59,6 +85,9 @@ class fileReaderJabber
         $this->lastCheck = time();
     }
 
+    /**
+     * @param $msgData
+     */
     function onMessage($msgData)
     {
     }

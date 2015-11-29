@@ -13,15 +13,6 @@ class userInfo
         $this->logger = $logger;
     }
 
-    function information()
-    {
-        return array(
-            "name" => "userInfo",
-            "trigger" => array("!user"),
-            "information" => "Shows information on a user"
-        );
-    }
-
     function tick()
     {
     }
@@ -38,14 +29,21 @@ class userInfo
             // Get data for user
             $userData = dbQueryRow("SELECT * FROM users WHERE name = :name", array(":name" => $data["messageString"]));
 
-
-            if($userData) {
+            if ($userData) {
                 $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
                 $this->logger->info("Sending userInfo info to {$channelName} on {$guildName}");
                 $this->discord->api("channel")->messages()->create($channelID, $message);
-            }
-            else
+            } else
                 $this->discord->api("channel")->messages()->create($channelID, "**Error:** no such user in the users table.");
         }
+    }
+
+    function information()
+    {
+        return array(
+            "name" => "userInfo",
+            "trigger" => array("!user"),
+            "information" => "Shows information on a user"
+        );
     }
 }

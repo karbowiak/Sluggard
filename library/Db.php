@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @return null|PDO
+ */
 function openDB()
 {
     global $config;

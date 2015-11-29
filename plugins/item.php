@@ -1,6 +1,9 @@
 <?php
 
-class <>
+/**
+ * Class item
+ */
+class item
 {
     /**
      * @var
@@ -46,12 +49,21 @@ class <>
 
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
-            $trigger = $data["trigger"];
-            $messageArray = $data["messageArray"];
-            $messageString = $data["messageString"];
+            $item = $data["messageString"];
 
-            //$this->logger->info("Sending <> info to {$channelName} on {$guildName}");
-            //$this->discord->api("channel")->messages()->create($channelID, $msg);
+            if (is_numeric($item))
+                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeID = :item", array(":item" => $item));
+            else
+                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeName = :item", array(":item" => $item));
+
+            if ($data) {
+                $msg = "```";
+                foreach ($data as $key => $value)
+                    $msg .= $key . ": " . $value . "\n";
+                $msg .= "```";
+                $this->logger->info("Sending item information info to {$channelName} on {$guildName}");
+                $this->discord->api("channel")->messages()->create($channelID, $msg);
+            }
         }
     }
 
@@ -61,9 +73,9 @@ class <>
     function information()
     {
         return array(
-            "name" => "",
-            "trigger" => array(""),
-            "information" => ""
+            "name" => "itemInformation",
+            "trigger" => array("!item"),
+            "information" => "Shows information on an item by name or id"
         );
     }
 }

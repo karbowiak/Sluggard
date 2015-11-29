@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * Class time
+ */
 class time
 {
+    /**
+     * @var
+     */
     var $config;
+    /**
+     * @var
+     */
     var $discord;
+    /**
+     * @var
+     */
     var $logger;
 
+    /**
+     * @param $config
+     * @param $discord
+     * @param $logger
+     */
     function init($config, $discord, $logger)
     {
         $this->config = $config;
@@ -13,20 +30,17 @@ class time
         $this->logger = $logger;
     }
 
-    function information()
-    {
-        return array(
-            "name" => "time",
-            "trigger" => array("!time"),
-            "information" => "This shows the time for various timezones compared to EVE Time"
-        );
-    }
-
+    /**
+     *
+     */
     function tick()
     {
 
     }
 
+    /**
+     * @param $msgData
+     */
     function onMessage($msgData)
     {
         $message = $msgData["message"]["message"];
@@ -55,5 +69,17 @@ class time
             $this->logger->info("Sending time info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, "**EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
         }
+    }
+
+    /**
+     * @return array
+     */
+    function information()
+    {
+        return array(
+            "name" => "time",
+            "trigger" => array("!time"),
+            "information" => "This shows the time for various timezones compared to EVE Time"
+        );
     }
 }

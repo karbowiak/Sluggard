@@ -1,18 +1,10 @@
 <?php
 
-function stringEndsWith($whole, $end)
-{
-    return @(strpos($whole, $end, strlen($whole) - strlen($end)) !== false);
-}
-
-function stringStartsWith($whole, $end)
-{
-    if (substr($whole, 0, strlen($end)) == $end) {
-        return true;
-    }
-    return false;
-}
-
+/**
+ * @param $message
+ * @param $trigger
+ * @return array|bool
+ */
 function command($message, $trigger)
 {
     foreach ($trigger as $trig) {

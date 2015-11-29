@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * Class priceChecks
+ */
 class priceChecks
 {
+    /**
+     * @var
+     */
     var $config;
+    /**
+     * @var
+     */
     var $discord;
+    /**
+     * @var
+     */
     var $logger;
 
+    /**
+     * @param $config
+     * @param $discord
+     * @param $logger
+     */
     function init($config, $discord, $logger)
     {
         $this->config = $config;
@@ -13,20 +30,17 @@ class priceChecks
         $this->logger = $logger;
     }
 
-    function information()
-    {
-        return array(
-            "name" => "priceCheck",
-            "trigger" => array("!pc", "!jita", "!amarr", "!rens", "!hek", "!dodixie"),
-            "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
-        );
-    }
-
+    /**
+     *
+     */
     function tick()
     {
 
     }
 
+    /**
+     * @param $msgData
+     */
     function onMessage($msgData)
     {
         // Bind a few things to vars for the plugins
@@ -50,8 +64,7 @@ class priceChecks
                 $continue = true;
             }
 
-            if(stristr($itemName, "plex") || stristr($itemName, "30 day"))
-            {
+            if (stristr($itemName, "plex") || stristr($itemName, "30 day")) {
                 $typeID = 29668;
                 $typeName = "30 Day Pilot's License Extension (PLEX)";
                 $continue = true;
@@ -115,5 +128,17 @@ class priceChecks
                 $this->discord->api("channel")->messages()->create($channelID, "{$typeName} ({$place}) - **Buy:** {$buyPrice} ISK / **Sell:** {$sellPrice} ISK");
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    function information()
+    {
+        return array(
+            "name" => "priceCheck",
+            "trigger" => array("!pc", "!jita", "!amarr", "!rens", "!hek", "!dodixie"),
+            "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
+        );
     }
 }

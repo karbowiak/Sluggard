@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @param $url
+ * @return mixed|null
+ */
 function downloadData($url)
 {
     try
