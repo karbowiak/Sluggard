@@ -17,7 +17,8 @@ class priceChecks
      * @var
      */
     var $logger;
-
+    var $solarSystems;
+    var $triggers = array();
     /**
      * @param $config
      * @param $discord
@@ -28,6 +29,12 @@ class priceChecks
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
+        $systems = dbQuery("SELECT solarSystemName, solarSystemID FROM mapSolarSystems");
+        foreach($systems as $system) {
+            $this->solarSystems[strtolower($system["solarSystemName"])] = $system["solarSystemID"];
+            $this->triggers[] = "!" . strtolower($system["solarSystemName"]);
+        }
+        $this->triggers[] = "!pc";
     }
 
     /**
@@ -49,7 +56,7 @@ class priceChecks
         $guildName = $msgData["guild"]["name"];
         $channelID = $msgData["message"]["channelID"];
 
-        $data = command($message, $this->information()["trigger"]);
+        $data = command(strtolower($message), $this->information()["trigger"]);
         if (isset($data["trigger"])) {
             $systemName = $data["trigger"];
             $itemName = $data["messageString"];
@@ -89,29 +96,9 @@ class priceChecks
                 }
             }
 
-            switch ($systemName) {
-                case "jita":
-                    $systemID = "30000142";
-                    break;
-                case "amarr":
-                    $systemID = "30002187";
-                    break;
-                case "rens":
-                    $systemID = "30002510";
-                    break;
-                case "dodixie":
-                    $systemID = "30002659";
-                    break;
-                case "hek":
-                    $systemID = "30002053";
-                    break;
-                default:
-                    $systemID = null;
-                    break;
-            }
-
+            $systemID = $systemName == "pc" ? "pc" : $this->solarSystems[$systemName];
             if ($continue == true) {
-                if ($systemID == null)
+                if ($systemID == "pc") // Global search
                     $url = "http://api.eve-central.com/api/marketstat?typeid=" . $typeID;
                 else
                     $url = "http://api.eve-central.com/api/marketstat?usesystem=" . $systemID . "&typeid=" . $typeID;
@@ -137,7 +124,7 @@ class priceChecks
     {
         return array(
             "name" => "priceCheck",
-            "trigger" => array("!pc", "!jita", "!amarr", "!rens", "!hek", "!dodixie"),
+            "trigger" => $this->triggers,
             "information" => "This is a price fetcher for EVE, you can use !pc for the global market or !jita, !rens, !amarr, !dodixie and !hek for specific trade hubs. eg: !jita raven"
         );
     }

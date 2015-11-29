@@ -86,17 +86,16 @@ class twitterOutput
 
                     $url = "https://twitter.com/" . $screenName[0] . "/status/" . $id;
                     $message = array("message" => $text[0], "postedAt" => $createdAt[0], "postedBy" => $postedBy[0], "screenName" => $screenName[0], "url" => $url . $id[0]);
-                    $msg = "**@" . $screenName[0] . "** (" . $message["postedBy"] . ") / " . date("H:i:s", strtotime($message["postedAt"])) . " / " . self::shortenUrl($url) . " / " . htmlspecialchars_decode($message["message"]);
+                    $msg = "**@" . $screenName[0] . "** (" . $message["postedBy"] . ") / " . htmlspecialchars_decode($message["message"]);
                     $messages[$id] = $msg;
 
                     $continue = true;
                 }
-            } catch(Exception $e)
-            {
-                $this->logger->err("**Error:** " . $e->getMessage());
+            } catch (Exception $e) {
+                $this->logger->err("Error: " . $e->getMessage());
             }
 
-            if($continue == true) {
+            if ($continue == true) {
                 ksort($messages);
 
                 foreach ($messages as $id => $msg)
