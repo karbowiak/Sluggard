@@ -77,6 +77,7 @@ class corporationmails
     {
         if($this->lastCheck <= time())
         {
+            $updateMaxID = false;
             $data = json_decode(json_encode(simplexml_load_string(downloadData("https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}"), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
 
@@ -104,13 +105,17 @@ class corporationmails
                     // Send the mails to the channel
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
 
+                    // Find the maxID so we don't spit this message out ever again
                     $this->maxID = max($mail["messageID"], $this->maxID);
                     $this->newestMailID = $mail["messageID"];
+                    $updateMaxID = true;
                 }
             }
 
             // set the maxID
-            setPermCache("newestCorpMailID", $this->maxID);
+            if($updateMaxID)
+                setPermCache("newestCorpMailID", $this->maxID);
+
             // Only run once every 30 minutes
             $this->lastCheck = time() + 1800;
         }
