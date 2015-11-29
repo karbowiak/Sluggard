@@ -73,7 +73,7 @@ class fileReaderJabber
 
                 // Remove |  from the line or whatever else is at the last two characters in the string
                 $message = substr($message, 0, -2);
-                $this->discord->api("channel")->messages()->create($channelID, "@everyone | " . $message);
+                $this->discord->api("channel")->messages()->create($channelID, "@everyone | " . trim($message));
             }
             $h = fopen($this->db, "w+");
             fclose($h);
@@ -89,6 +89,13 @@ class fileReaderJabber
      * @param $msgData
      */
     function onMessage($msgData)
+    {
+    }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
     {
     }
 }

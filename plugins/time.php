@@ -82,4 +82,12 @@ class time
             "information" => "This shows the time for various timezones compared to EVE Time. Example: **!time**"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }

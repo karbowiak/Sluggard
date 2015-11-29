@@ -51,24 +51,19 @@ class help
             $messageArray = $data["messageArray"];
             $messageString = $data["messageString"];
 
-            if(!$messageString)
-            {
+            if (!$messageString) {
                 // Show all modules available
                 $commands = array();
-                foreach($plugins as $plugin)
-                {
+                foreach ($plugins as $plugin) {
                     $info = $plugin->information();
-                    if(!empty($info["name"]))
+                    if (!empty($info["name"]))
                         $commands[] = $info["name"];
                 }
 
                 $this->discord->api("channel")->messages()->create($channelID, "**Error:** No specific plugin requested, here is a list of plugins available: **" . implode("** |  **", $commands) . "**");
-            }
-            else
-            {
-                foreach($plugins as $plugin)
-                {
-                    if($messageString == $plugin->information()["name"]) {
+            } else {
+                foreach ($plugins as $plugin) {
+                    if ($messageString == $plugin->information()["name"]) {
                         $this->discord->api("channel")->messages()->create($channelID, $plugin->information()["information"]);
                     }
                 }
@@ -87,4 +82,12 @@ class help
             "information" => "Shows help for a plugin, or all the plugins available. Example: **!help pc**"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }

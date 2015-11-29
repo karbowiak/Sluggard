@@ -1,4 +1,6 @@
 <?php
+// Enable garbage collection
+gc_enable();
 
 // Just incase we get launched from somewhere else
 chdir(__DIR__);
@@ -58,6 +60,13 @@ $loop->addPeriodicTimer(1, function () use ($logger, $client, $plugins) {
         $plugin->tick();
 });
 
+// Memory reclamation (30 minutes)
+$loop->addPeriodicTimer(1800, function () use ($logger, $client) {
+    $logger->info("Memory in use: " . memory_get_usage() / 1024 / 1024);
+    gc_collect_cycles(); // Collect garbage
+    $logger->info("Memory in use after garbage collection: " . memory_get_usage() / 1024 / 1024);
+});
+
 // Setup the connection handlers
 $client->on("connect", function () use ($logger, $client, $token) {
     $logger->notice("Connected!");
@@ -81,7 +90,7 @@ $client->on("connect", function () use ($logger, $client, $token) {
     );
 });
 
-$client->on("message", function ($message) use ($client, $logger, $discord, $plugins) {
+$client->on("message", function ($message) use ($client, $logger, $discord, $plugins, $config) {
     // Decode the data
     $data = json_decode($message->getData());
 
@@ -95,7 +104,12 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             break;
 
         case "MESSAGE_CREATE":
+            // Map the data to $data, we don't need all the opcodes and whatnots here
             $data = $data->d;
+
+            // Skip if it's the bot itself that wrote something
+            if($data->author->username == $config["bot"]["name"])
+                continue;
 
             // Create the data array for the plugins to use
             $channelData = $discord->api("channel")->show($data->channel_id);
@@ -103,6 +117,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
                 $channelData["name"] = $channelData["recipient"]["username"];
 
             $msgData = array(
+                "isBotOwner" => $data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"] ? true : false,
                 "message" => array(
                     "lastSeen" => dbQueryField("SELECT lastSeen FROM users WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
                     "lastSpoke" => dbQueryField("SELECT lastSpoke FROM users WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
@@ -127,6 +142,9 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             foreach ($plugins as $plugin)
                 $plugin->onMessage($msgData);
 
+            if($data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"])
+                foreach($plugins as $plugin)
+                    $plugin->onMessageAdmin($msgData);
             break;
 
         case "TYPING_START": // When a person starts typing

@@ -11,5 +11,15 @@ $config["database"] = array(
 
 $config["discord"] = array(
     "email" => "",
-    "password" => ""
+    "password" => "",
+    "admin" => "", // The owner of the bot
+    "adminID" => "" // The discordID of the owner of the bot
+);
+
+// Twitter
+$config["twitter"] = array(
+    "consumerKey" => "",
+    "consumerSecret" => "",
+    "accessToken" => "",
+    "accessTokenSecret" => ""
 );

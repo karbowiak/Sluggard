@@ -78,4 +78,12 @@ class item
             "information" => "Shows information on an item by name or id. Example: **!item raven** or **!item 638**"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }

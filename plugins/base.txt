@@ -66,4 +66,12 @@ class <>
             "information" => ""
         );
     }
+
+        /**
+         * @param $msgData
+         */
+        function onMessageAdmin($msgData)
+        {
+        }
+
 }

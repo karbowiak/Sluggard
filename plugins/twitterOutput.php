@@ -75,10 +75,6 @@ class twitterOutput
                     $id = (int)$message->id;
                     $this->lastID = getPermCache("twitterLatestID"); // get the last posted ID
 
-                    $twitterName = $this->config["twitter"]["twitterName"];
-                    if ($twitterName == $screenName[0])
-                        continue;
-
                     if ($id <= $this->lastID)
                         continue;
 
@@ -104,7 +100,7 @@ class twitterOutput
                 if (sizeof($data))
                     setPermCache("twitterLatestID", $this->maxID);
             }
-            $this->lastCheck = time() + 60;
+            $this->lastCheck = time() + 90;
         }
     }
 
@@ -135,4 +131,12 @@ class twitterOutput
             "information" => ""
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }

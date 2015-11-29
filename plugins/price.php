@@ -19,6 +19,7 @@ class price
     var $logger;
     var $solarSystems;
     var $triggers = array();
+
     /**
      * @param $config
      * @param $discord
@@ -30,7 +31,7 @@ class price
         $this->discord = $discord;
         $this->logger = $logger;
         $systems = dbQuery("SELECT solarSystemName, solarSystemID FROM mapSolarSystems");
-        foreach($systems as $system) {
+        foreach ($systems as $system) {
             $this->solarSystems[strtolower($system["solarSystemName"])] = $system["solarSystemID"];
             $this->triggers[] = "!" . strtolower($system["solarSystemName"]);
         }
@@ -128,4 +129,12 @@ class price
             "information" => "Shows price information for items in EVE. Global prefix: **!pc** System prefix: **!jita** (Replace jita with any system name in EVE) Example: **!pc raven** or **!jita raven**"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }

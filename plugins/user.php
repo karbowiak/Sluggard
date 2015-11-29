@@ -33,7 +33,7 @@ class user
 
             if ($userData) {
                 $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
-                $this->logger->info("Sending userInfo info to {$channelName} on {$guildName}");
+                $this->logger->info("Sending user info to {$channelName} on {$guildName}");
                 $this->discord->api("channel")->messages()->create($channelID, $message);
             } else
                 $this->discord->api("channel")->messages()->create($channelID, "**Error:** no such user in the users table.");
@@ -48,4 +48,12 @@ class user
             "information" => "Shows Discord information on a user. Example: **!user Karbowiak**"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }
