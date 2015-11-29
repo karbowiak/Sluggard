@@ -31,5 +31,5 @@ $config["twitter"] = array(
 $config["eve"] = array(
     "keyID" => ,
     "vCode" => "",
-    "characterID" => 
+    "characterID" =>
 );

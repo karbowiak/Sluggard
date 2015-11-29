@@ -31,10 +31,25 @@ class corporationmails
      */
     var $toDiscordChannel;
 
+    /**
+     * @var
+     */
     var $newestMailID;
+    /**
+     * @var
+     */
     var $maxID;
+    /**
+     * @var
+     */
     var $apiKeyID;
+    /**
+     * @var
+     */
     var $vCode;
+    /**
+     * @var
+     */
     var $characterID;
     /**
      * @param $config
