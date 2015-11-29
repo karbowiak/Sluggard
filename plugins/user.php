@@ -32,7 +32,7 @@ class user
             $userData = dbQueryRow("SELECT * FROM users WHERE (name = :name OR id = :name)", array(":name" => $user));
 
             if ($userData) {
-                $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
+                $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nisAdmin: {$userData["isAdmin"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
                 $this->logger->info("Sending user info to {$channelName} on {$guildName}");
                 $this->discord->api("channel")->messages()->create($channelID, $message);
             } else
