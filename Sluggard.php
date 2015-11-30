@@ -5,6 +5,9 @@ gc_enable();
 // Just incase we get launched from somewhere else
 chdir(__DIR__);
 
+// When the bot started
+$startTime = time();
+
 // Require the vendor stuff
 require_once(__DIR__ . "/vendor/autoload.php");
 
@@ -62,9 +65,9 @@ $loop->addPeriodicTimer(1, function () use ($logger, $client, $plugins) {
 
 // Memory reclamation (30 minutes)
 $loop->addPeriodicTimer(1800, function () use ($logger, $client) {
-    $logger->info("Memory in use: " . memory_get_usage() / 1024 / 1024);
+    $logger->info("Memory in use: " . memory_get_usage() / 1024 / 1024 . "MB");
     gc_collect_cycles(); // Collect garbage
-    $logger->info("Memory in use after garbage collection: " . memory_get_usage() / 1024 / 1024);
+    $logger->info("Memory in use after garbage collection: " . memory_get_usage() / 1024 / 1024 . "MB");
 });
 
 // Setup the connection handlers

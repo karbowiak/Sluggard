@@ -39,6 +39,11 @@ class about
      */
     function onMessage($msgData)
     {
+        global $startTime; // Get the starttime of the bot
+        $time1 = new DateTime(date("Y-m-d H:i:s", $startTime));
+        $time2 = new DateTime(date("Y-m-d H:i:s"));
+        $interval = $time1->diff($time2);
+
         $message = $msgData["message"]["message"];
         $channelName = $msgData["channel"]["name"];
         $guildName = $msgData["guild"]["name"];
@@ -53,7 +58,10 @@ class about
             $msg .= "Author: Karbowiak (Discord ID: 118440839776174081)\n";
             $msg .= "Library: discord-hypertext (PHP)\n";
             $msg .= "Current version: ``" . $gitRevision["short"]. "`` (Last Update: ``" . $gitRevision["lastChangeDate"] . "``)\n";
-            $msg .= "Github Repo: ``https://github.com/karbowiak/Sluggard``";
+            $msg .= "Github Repo: ``https://github.com/karbowiak/Sluggard``\n\n";
+            $msg .= "**Statistics:**\n";
+            $msg .= "Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Mintues, ".$interval->s." seconds.\n";
+            $msg .= "Memory Usage: ~" . round(memory_get_usage() / 1024 / 1024, 3) . "MB";
 
             $this->logger->info("Sending about info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, $msg);
