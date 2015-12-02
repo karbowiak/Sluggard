@@ -99,8 +99,8 @@ class corporationmails
                     $msg = "**Mail By: **{$sentBy}\n";
                     $msg .= "**Sent Date: **{$sentDate}\n";
                     $msg .= "**Title: ** {$title}\n";
-                    $msg .= "**Content: **\n\n";
-                    $msg .= $content;
+                    $msg .= "**Content: **\n";
+                    $msg .= htmlspecialchars_decode(trim($content));
 
                     // Send the mails to the channel
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
