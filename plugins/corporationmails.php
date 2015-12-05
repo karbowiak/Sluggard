@@ -78,7 +78,8 @@ class corporationmails
         if($this->lastCheck <= time())
         {
             $updateMaxID = false;
-            $data = json_decode(json_encode(simplexml_load_string(downloadData("https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}"), "SimpleXMLElement", LIBXML_NOCDATA)), true);
+            $url = "https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}";
+            $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
 
             $mails = array();
@@ -93,7 +94,8 @@ class corporationmails
                     $sentBy = $mail["senderName"];
                     $title = $mail["title"];
                     $sentDate = $mail["sentDate"];
-                    $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string(downloadData("https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}&ids=" . $mail["messageID"]), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
+                    $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}&ids=" . $mail["messageID"];
+                    $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
 
                     // Stitch the mail together
                     $msg = "**Mail By: **{$sentBy}\n";

@@ -122,8 +122,8 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             $msgData = array(
                 "isBotOwner" => $data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"] ? true : false,
                 "message" => array(
-                    "lastSeen" => dbQueryField("SELECT lastSeen FROM users WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
-                    "lastSpoke" => dbQueryField("SELECT lastSpoke FROM users WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
+                    "lastSeen" => dbQueryField("SELECT lastSeen FROM discordUsersSeen WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
+                    "lastSpoke" => dbQueryField("SELECT lastSpoke FROM discordUsersSeen WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
                     "timestamp" => $data->timestamp,
                     "id" => $data->id,
                     "message" => $data->content,
@@ -165,7 +165,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
                 $lastSeen = date("Y-m-d H:i:s");
                 $lastStatus = $data->d->status;
                 $name = $discord->api("user")->show($id)["username"];
-                dbExecute("INSERT INTO users (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastStatus = :lastStatus", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
+                dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastStatus = :lastStatus", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
             }
             break;
 
