@@ -59,7 +59,7 @@ class auth
             $guildData = $this->discord->api("guild")->show($guildID);
             $userData = dbQueryRow("SELECT * FROM discordUsers WHERE authString = :authString", array(":authString" => $messageString));
             dbExecute("UPDATE discordUsers SET discordID = :discordID WHERE authString = :authString", array(":discordID" => $userID, ":authString" => $messageString));
-            $corporationName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :corporationID", "corporationName", array(":corporationID" => $userData["corporationID"]));;
+            $corporationName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :corporationID", "corporationName", array(":corporationID" => $userData["corporationID"]));
             $allianceName = $userData["allianceID"] ? dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :allianceID", "allianceName", array(":allianceID" => $userData["allianceID"])) : null;
 
             // Is it the first guy registered on the entire server?

@@ -19,7 +19,7 @@ else
 
 // Init the discord library
 $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
-$token = $discord->token["token"];
+$token = $discord->token();
 $gateway = $discord->api("gateway")->show()["url"] . "/"; // need to end in / for it to not whine about it.. *sigh*
 
 // Setup the webscoket connection
@@ -139,6 +139,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 
             // Update the users status
             if($data->author->id)
+		dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastSpoke = :lastSpoke, lastWritten = :lastWritten", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
 
             // Run the plugins
             foreach ($plugins as $plugin)
