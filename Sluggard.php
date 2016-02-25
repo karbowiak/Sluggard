@@ -139,7 +139,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 
             // Update the users status
             if($data->author->id)
-		dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastSpoke = :lastSpoke, lastWritten = :lastWritten", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
+		        dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastSpoke = :lastSpoke, lastWritten = :lastWritten", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
 
             // Run the plugins
             foreach ($plugins as $plugin)
@@ -175,7 +175,9 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             break;
     }
 });
+
 $client->open()->then(function () use ($logger, $client) {
     $logger->notice("Connection open");
 });
+
 $loop->run();

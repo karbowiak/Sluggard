@@ -28,7 +28,7 @@ function downloadData($url)
     }
     catch(Exception $e)
     {
-        var_dump("Error: " . $e->getMessage());
+        var_dump("cURL Error: " . $e->getMessage());
         return null;
     }
 }
