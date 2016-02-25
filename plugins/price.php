@@ -30,12 +30,7 @@ class price
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $systems = dbQuery("SELECT solarSystemName, solarSystemID FROM mapSolarSystems");
-        foreach ($systems as $system) {
-            $this->solarSystems[strtolower($system["solarSystemName"])] = $system["solarSystemID"];
-            $this->triggers[] = "!" . strtolower($system["solarSystemName"]);
-        }
-        $this->triggers[] = "!pc";
+        $this->triggers = array("!pc", "!jita");
     }
 
     /**
@@ -57,63 +52,64 @@ class price
         $guildName = $msgData["guild"]["name"];
         $channelID = $msgData["message"]["channelID"];
 
+        // Quick Lookups
+        $quickLookUps = array(
+            "plex" => array(
+                "typeID" => 29668,
+                "typeName" => "30 Day Pilot's License Extension (PLEX)"
+            ),
+            "30 day" => array(
+                "typeID" => 29668,
+                "typeName" => "30 Day Pilot's License Extension (PLEX)"
+            )
+        );
+
         $data = command(strtolower($message), $this->information()["trigger"]);
         if (isset($data["trigger"])) {
             $systemName = $data["trigger"];
             $itemName = $data["messageString"];
-            $typeID = null;
-            $typeName = null;
-            $continue = false;
 
-            $data = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item", array(":item" => $itemName));
-            if (count($data) != null) {
-                $typeID = $data["typeID"];
-                $typeName = $data["typeName"];
-                $continue = true;
+            $single = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item", array(":item" => $itemName));
+            $multiple = dbQuery("SELECT typeID, typeName FROM invTypes WHERE typeName LIKE :item LIMIT 5", array(":item" => "%" . $itemName . "%"));
+
+            // Quick lookups
+            if(isset($quickLookUps[$itemName]))
+                $single = $quickLookUps[$itemName];
+
+            // Sometimes the multiple lookup is returning just one
+            if(count($multiple) == 1)
+                $single = $multiple[0];
+
+            // If there are multiple results, and not a single result, it's an error
+            if(empty($single) && !empty($multiple)) {
+                $items = array();
+                foreach($multiple as $item)
+                    $items[] = $item["typeName"];
+
+                $items = implode(", ", $items);
+                $this->discord->api("channel")->messages()->create($channelID, "**Price Error:** Multiple results found: {$items}");
             }
 
-            if (stristr($itemName, "plex") || stristr($itemName, "30 day")) {
-                $typeID = 29668;
-                $typeName = "30 Day Pilot's License Extension (PLEX)";
-                $continue = true;
-            }
+            // If there is a single result, we'll get data now!
+            if($single) {
+                $typeID = $single["typeID"];
+                $typeName = $single["typeName"];
 
-            if ($typeID == null) {
-                $itemNames = dbQuery("SELECT typeName FROM invTypes WHERE typeName LIKE :item LIMIT 5", array(":item" => "%" . $itemName . "%"));
-                if (count($itemNames) == 0) {
-                    $this->discord->api("channel")->messages()->create($channelID, "**Error:** No results found");
-                } elseif (count($itemNames) == 1) {
-                    $data = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item", array(":item" => $itemNames[0]["typeName"]));
-                    $typeID = $data["typeID"];
-                    $typeName = $data["typeName"];
-                    $continue = true;
-                } else {
-                    $items = array();
-                    foreach ($itemNames as $itm)
-                        $items[] = $itm["typeName"];
-
-                    $items = implode(", ", $items);
-                    $this->discord->api("channel")->messages()->create($channelID, "**Error:** Multiple results found: {$items}");
-                }
-            }
-
-            $systemID = $systemName == "pc" ? "pc" : $this->solarSystems[$systemName];
-            if ($continue == true) {
-                if ($systemID == "pc") // Global search
-                    $url = "http://api.eve-central.com/api/marketstat?typeid=" . $typeID;
-                else
-                    $url = "http://api.eve-central.com/api/marketstat?usesystem=" . $systemID . "&typeid=" . $typeID;
-
-                $xml = downloadData($url);
-                $data = new SimpleXMLElement($xml);
-                $buyPrice = number_format((float)$data->marketstat->type->buy->max, 2, ".", ",");
-                $sellPrice = number_format((float)$data->marketstat->type->sell->min, 2, ".", ",");
-                $place = "Global";
-                if ($systemName != "pc")
-                    $place = ucfirst($systemName);
-
+                // Get pricing data
+                $priceData = dbQueryRow("SELECT avgSell, avgBuy, lowSell, lowBuy, highSell, highBuy, created FROM invPrices WHERE typeID = :typeID AND avgSell != 0 ORDER BY created DESC", array(":typeID" => $typeID));
+                $lowBuy = number_format($priceData["lowBuy"], 2);
+                $avgBuy = number_format($priceData["avgBuy"], 2);
+                $highBuy = number_format($priceData["highBuy"], 2);
+                $lowSell = number_format($priceData["lowSell"], 2);
+                $avgSell = number_format($priceData["avgSell"], 2);
+                $highSell = number_format($priceData["highSell"], 2);
+                $fromDate = $priceData["created"];
                 $this->logger->info("Sending pricing info to {$channelName} on {$guildName}");
-                $this->discord->api("channel")->messages()->create($channelID, "{$typeName} ({$place}) - **Buy:** {$buyPrice} ISK / **Sell:** {$sellPrice} ISK");
+                $messageData = "{$typeName} (Jita / {$fromDate}) - **Buy:** (Avg: {$avgBuy} / High: {$highBuy}) / **Sell:** (Low: {$lowSell} / Avg: {$avgSell})";
+                $this->discord->api("channel")->messages()->create($channelID, $messageData);
+            }
+            else {
+                $this->discord->api("channel")->messages()->create($channelID, "**Price Error:** No item found");
             }
         }
     }
@@ -126,7 +122,7 @@ class price
         return array(
             "name" => "price",
             "trigger" => $this->triggers,
-            "information" => "Shows price information for items in EVE. Global prefix: **!pc** System prefix: **!jita** (Replace jita with any system name in EVE) Example: **!pc raven** or **!jita raven**"
+            "information" => "Shows price information for items in EVE. Example: **!pc raven**"
         );
     }
 
