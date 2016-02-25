@@ -17,11 +17,10 @@ class corporationmails
      * @var
      */
     var $logger;
-
     /**
      * @var
      */
-    var $lastCheck;
+    var $nextCheck;
     /**
      * @var
      */
@@ -42,15 +41,12 @@ class corporationmails
     /**
      * @var
      */
-    var $apiKeyID;
+    var $keyCount;
     /**
      * @var
      */
-    var $vCode;
-    /**
-     * @var
-     */
-    var $characterID;
+    var $keys;
+
     /**
      * @param $config
      * @param $discord
@@ -65,9 +61,9 @@ class corporationmails
         $this->toDiscordChannel = 120639051261804544; // Corpmails channel
         $this->newestMailID = getPermCache("newestCorpMailID");
         $this->maxID = 0;
-        $this->apiKeyID = $config["eve"]["keyID"];
-        $this->vCode = $config["eve"]["vCode"];
-        $this->characterID = $config["eve"]["characterID"];
+        $this->keyCount = count($config["eve"]["apiKeys"]);
+        $this->keys = $config["eve"]["apiKeys"];
+        $this->nextCheck = 0;
     }
 
     /**
@@ -75,10 +71,34 @@ class corporationmails
      */
     function tick()
     {
-        if($this->lastCheck <= time())
+        if($this->nextCheck <= time())
         {
+            $check = true;
+            foreach ($this->keys as $keyOwner => $api) {
+                if($check == false)
+                    continue;
+
+                $keyID = $api["keyID"];
+                $vCode = $api["vCode"];
+                $characterID = $api["characterID"];
+                $lastChecked = getPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
+
+                if($lastChecked <= time()) {
+                    $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
+                    $this->checkMails($keyID, $vCode, $characterID);
+                    $check = false;
+                }
+
+                setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1800); // Reschedule it's check for 30minutes from now
+                $this->nextCheck = time() + (1800 / $this->keyCount); // Next check is in 1800 seconds divided by the amount of keys
+            }
+        }
+    }
+
+    function checkMails($keyID, $vCode, $characterID)
+    {
             $updateMaxID = false;
-            $url = "https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}";
+            $url = "https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
             $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
 
@@ -94,7 +114,7 @@ class corporationmails
                     $sentBy = $mail["senderName"];
                     $title = $mail["title"];
                     $sentDate = $mail["sentDate"];
-                    $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$this->apiKeyID}&vCode={$this->vCode}&characterID={$this->characterID}&ids=" . $mail["messageID"];
+                    $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&ids=" . $mail["messageID"];
                     $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
 
                     // Stitch the mail together
@@ -117,10 +137,6 @@ class corporationmails
             // set the maxID
             if($updateMaxID)
                 setPermCache("newestCorpMailID", $this->maxID);
-
-            // Only run once every 30 minutes
-            $this->lastCheck = time() + 1800;
-        }
     }
 
     /**
