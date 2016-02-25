@@ -88,7 +88,7 @@ class twitterOutput
                     $continue = true;
                 }
             } catch (Exception $e) {
-                $this->logger->err("Error: " . $e->getMessage());
+                //$this->logger->err("Twitter Error: " . $e->getMessage()); // Don't show there was an error, it's most likely just a rate limit
             }
 
             if ($continue == true) {
@@ -100,7 +100,7 @@ class twitterOutput
                 if (sizeof($data))
                     setPermCache("twitterLatestID", $this->maxID);
             }
-            $this->lastCheck = time() + 90;
+            $this->lastCheck = time() + 95;
         }
     }
 

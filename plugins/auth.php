@@ -54,7 +54,7 @@ class auth
             $guildID = dbQueryField("SELECT serverID FROM discordUsers WHERE authString = :authString", "serverID", array(":authString" => $messageString));
 
             if(!$guildID)
-                return $this->discord->api("channel")->messages()->create($channelID, "**Error:** There is no user with that authentication string on this server.");
+                return $this->discord->api("channel")->messages()->create($channelID, "**Auth Error:** There is no user with that authentication string on this server.");
 
             $guildData = $this->discord->api("guild")->show($guildID);
             $userData = dbQueryRow("SELECT * FROM discordUsers WHERE authString = :authString", array(":authString" => $messageString));
@@ -89,7 +89,7 @@ class auth
         return array(
             "name" => "auth",
             "trigger" => array("!auth"),
-            "information" => "Authenticates a person again Rena's Discord manager"
+            "information" => "Authenticates a person against Rena's Discord manager"
         );
     }
 

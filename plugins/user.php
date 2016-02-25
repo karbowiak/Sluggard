@@ -36,7 +36,7 @@ class user
                 $this->logger->info("Sending user info to {$channelName} on {$guildName}");
                 $this->discord->api("channel")->messages()->create($channelID, $message);
             } else
-                $this->discord->api("channel")->messages()->create($channelID, "**Error:** no such user in the users table.");
+                $this->discord->api("channel")->messages()->create($channelID, "**User Error:** no such user in the users table.");
         }
     }
 

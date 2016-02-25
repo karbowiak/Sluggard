@@ -57,13 +57,16 @@ class fileReaderJabber
      */
     function tick()
     {
+        $pings = 119136919346085888; // Pings channel on discord
+        $intel = 149918425018400768; // Intel channel on discord
+        $blackops = 149925578135306240; // Blackops channel on discord
+
         if (filemtime($this->db) >= $this->lastCheck) {
             $data = file($this->db);
             if ($data) {
                 $message = "";
                 foreach ($data as $row) {
                     $row = str_replace("\n", "", str_replace("\r", "", str_replace("^@", "", $row)));
-                    $channelID = 119136919346085888; // Pings channel on discord
                     if ($row == "" || $row == " ")
                         continue;
 
@@ -72,8 +75,20 @@ class fileReaderJabber
                 }
 
                 // Remove |  from the line or whatever else is at the last two characters in the string
-                $message = substr($message, 0, -2);
-                $this->discord->api("channel")->messages()->create($channelID, "@everyone | " . trim($message));
+                $message = trim(substr($message, 0, -2));
+
+	        if(stristr("blops")) {
+			$channelID = $blackops;
+			$message = "@everyone | " . $message;
+		}
+		elseif(stristr("intel")) {
+			$channelID = $intel;
+		}
+		else {
+			$channelID = $pings;
+			$message = "@everyone | " . $message;
+		}
+                $this->discord->api("channel")->messages()->create($channelID, $message);
             }
             $h = fopen($this->db, "w+");
             fclose($h);
