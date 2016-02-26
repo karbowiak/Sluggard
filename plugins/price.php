@@ -109,7 +109,7 @@ class price
                 $this->discord->api("channel")->messages()->create($channelID, $messageData);
             }
             else {
-                $this->discord->api("channel")->messages()->create($channelID, "**Price Error:** No item found");
+                $this->discord->api("channel")->messages()->create($channelID, "**Error:** ***{$itemName}*** not found");
             }
         }
     }
