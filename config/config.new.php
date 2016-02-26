@@ -29,7 +29,16 @@ $config["twitter"] = array(
 );
 
 $config["eve"] = array(
-    "keyID" => ,
-    "vCode" => "",
-    "characterID" =>
+    "apiKeys" => array(
+        "user1" => array(
+            "keyID" => ,
+            "vCode" => "",
+            "characterID" =>
+        ),
+        "user2" => array(
+            "keyID" => ,
+            "vCode" => "",
+            "characterID" =>
+        )
+    )
 );
