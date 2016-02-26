@@ -49,5 +49,5 @@ function updateCCPData($logger) {
         }
     }
     else
-        $logger->info("**INFO:** CCP Database already up to date");
+        $logger->info("CCP Database already up to date");
 }

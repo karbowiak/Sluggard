@@ -65,6 +65,12 @@ foreach($pluginDirs as $dir) {
 // Number of plugins loaded
 $logger->info("Loaded: " . count($plugins) . " plugins");
 
+// Check for an updated database every 12 hours
+$loop->addPeriodicTimer(43200, function() use ($logger, $client) {
+    $logger->info("Checking for a new update for the CCP database");
+    updateCCPData($logger);
+});
+
 // Keep alive timer (Default to 30 seconds heartbeat interval)
 $loop->addPeriodicTimer(30, function () use ($logger, $client) {
     //$logger->info("Sending keepalive"); // schh
