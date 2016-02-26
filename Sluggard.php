@@ -34,14 +34,20 @@ foreach (glob(__DIR__ . "/library/*.php") as $lib)
     require_once($lib);
 
 // Load the plugins (Probably a prettier way to do this that i haven't thought up yet)
+$pluginDirs = array(__DIR__ . "/plugins/tick/*.php", __DIR__ . "/plugins/onMessage/*.php");
 $plugins = array();
-foreach (glob(__DIR__ . "/plugins/*.php") as $plugin) {
-    require_once($plugin);
-    $fileName = str_replace(".php", "", basename($plugin));
-    $p = new $fileName();
-    $p->init($config, $discord, $logger);
-    $plugins[] = $p;
+foreach($pluginDirs as $dir) {
+    foreach (glob($dir) as $plugin) {
+        require_once($plugin);
+        $logger->info("Loading: " . str_replace(".php", "", basename($plugin)));
+        $fileName = str_replace(".php", "", basename($plugin));
+        $p = new $fileName();
+        $p->init($config, $discord, $logger);
+        $plugins[] = $p;
+    }
 }
+// Number of plugins loaded
+$logger->info("Loaded: " . count($plugins) . " plugins");
 
 // Keep alive timer (Default to 30 seconds heartbeat interval)
 $loop->addPeriodicTimer(30, function () use ($logger, $client) {
@@ -145,9 +151,6 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             foreach ($plugins as $plugin)
                 $plugin->onMessage($msgData);
 
-            if($data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"])
-                foreach($plugins as $plugin)
-                    $plugin->onMessageAdmin($msgData);
             break;
 
         case "TYPING_START": // When a person starts typing
