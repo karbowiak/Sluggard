@@ -77,17 +77,15 @@ class fileReaderJabber
                 // Remove |  from the line or whatever else is at the last two characters in the string
                 $message = trim(substr($message, 0, -2));
 
-	        if(stristr("blops")) {
-			$channelID = $blackops;
-			$message = "@everyone | " . $message;
-		}
-		elseif(stristr("intel")) {
-			$channelID = $intel;
-		}
-		else {
-			$channelID = $pings;
-			$message = "@everyone | " . $message;
-		}
+                if (stristr($message, "blops")) {
+                    $channelID = $blackops;
+                    $message = "@everyone | " . $message;
+                } elseif (stristr($message, "intel")) {
+                    $channelID = $intel;
+                } else {
+                    $channelID = $pings;
+                    $message = "@everyone | " . $message;
+                }
                 $this->discord->api("channel")->messages()->create($channelID, $message);
             }
             $h = fopen($this->db, "w+");
