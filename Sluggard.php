@@ -17,21 +17,37 @@ if (file_exists(__DIR__ . "/config/config.php"))
 else
     throw new Exception("config.php not found (you might wanna start by copying config_new.php)");
 
+// Load the library files (Probably a prettier way to do this that i haven't thought up yet)
+foreach (glob(__DIR__ . "/library/*.php") as $lib)
+    require_once($lib);
+
 // Init the discord library
 $discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
 $token = $discord->token();
 $gateway = $discord->api("gateway")->show()["url"] . "/"; // need to end in / for it to not whine about it.. *sigh*
 
-// Setup the webscoket connection
+// Setup the event loop and logger
 $loop = \React\EventLoop\Factory::create();
 $logger = new \Zend\Log\Logger();
 $writer = new Zend\Log\Writer\Stream("php://output");
 $logger->addWriter($writer);
-$client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
 
-// Load the library files (Probably a prettier way to do this that i haven't thought up yet)
-foreach (glob(__DIR__ . "/library/*.php") as $lib)
-    require_once($lib);
+// Check that all the databases are created!
+$databases = array("ccpData.sqlite", "sluggard.sqlite");
+$databaseDir = __DIR__ . "/database";
+if(!file_exists($databaseDir))
+    mkdir($databaseDir);
+foreach($databases as $db)
+    if(!file_exists($databaseDir . "/" . $db))
+        touch($databaseDir . "/" . $db);
+
+// Create the sluggard.sqlite tables
+$logger->info("Checking for the pressence of the database tables");
+updateSluggardDB($logger);
+updateCCPData($logger);
+
+// Startup the websocket connection
+$client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
 
 // Load the plugins (Probably a prettier way to do this that i haven't thought up yet)
 $pluginDirs = array(__DIR__ . "/plugins/tick/*.php", __DIR__ . "/plugins/onMessage/*.php");
@@ -128,8 +144,8 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
             $msgData = array(
                 "isBotOwner" => $data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"] ? true : false,
                 "message" => array(
-                    "lastSeen" => dbQueryField("SELECT lastSeen FROM discordUsersSeen WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
-                    "lastSpoke" => dbQueryField("SELECT lastSpoke FROM discordUsersSeen WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
+                    "lastSeen" => dbQueryField("SELECT lastSeen FROM usersSeen WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
+                    "lastSpoke" => dbQueryField("SELECT lastSpoke FROM usersSeen WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
                     "timestamp" => $data->timestamp,
                     "id" => $data->id,
                     "message" => $data->content,
@@ -145,7 +161,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 
             // Update the users status
             if($data->author->id)
-		        dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastSpoke = :lastSpoke, lastWritten = :lastWritten", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
+		        dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
 
             // Run the plugins
             foreach ($plugins as $plugin)
@@ -169,7 +185,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
                 $lastSeen = date("Y-m-d H:i:s");
                 $lastStatus = $data->d->status;
                 $name = $discord->api("user")->show($id)["username"];
-                dbExecute("INSERT INTO discordUsersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus) ON DUPLICATE KEY UPDATE lastSeen = :lastSeen, lastStatus = :lastStatus", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
+                dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus)", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
             }
             break;
 

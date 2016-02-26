@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * Class user
+ */
 class user
 {
+    /**
+     * @var
+     */
     var $config;
+    /**
+     * @var
+     */
     var $discord;
+    /**
+     * @var
+     */
     var $logger;
 
+    /**
+     * @param $config
+     * @param $discord
+     * @param $logger
+     */
     function init($config, $discord, $logger)
     {
         $this->config = $config;
@@ -13,10 +30,16 @@ class user
         $this->logger = $logger;
     }
 
+    /**
+     *
+     */
     function tick()
     {
     }
 
+    /**
+     * @param $msgData
+     */
     function onMessage($msgData)
     {
         $message = $msgData["message"]["message"];
@@ -29,7 +52,7 @@ class user
             $user = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
 
             // Get data for user
-            $userData = dbQueryRow("SELECT * FROM discordUsersSeen WHERE (name = :name OR id = :name)", array(":name" => $user));
+            $userData = dbQueryRow("SELECT * FROM usersSeen WHERE (name = :name OR id = :name) COLLATE NOCASE", array(":name" => $user));
 
             if ($userData) {
                 $message = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nisAdmin: {$userData["isAdmin"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
@@ -40,6 +63,9 @@ class user
         }
     }
 
+    /**
+     * @return array
+     */
     function information()
     {
         return array(

@@ -69,13 +69,6 @@ class evemails
     /**
      *
      */
-    function settings() {
-        return array("type" => "global");
-    }
-
-    /**
-     *
-     */
     function tick()
     {
         if($this->nextCheck <= time())
@@ -169,9 +162,9 @@ class evemails
     function information()
     {
         return array(
-            "name" => "evemails",
+            "name" => "",
             "trigger" => array(""),
-            "information" => "Outputs mails from corp/alli to a channel on Discord. Requires: keyID, vCode, characterID"
+            "information" => ""
         );
     }
 }

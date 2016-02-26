@@ -69,8 +69,8 @@ class price
             $systemName = $data["trigger"];
             $itemName = $data["messageString"];
 
-            $single = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item", array(":item" => $itemName));
-            $multiple = dbQuery("SELECT typeID, typeName FROM invTypes WHERE typeName LIKE :item LIMIT 5", array(":item" => "%" . $itemName . "%"));
+            $single = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item COLLATE NOCASE", array(":item" => ucfirst($itemName)), "ccp");
+            $multiple = dbQuery("SELECT typeID, typeName FROM invTypes WHERE typeName LIKE :item LIMIT 5 COLLATE NOCASE", array(":item" => "%" . ucfirst($itemName) . "%"), "ccp");
 
             // Quick lookups
             if(isset($quickLookUps[$itemName]))
@@ -87,7 +87,7 @@ class price
                     $items[] = $item["typeName"];
 
                 $items = implode(", ", $items);
-                $this->discord->api("channel")->messages()->create($channelID, "**Price Error:** Multiple results found: {$items}");
+                $this->discord->api("channel")->messages()->create($channelID, "**Multiple results found:** {$items}");
             }
 
             // If there is a single result, we'll get data now!
@@ -96,16 +96,16 @@ class price
                 $typeName = $single["typeName"];
 
                 // Get pricing data
-                $priceData = dbQueryRow("SELECT avgSell, avgBuy, lowSell, lowBuy, highSell, highBuy, created FROM invPrices WHERE typeID = :typeID AND avgSell != 0 ORDER BY created DESC", array(":typeID" => $typeID));
-                $lowBuy = number_format($priceData["lowBuy"], 2);
-                $avgBuy = number_format($priceData["avgBuy"], 2);
-                $highBuy = number_format($priceData["highBuy"], 2);
-                $lowSell = number_format($priceData["lowSell"], 2);
-                $avgSell = number_format($priceData["avgSell"], 2);
-                $highSell = number_format($priceData["highSell"], 2);
-                $fromDate = $priceData["created"];
+                $data = new SimpleXMLElement(downloadData("https://api.eve-central.com/api/marketstat?usesystem=30000142&typeid={$typeID}"));
+                $lowBuy = number_format((float) $data->marketstat->type->buy->min ,2);
+                $avgBuy = number_format((float) $data->marketstat->type->buy->avg ,2);
+                $highBuy = number_format((float) $data->marketstat->type->buy->max ,2);
+                $lowSell = number_format((float) $data->marketstat->type->sell->min ,2);
+                $avgSell = number_format((float) $data->marketstat->type->sell->avg ,2);
+                $highSell = number_format((float) $data->marketstat->type->sell->max ,2);
+
                 $this->logger->info("Sending pricing info to {$channelName} on {$guildName}");
-                $messageData = "**{$typeName}** (Jita / {$fromDate}) - **Buy:** (Avg: {$avgBuy} / High: {$highBuy}) / **Sell:** (Low: {$lowSell} / Avg: {$avgSell})";
+                $messageData = "**{$typeName}** (Jita) - **Buy:** (Avg: {$avgBuy} / High: {$highBuy}) / **Sell:** (Low: {$lowSell} / Avg: {$avgSell})";
                 $this->discord->api("channel")->messages()->create($channelID, $messageData);
             }
             else {

@@ -136,94 +136,94 @@ class notifications
 
                     case 77: // Station service being attacked
                         $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
-                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID));
+                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
                         $aggressorID = trim(explode(": ", $notificationString[1])[1]);
-                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID));
+                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
                         $shieldValue = trim(explode(": ", $notificationString[2])[1]);
                         $systemID = trim(explode(": ", $notificationString[3])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
                         $stationID = trim(explode(": ", $notificationString[4])[1]);
-                        $stationName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $stationID));
+                        $stationName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $stationID), "ccp");
                         $typeID = trim(explode(": ", $notificationString[5])[1]);
-                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
+                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
                         $msg = "Station service is being attacked in **{$systemName} ({$stationName} / {$typeName})** by {$aggressorCharacterName} / {$aggressorCorpName}. Shield Status: {$shieldValue}";
                         break;
 
                     case 87: // SBU being attacked
                         $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID));
+                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
                         $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID));
+                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
                         $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID));
+                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
                         $armorValue = trim(explode(": ", $notificationString[3])[1]);
                         $hullValue = trim(explode(": ", $notificationString[4])[1]);
                         $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                         $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
 
                         $msg = "SBU under attack in **{$systemName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                         break;
 
                     case 88: // IHUB is being attacked
                         $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID));
+                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
                         $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID));
+                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
                         $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID));
+                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
                         $armorValue = trim(explode(": ", $notificationString[3])[1]);
                         $hullValue = trim(explode(": ", $notificationString[4])[1]);
                         $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                         $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
 
                         $msg = "IHUB under attack in **{$systemName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                         break;
 
                     case 93: // Customs office is being attacked
                         $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID));
+                        $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
                         $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID));
+                        $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
                         $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID));
+                        $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
 
                         $planetID = trim(explode(": ", $notificationString[3])[1]);
-                        $planetName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $planetID));
+                        $planetName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $planetID), "ccp");
                         $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                         $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
                         $typeID = trim(explode(": ", $notificationString[7])[1]);
-                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
+                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
                         $msg = "Customs Office under attack in **{$systemName}** ($planetName) by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Shield Status: {$shieldValue}";
                         break;
 
                     case 147: // Entosis has stated
                         $systemID = trim(explode(": ", $notificationString[0])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
                         $typeID = trim(explode(": ", $notificationString[1])[1]);
-                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
+                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
                         $msg = "Entosis has started in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                         break;
 
                     case 148: // Entosis enabled a module ??????
                         $systemID = trim(explode(": ", $notificationString[0])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
                         $typeID = trim(explode(": ", $notificationString[1])[1]);
-                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
+                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
                         $msg = "Entosis has enabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                         break;
 
                     case 149: // Entosis disabled a module
                         $systemID = trim(explode(": ", $notificationString[0])[1]);
-                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
+                        $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
                         $typeID = trim(explode(": ", $notificationString[1])[1]);
-                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
+                        $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
                         $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                         break;

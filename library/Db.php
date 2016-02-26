@@ -1,19 +1,19 @@
 <?php
 
 /**
+ * @param null $db
  * @return null|PDO
  */
-function openDB()
+function openDB($db = null)
 {
-    global $config;
-    $dbname = $config["database"]["database"];
-    $dbuser = $config["database"]["user"];
-    $dbpass = $config["database"]["pass"];
-    $dbhost = $config["database"]["host"];
+    if($db == null)
+        $db = __DIR__ . "/../database/sluggard.sqlite";
+    if($db == "ccp")
+        $db = __DIR__ . "/../database/ccpData.sqlite";
 
-    $dsn = "mysql:dbname=$dbname;host=$dbhost";
+    $dsn = "sqlite:$db";
     try {
-        $pdo = new PDO($dsn, $dbuser, $dbpass, array(
+        $pdo = new PDO($dsn, "", "", array(
             PDO::ATTR_PERSISTENT => false,
             PDO::ATTR_EMULATE_PREPARES => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -30,15 +30,15 @@ function openDB()
 }
 
 /**
- * Queries the database and returns a single field
- * @param  string $query
- * @param  array  $params
- * @param  string $field
- * @return string
+ * @param $query
+ * @param $field
+ * @param array $params
+ * @param null $db
+ * @return null|void
  */
-function dbQueryField($query, $field, $params = array())
+function dbQueryField($query, $field, $params = array(), $db = null)
 {
-    $pdo = openDB();
+    $pdo = openDB($db);
     if($pdo == NULL)
         return;
 
@@ -56,14 +56,14 @@ function dbQueryField($query, $field, $params = array())
 }
 
 /**
- * Queries the database and returns a single row
- * @param  string $query
- * @param  array  $params
- * @return array
+ * @param $query
+ * @param array $params
+ * @param null $db
+ * @return null|void
  */
-function dbQueryRow($query, $params = array())
+function dbQueryRow($query, $params = array(), $db = null)
 {
-    $pdo = openDB();
+    $pdo = openDB($db);
     if($pdo == NULL)
         return;
 
@@ -79,14 +79,14 @@ function dbQueryRow($query, $params = array())
 }
 
 /**
- * Queries the database and returns all results
- * @param  [type] $query
- * @param  array  $params
- * @return array
+ * @param $query
+ * @param array $params
+ * @param null $db
+ * @return array|void
  */
-function dbQuery($query, $params = array())
+function dbQuery($query, $params = array(), $db = null)
 {
-    $pdo = openDB();
+    $pdo = openDB($db);
     if($pdo == NULL)
         return;
 
@@ -101,18 +101,29 @@ function dbQuery($query, $params = array())
 }
 
 /**
- * Executes a query to the database
- * @param  string $query
- * @param  array  $params
+ * @param $query
+ * @param array $params
+ * @param null $db
  */
-function dbExecute($query, $params = array())
+function dbExecute($query, $params = array(), $db = null)
 {
-    $pdo = openDB();
+    $pdo = openDB($db);
     if($pdo == NULL)
         return;
 
-    $stmt = $pdo->prepare($query);
-    $stmt->execute($params);
-    $stmt->closeCursor();
-    $pdo = null;
+    // This is ugly, but, yeah..
+    if(stristr($query, ";")) {
+        $explodedQuery = explode(";", $query);
+        foreach($explodedQuery as $newQry) {
+            $stmt = $pdo->prepare($newQry);
+            $stmt->execute($params);
+        }
+        $stmt->closeCursor();
+        $pdo = null;
+    } else {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $stmt->closeCursor();
+        $pdo = null;
+    }
 }

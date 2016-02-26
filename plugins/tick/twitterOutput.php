@@ -66,7 +66,7 @@ class twitterOutput
         if ($this->lastCheck <= time()) {
             // Fetch the last 25 twitter replies and/or searches
             try {
-                $data = $this->twitter->load(Twitter::ME_AND_FRIENDS, 25);
+                $data = $this->twitter->load(Twitter::ME_AND_FRIENDS, 5);
                 foreach ($data as $message) {
                     $text = (array)$message->text;
                     $createdAt = (array)$message->created_at;

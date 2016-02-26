@@ -52,9 +52,9 @@ class item
             $item = $data["messageString"];
 
             if (is_numeric($item))
-                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeID = :item", array(":item" => $item));
+                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeID = :item COLLATE NOCASE", array(":item" => $item), "ccp");
             else
-                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeName = :item", array(":item" => $item));
+                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeName = :item COLLATE NOCASE", array(":item" => $item), "ccp");
 
             if ($data) {
                 $msg = "```";

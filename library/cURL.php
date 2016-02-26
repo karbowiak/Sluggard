@@ -32,3 +32,32 @@ function downloadData($url)
         return null;
     }
 }
+
+/**
+ * @param $url
+ * @param $downloadPath
+ * @return bool
+ */
+function downloadLargeData($url, $downloadPath)
+{
+    try {
+        $readHandle = fopen($url, "rb");
+        $writeHandle = fopen($downloadPath, "w+b");
+
+        if(!$readHandle || !$writeHandle)
+            return false;
+
+        while(!feof($readHandle)) {
+            if(fwrite($writeHandle, fread($readHandle, 4096)) == FALSE)
+                return false;
+        }
+
+        fclose($readHandle);
+        fclose($writeHandle);
+
+        return true;
+    } catch (Exception $e) {
+        var_dump("Download Error: " . $e->getMessage());
+        return false;
+    }
+}

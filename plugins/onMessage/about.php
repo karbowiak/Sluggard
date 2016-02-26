@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class about
+ */
 class about
 {
     /**

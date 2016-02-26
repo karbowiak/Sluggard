@@ -3,7 +3,7 @@
 /**
  * Class fileReaderJabber
  */
-class fileReaderJabber
+class fileReader
 {
     /**
      * @var
@@ -41,21 +41,14 @@ class fileReaderJabber
     }
 
     /**
-     *
-     */
-    function settings() {
-        return array("type" => "global");
-    }
-
-    /**
      * @return array
      */
     function information()
     {
         return array(
-            "name" => "fileReader",
+            "name" => "",
             "trigger" => array(),
-            "information" => "Reads text from a file on the server. And outputs whatever is in it, to a channel."
+            "information" => ""
         );
     }
 
