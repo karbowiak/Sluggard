@@ -104,11 +104,4 @@ class fileReaderJabber
     function onMessage($msgData)
     {
     }
-
-    /**
-     * @param $msgData
-     */
-    function onMessageAdmin($msgData)
-    {
-    }
 }

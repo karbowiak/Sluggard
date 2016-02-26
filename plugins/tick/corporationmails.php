@@ -167,12 +167,4 @@ class corporationmails
             "information" => ""
         );
     }
-
-        /**
-         * @param $msgData
-         */
-        function onMessageAdmin($msgData)
-        {
-        }
-
 }

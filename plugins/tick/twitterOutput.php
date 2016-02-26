@@ -131,12 +131,4 @@ class twitterOutput
             "information" => ""
         );
     }
-
-    /**
-     * @param $msgData
-     */
-    function onMessageAdmin($msgData)
-    {
-    }
-
 }

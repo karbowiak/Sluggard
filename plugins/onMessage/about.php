@@ -79,12 +79,4 @@ class about
             "information" => "Shows information on the bot, who created it, what library it's using, revision, and other stats. Example: !about"
         );
     }
-
-        /**
-         * @param $msgData
-         */
-        function onMessageAdmin($msgData)
-        {
-        }
-
 }

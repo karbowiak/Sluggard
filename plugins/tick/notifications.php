@@ -270,12 +270,4 @@ class notifications
             "information" => ""
         );
     }
-
-    /**
-     * @param $msgData
-     */
-    function onMessageAdmin($msgData)
-    {
-    }
-
 }

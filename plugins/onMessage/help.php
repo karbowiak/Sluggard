@@ -82,12 +82,4 @@ class help
             "information" => "Shows help for a plugin, or all the plugins available. Example: **!help pc**"
         );
     }
-
-    /**
-     * @param $msgData
-     */
-    function onMessageAdmin($msgData)
-    {
-    }
-
 }

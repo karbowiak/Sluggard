@@ -92,12 +92,4 @@ class auth
             "information" => "Authenticates a person against Rena's Discord manager"
         );
     }
-
-        /**
-         * @param $msgData
-         */
-        function onMessageAdmin($msgData)
-        {
-        }
-
 }

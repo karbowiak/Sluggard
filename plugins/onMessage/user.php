@@ -48,12 +48,4 @@ class user
             "information" => "Shows Discord information on a user. Example: **!user Karbowiak**"
         );
     }
-
-    /**
-     * @param $msgData
-     */
-    function onMessageAdmin($msgData)
-    {
-    }
-
 }
