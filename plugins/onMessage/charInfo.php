@@ -71,7 +71,7 @@ class charInfo
 
             // Get stats
             $characterID = $data[0]["characterID"];
-            $statsURL = "https://beta.eve-kill.net/api/charInfo/characterID/{$characterID}/";
+            $statsURL = "https://beta.eve-kill.net/api/charInfo/characterID/" . urlencode($characterID) ."/";
             $stats = json_decode(downloadData($statsURL), true);
 
             $characterName = @$stats["characterName"];
@@ -81,6 +81,7 @@ class charInfo
             $lastSeenSystem = @$stats["lastSeenSystem"];
             $lastSeenRegion = @$stats["lastSeenRegion"];
             $lastSeenShip = @$stats["lastSeenShip"];
+            $lastSeenDate = @$stats["lastSeenDate"];
             $corporationActiveArea = @$stats["corporationActiveArea"];
             $allianceActiveArea = @$stats["allianceActiveArea"];
             $soloKills = @$stats["soloKills"];
@@ -101,6 +102,7 @@ securityStatus: {$securityStatus}
 lastSeenSystem: {$lastSeenSystem}
 lastSeenRegion: {$lastSeenRegion}
 lastSeenShip: {$lastSeenShip}
+lastSeenDate: {$lastSeenDate}
 corporationActiveArea: {$corporationActiveArea}
 allianceActiveArea: {$allianceActiveArea}
 soloKills: {$soloKills}
