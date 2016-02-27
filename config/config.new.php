@@ -42,3 +42,9 @@ $config["eve"] = array(
         )
     )
 );
+
+$config["plugins"] = array(
+    "periodicTQStatus" => array(
+        "channelID" => 
+    )
+);
