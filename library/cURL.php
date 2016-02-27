@@ -12,7 +12,7 @@ function downloadData($url)
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 300);
         curl_setopt($curl, CURLOPT_POST, false);
         curl_setopt($curl, CURLOPT_FORBID_REUSE, false);
         curl_setopt($curl, CURLOPT_ENCODING, "");
