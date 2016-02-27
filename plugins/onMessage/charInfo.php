@@ -59,7 +59,7 @@ class charInfo
             $data = @json_decode(downloadData($url), true)["character"];
 
             if(empty($data))
-                return $this->discord->api("channel")->messages()->create($channelID, "**Error:** error, no results was returned.");
+                return $this->discord->api("channel")->messages()->create($channelID, "**Error:** no results was returned.");
 
             if(count($data) > 1) {
                 $results = array();
