@@ -66,22 +66,22 @@ class charInfo
             $statsURL = "https://beta.eve-kill.net/api/charInfo/characterID/{$characterID}/";
             $stats = json_decode(downloadData($statsURL), true);
 
-            $characterName = $stats["characterName"];
-            $corporationName = $stats["corporationName"];
-            $allianceName = $stats["allianceName"];
-            $securityStatus = $stats["securityStatus"];
-            $lastSeenSystem = $stats["lastSeenSystem"];
-            $lastSeenRegion = $stats["lastSeenRegion"];
-            $lastSeenShip = $stats["lastSeenShip"];
-            $corporationActiveArea = $stats["corporationActiveArea"];
-            $allianceActiveArea = $stats["allianceActiveArea"];
-            $soloKills = $stats["soloKills"];
-            $blobKills = $stats["blobKills"];
-            $lifeTimeKills = $stats["lifeTimeKills"];
-            $lifeTimeLosses = $stats["lifeTimeLosses"];
-            $amountOfSoloPVPer = $stats["percentageSoloPVPer"];
-            $epeenSize = $stats["ePeenSize"];
-            $facepalms = $stats["facepalms"];
+            $characterName = @$stats["characterName"];
+            $corporationName = @$stats["corporationName"];
+            $allianceName = @$stats["allianceName"];
+            $securityStatus = @$stats["securityStatus"];
+            $lastSeenSystem = @$stats["lastSeenSystem"];
+            $lastSeenRegion = @$stats["lastSeenRegion"];
+            $lastSeenShip = @$stats["lastSeenShip"];
+            $corporationActiveArea = @$stats["corporationActiveArea"];
+            $allianceActiveArea = @$stats["allianceActiveArea"];
+            $soloKills = @$stats["soloKills"];
+            $blobKills = @$stats["blobKills"];
+            $lifeTimeKills = @$stats["lifeTimeKills"];
+            $lifeTimeLosses = @$stats["lifeTimeLosses"];
+            $amountOfSoloPVPer = @$stats["percentageSoloPVPer"];
+            $epeenSize = @$stats["ePeenSize"];
+            $facepalms = @$stats["facepalms"];
 
 
             $msg = "```characterName: {$characterName}
@@ -104,7 +104,7 @@ facepalms: {$facepalms}
 
             if(empty($characterName))
                 $msg = "**Error:** no data available";
-            
+
             $this->logger->info("Sending character info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, $msg);
         }
