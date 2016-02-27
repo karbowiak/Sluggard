@@ -51,7 +51,10 @@ class charInfo
             $messageString = $data["messageString"];
 
             $url = "http://rena.karbowiak.dk/api/search/character/{$messageString}/";
-            $data = json_decode(downloadData($url), true)["character"];
+            $data = @json_decode(downloadData($url), true)["character"];
+
+            if(empty($data))
+                return $this->discord->api("channel")->messages()->create($channelID, "**Error:** error, no results was returned.");
 
             if(count($data) > 1) {
                 $results = array();
