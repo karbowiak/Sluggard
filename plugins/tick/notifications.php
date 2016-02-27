@@ -31,7 +31,7 @@ class notifications
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $this->toDiscordChannel = 149918425018400768; // Intel channel
+        $this->toDiscordChannel = $config["plugins"]["notifications"]["channelID"]; // Intel channel
         $this->newestNotificationID = getPermCache("newestNotificationID");
         $this->maxID = 0;
         $this->keyCount = count($config["eve"]["apiKeys"]);

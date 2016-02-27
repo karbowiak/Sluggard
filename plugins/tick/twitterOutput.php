@@ -52,7 +52,7 @@ class twitterOutput
         $this->twitter = new Twitter($config["twitter"]["consumerKey"], $config["twitter"]["consumerSecret"], $config["twitter"]["accessToken"], $config["twitter"]["accessTokenSecret"]);
         $this->lastCheck = time();
         $this->maxID = 0;
-        $this->channelID = 120474010109607937; // outputs to the news channel on the 4M server
+        $this->channelID = $config["plugins"]["twitterOutput"]["channelID"]; // outputs to the news channel on the 4M server
     }
 
     /**

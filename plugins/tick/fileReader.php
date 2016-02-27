@@ -12,11 +12,15 @@ class fileReader
     /**
      * @var
      */
+    var $db;
+    /**
+     * @var
+     */
     var $discord;
     /**
-     * @var string
+     * @var
      */
-    var $db = "/tmp/discord.db";
+    var $channelConfig;
     /**
      * @var int
      */
@@ -36,6 +40,8 @@ class fileReader
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
+        $this->channelConfig = $config["plugins"]["fileReader"]["channelConfig"];
+        $this->db = $config["plugins"]["fileReader"]["db"];
         if (!is_file($this->db))
             touch($this->db);
     }
@@ -57,10 +63,6 @@ class fileReader
      */
     function tick()
     {
-        $pings = 119136919346085888; // Pings channel on discord
-        $intel = 149918425018400768; // Intel channel on discord
-        $blackops = 149925578135306240; // Blackops channel on discord
-
         if (filemtime($this->db) >= $this->lastCheck) {
             $data = file($this->db);
             if ($data) {
@@ -77,15 +79,20 @@ class fileReader
                 // Remove |  from the line or whatever else is at the last two characters in the string
                 $message = trim(substr($message, 0, -2));
 
-                if (stristr($message, "blops")) {
-                    $channelID = $blackops;
-                    $message = "@everyone | " . $message;
-                } elseif (stristr($message, "intel")) {
-                    $channelID = $intel;
-                } else {
-                    $channelID = $pings;
-                    $message = "@everyone | " . $message;
+                foreach($this->channelConfig as $chanName => $chanConfig) {
+                    if($chanConfig["searchString"] == false) {
+                        $message = $chanConfig["textStringPrepend"] . " " . $message . " " .$chanConfig["textStringAppend"];
+                        $channelID = $chanConfig["channelID"];
+                    }
+                    elseif(stristr($message, $chanConfig["searchString"])) {
+                        $message = $chanConfig["textStringPrepend"] . " " . $message . " " . $chanConfig["textStringAppend"];
+                        $channelID = $chanConfig["channelID"];
+                    }
+                    else {
+                        $channelID = $chanConfig["channelID"];
+                    }
                 }
+
                 $this->discord->api("channel")->messages()->create($channelID, $message);
             }
             $h = fopen($this->db, "w+");
