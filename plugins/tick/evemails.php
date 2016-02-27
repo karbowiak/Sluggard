@@ -132,12 +132,12 @@ class evemails
                     $this->maxID = max($mail["messageID"], $this->maxID);
                     $this->newestMailID = $mail["messageID"];
                     $updateMaxID = true;
+
+                    // set the maxID
+                    if($updateMaxID)
+                        setPermCache("newestCorpMailID", $this->maxID);
                 }
             }
-
-            // set the maxID
-            if($updateMaxID)
-                setPermCache("newestCorpMailID", $this->maxID);
     }
 
     /**

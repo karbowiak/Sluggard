@@ -86,6 +86,9 @@ class twitterOutput
                     $messages[$id] = $msg;
 
                     $continue = true;
+
+                    if (sizeof($data))
+                        setPermCache("twitterLatestID", $this->maxID);
                 }
             } catch (Exception $e) {
                 //$this->logger->err("Twitter Error: " . $e->getMessage()); // Don't show there was an error, it's most likely just a rate limit
@@ -98,9 +101,6 @@ class twitterOutput
                     $this->discord->api("channel")->messages()->create($this->channelID, $msg);
                     sleep(1); // Lets sleep for a second, so we don't rage spam
                 }
-
-                if (sizeof($data))
-                    setPermCache("twitterLatestID", $this->maxID);
             }
             $this->lastCheck = time() + 95;
         }
