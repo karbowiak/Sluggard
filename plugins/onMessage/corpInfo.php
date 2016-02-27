@@ -1,6 +1,6 @@
 <?php
 
-class charInfo
+class corpInfo
 {
     /**
      * @var
@@ -50,74 +50,58 @@ class charInfo
             $messageArray = $data["messageArray"];
             $messageString = $data["messageString"];
 
-            // Most EVE players on Discord use their ingame name, so lets support @highlights
-            $messageString = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
-            if(is_numeric($messageString)) // The person used @highlighting, so now we got a discord id, lets map that to a name
-                $messageString = dbQueryField("SELECT name FROM usersSeen WHERE id = :id", "name", array(":id" => $messageString));
-
-            $url = "http://rena.karbowiak.dk/api/search/character/{$messageString}/";
-            $data = @json_decode(downloadData($url), true)["character"];
+            $url = "http://rena.karbowiak.dk/api/search/corporation/{$messageString}/";
+            $data = @json_decode(downloadData($url), true)["corporation"];
 
             if(empty($data))
                 return $this->discord->api("channel")->messages()->create($channelID, "**Error:** error, no results was returned.");
 
             if(count($data) > 1) {
                 $results = array();
-                foreach($data as $char)
-                    $results[] = $char["characterName"];
+                foreach($data as $corp)
+                    $results[] = $corp["corporationName"];
 
                 return $this->discord->api("channel")->messages()->create($channelID, "**Error:** more than one result was returned: " . implode(", ", $results));
             }
 
             // Get stats
-            $characterID = $data[0]["characterID"];
-            $statsURL = "https://beta.eve-kill.net/api/charInfo/characterID/" . urlencode($characterID) ."/";
+            $corporationID = $data[0]["corporationID"];
+            $statsURL = "https://beta.eve-kill.net/api/corpInfo/corporationID/" . urlencode($corporationID) ."/";
             $stats = json_decode(downloadData($statsURL), true);
 
             if(empty($stats))
                 return $this->discord->api("channel")->messages()->create($channelID, "**Error:** no data available");
 
-            $characterName = @$stats["characterName"];
             $corporationName = @$stats["corporationName"];
             $allianceName = isset($stats["allianceName"]) ? $stats["allianceName"] : "None";
             $factionName = isset($stats["factionName"]) ? $stats["factionName"] : "None";
-            $securityStatus = @$stats["securityStatus"];
-            $lastSeenSystem = @$stats["lastSeenSystem"];
-            $lastSeenRegion = @$stats["lastSeenRegion"];
-            $lastSeenShip = @$stats["lastSeenShip"];
-            $lastSeenDate = @$stats["lastSeenDate"];
+            $ceoName = @$stats["ceoName"];
+            $homeStation = @$stats["stationName"];
+            $taxRate = @$stats["taxRate"];
             $corporationActiveArea = @$stats["corporationActiveArea"];
             $allianceActiveArea = @$stats["allianceActiveArea"];
-            $soloKills = @$stats["soloKills"];
-            $blobKills = @$stats["blobKills"];
             $lifeTimeKills = @$stats["lifeTimeKills"];
             $lifeTimeLosses = @$stats["lifeTimeLosses"];
-            $amountOfSoloPVPer = @$stats["percentageSoloPVPer"];
+            $memberCount = @$stats["memberArrayCount"];
+            $superCaps = @count($stats["superCaps"]);
             $ePeenSize = @$stats["ePeenSize"];
-            $facepalms = @$stats["facepalms"];
-            $lastUpdated = @$stats["lastUpdatedOnBackend"];
-            $url = "https://beta.eve-kill.net/character/" . $stats["characterID"] . "/";
+            $url = "https://beta.eve-kill.net/corporation/" . @$stats["corporationID"] . "/";
 
 
-            $msg = "```characterName: {$characterName}
-corporationName: {$corporationName}
+            $msg = "```corporationName: {$corporationName}
 allianceName: {$allianceName}
 factionName: {$factionName}
-securityStatus: {$securityStatus}
-lastSeenSystem: {$lastSeenSystem}
-lastSeenRegion: {$lastSeenRegion}
-lastSeenShip: {$lastSeenShip}
-lastSeenDate: {$lastSeenDate}
+ceoName: {$ceoName}
+homeStation: {$homeStation}
+taxRate: {$taxRate}
 corporationActiveArea: {$corporationActiveArea}
 allianceActiveArea: {$allianceActiveArea}
-soloKills: {$soloKills}
-blobKills: {$blobKills}
 lifeTimeKills: {$lifeTimeKills}
 lifeTimeLosses: {$lifeTimeLosses}
-percentageSoloPVPer: {$amountOfSoloPVPer}
+memberCount: {$memberCount}
+superCaps: {$superCaps}
 ePeenSize: {$ePeenSize}
-facepalms: {$facepalms}
-lastUpdated: $lastUpdated```
+```
 For more info, visit: $url";
 
             $this->logger->info("Sending character info to {$channelName} on {$guildName}");
@@ -131,9 +115,9 @@ For more info, visit: $url";
     function information()
     {
         return array(
-            "name" => "char",
-            "trigger" => array("!char"),
-            "information" => "Returns basic data about a character from projectRena (new EVE-KILL)"
+            "name" => "corp",
+            "trigger" => array("!corp"),
+            "information" => "Returns basic data about a corporation from projectRena (new EVE-KILL)"
         );
     }
 
