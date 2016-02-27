@@ -97,47 +97,53 @@ class evemails
 
     function checkMails($keyID, $vCode, $characterID)
     {
-            $updateMaxID = false;
-            $url = "https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
-            $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
-            $data = $data["result"]["rowset"]["row"];
+        $updateMaxID = false;
+        $url = "https://api.eveonline.com/char/MailMessages.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
+        $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
+        $data = $data["result"]["rowset"]["row"];
 
-            $mails = array();
-            foreach($data as $getFuckedCCP)
+        $mails = array();
+
+        // Sometimes there is only ONE notification, so.. yeah..
+        if(count($data) > 1) {
+            foreach ($data as $getFuckedCCP)
                 $mails[] = $getFuckedCCP["@attributes"];
+        }
+        else
+            $mails[] = $data["@attributes"];
 
-            usort($mails, array($this, "sortByDate"));
+        usort($mails, array($this, "sortByDate"));
 
-            foreach($mails as $mail)
-            {
-                if(in_array($mail["toCorpOrAllianceID"], $this->toIDs) && $mail["messageID"] > $this->newestMailID) {
-                    $sentBy = $mail["senderName"];
-                    $title = $mail["title"];
-                    $sentDate = $mail["sentDate"];
-                    $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&ids=" . $mail["messageID"];
-                    $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
+        foreach($mails as $mail)
+        {
+            if(in_array($mail["toCorpOrAllianceID"], $this->toIDs) && $mail["messageID"] > $this->newestMailID) {
+                $sentBy = $mail["senderName"];
+                $title = $mail["title"];
+                $sentDate = $mail["sentDate"];
+                $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&ids=" . $mail["messageID"];
+                $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
 
-                    // Stitch the mail together
-                    $msg = "**Mail By: **{$sentBy}\n";
-                    $msg .= "**Sent Date: **{$sentDate}\n";
-                    $msg .= "**Title: ** {$title}\n";
-                    $msg .= "**Content: **\n";
-                    $msg .= htmlspecialchars_decode(trim($content));
+                // Stitch the mail together
+                $msg = "**Mail By: **{$sentBy}\n";
+                $msg .= "**Sent Date: **{$sentDate}\n";
+                $msg .= "**Title: ** {$title}\n";
+                $msg .= "**Content: **\n";
+                $msg .= htmlspecialchars_decode(trim($content));
 
-                    // Send the mails to the channel
-                    $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
-                    sleep(1); // Lets sleep for a second, so we don't rage spam
+                // Send the mails to the channel
+                $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+                sleep(1); // Lets sleep for a second, so we don't rage spam
 
-                    // Find the maxID so we don't spit this message out ever again
-                    $this->maxID = max($mail["messageID"], $this->maxID);
-                    $this->newestMailID = $mail["messageID"];
-                    $updateMaxID = true;
+                // Find the maxID so we don't spit this message out ever again
+                $this->maxID = max($mail["messageID"], $this->maxID);
+                $this->newestMailID = $this->maxID; //$mail["messageID"];
+                $updateMaxID = true;
 
-                    // set the maxID
-                    if($updateMaxID)
-                        setPermCache("newestCorpMailID", $this->maxID);
-                }
+                // set the maxID
+                if($updateMaxID)
+                    setPermCache("newestCorpMailID", $this->maxID);
             }
+        }
     }
 
     /**

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class notifications
+ */
 class notifications
 {
     /**
@@ -15,11 +18,29 @@ class notifications
      */
     var $logger;
 
+    /**
+     * @var
+     */
     var $nextCheck;
+    /**
+     * @var
+     */
     var $keys;
+    /**
+     * @var
+     */
     var $keyCount;
+    /**
+     * @var
+     */
     var $toDiscordChannel;
+    /**
+     * @var
+     */
     var $newestNotificationID;
+    /**
+     * @var
+     */
     var $maxID;
     /**
      * @param $config
@@ -68,19 +89,33 @@ class notifications
         }
     }
 
+    /**
+     * @param $keyID
+     * @param $vCode
+     * @param $characterID
+     */
     function getNotifications($keyID, $vCode, $characterID)
     {
         try { // Seriously CCP.. *sigh*
             // Ignore notifications from these douchebags..
             $ignoreNames = array("CONCORD");
-            $updateMaxID = false;
             $url = "https://api.eveonline.com/char/Notifications.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
             $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
 
+            // If there is no data, just quit..
+            if(empty($data))
+                continue;
+
             $fixedData = array();
-            foreach ($data as $getFuckedCCP)
-                $fixedData[] = $getFuckedCCP["@attributes"];
+
+            // Sometimes there is only ONE notification, so.. yeah..
+            if(count($data) > 1) {
+                foreach ($data as $getFuckedCCP)
+                    $fixedData[] = $getFuckedCCP["@attributes"];
+            }
+            else
+                $fixedData[] = $data["@attributes"];
 
             foreach ($fixedData as $notification) {
                 $notificationID = $notification["notificationID"];
@@ -234,20 +269,25 @@ class notifications
                             break;
                     }
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+
                     // Find the maxID so we don't output this message again in the future
                     $this->maxID = max($notificationID, $this->maxID);
-                    $this->newestNotificationID = $notificationID;
-                    $updateMaxID = true;
+                    $this->newestNotificationID = $this->maxID;
+                    setPermCache("newestNotificationID", $this->maxID);
                 }
             }
-
-            if ($updateMaxID)
-                setPermCache("newestNotificationID", $this->maxID);
         } catch(Exception $e) {
             var_dump("Notification Error: " . $e->getMessage());
         }
     }
 
+    /**
+     * @param $keyID
+     * @param $vCode
+     * @param $characterID
+     * @param $notificationID
+     * @return mixed
+     */
     function getNotificationText($keyID, $vCode, $characterID, $notificationID)
     {
         $url = "https://api.eveonline.com/char/NotificationTexts.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&IDs={$notificationID}";
