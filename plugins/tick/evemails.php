@@ -126,6 +126,7 @@ class evemails
 
                     // Send the mails to the channel
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+                    sleep(1); // Lets sleep for a second, so we don't rage spam
 
                     // Find the maxID so we don't spit this message out ever again
                     $this->maxID = max($mail["messageID"], $this->maxID);

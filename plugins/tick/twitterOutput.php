@@ -94,8 +94,10 @@ class twitterOutput
             if ($continue == true) {
                 ksort($messages);
 
-                foreach ($messages as $id => $msg)
+                foreach ($messages as $id => $msg) {
                     $this->discord->api("channel")->messages()->create($this->channelID, $msg);
+                    sleep(1); // Lets sleep for a second, so we don't rage spam
+                }
 
                 if (sizeof($data))
                     setPermCache("twitterLatestID", $this->maxID);
