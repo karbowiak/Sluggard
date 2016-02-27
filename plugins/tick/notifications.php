@@ -42,6 +42,7 @@ class notifications
      * @var
      */
     var $maxID;
+
     /**
      * @param $config
      * @param $discord
@@ -65,26 +66,21 @@ class notifications
      */
     function tick()
     {
-        if($this->nextCheck <= time())
-        {
-            $check = true;
-            foreach ($this->keys as $keyOwner => $api) {
-                if($check == false)
-                    continue;
+        $check = true;
+        foreach ($this->keys as $keyOwner => $api) {
+            if ($check == false)
+                continue;
 
-                $keyID = $api["keyID"];
-                $vCode = $api["vCode"];
-                $characterID = $api["characterID"];
-                $lastChecked = getPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}");
+            $keyID = $api["keyID"];
+            $vCode = $api["vCode"];
+            $characterID = $api["characterID"];
+            $lastChecked = getPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}");
 
-                if($lastChecked <= time()) {
-                    $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
-                    $this->getNotifications($keyID, $vCode, $characterID);
-                    $check = false;
-                }
-
+            if ($lastChecked <= time()) {
+                $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
+                $this->getNotifications($keyID, $vCode, $characterID);
                 setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1800); // Reschedule it's check for 30minutes from now
-                $this->nextCheck = time() + (1800 / $this->keyCount); // Next check is in 1800 seconds divided by the amount of keys
+                $check = false;
             }
         }
     }
@@ -104,17 +100,16 @@ class notifications
             $data = $data["result"]["rowset"]["row"];
 
             // If there is no data, just quit..
-            if(empty($data))
+            if (empty($data))
                 continue;
 
             $fixedData = array();
 
             // Sometimes there is only ONE notification, so.. yeah..
-            if(count($data) > 1) {
+            if (count($data) > 1) {
                 foreach ($data as $getFuckedCCP)
                     $fixedData[] = $getFuckedCCP["@attributes"];
-            }
-            else
+            } else
                 $fixedData[] = $data["@attributes"];
 
             foreach ($fixedData as $notification) {
@@ -276,7 +271,7 @@ class notifications
                     setPermCache("newestNotificationID", $this->maxID);
                 }
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             var_dump("Notification Error: " . $e->getMessage());
         }
     }
@@ -296,6 +291,7 @@ class notifications
 
         return $data;
     }
+
     /**
      * @param $msgData
      */

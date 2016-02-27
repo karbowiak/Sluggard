@@ -64,6 +64,8 @@ class twitterOutput
         $data = array();
         // If last check + 60 seconds is larger or equal to the current time(), we run
         if ($this->lastCheck <= time()) {
+            $this->logger->info("Checking for new Twitter replies / conversations");
+
             // Fetch the last 25 twitter replies and/or searches
             try {
                 $data = $this->twitter->load(Twitter::ME_AND_FRIENDS, 5);
@@ -102,7 +104,7 @@ class twitterOutput
                     sleep(1); // Lets sleep for a second, so we don't rage spam
                 }
             }
-            $this->lastCheck = time() + 95;
+            $this->lastCheck = time() + 60;
         }
     }
 

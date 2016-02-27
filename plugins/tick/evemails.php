@@ -71,26 +71,22 @@ class evemails
      */
     function tick()
     {
-        if($this->nextCheck <= time())
-        {
-            $check = true;
-            foreach ($this->keys as $keyOwner => $api) {
-                if($check == false)
-                    continue;
 
-                $keyID = $api["keyID"];
-                $vCode = $api["vCode"];
-                $characterID = $api["characterID"];
-                $lastChecked = getPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
+        $check = true;
+        foreach ($this->keys as $keyOwner => $api) {
+            if ($check == false)
+                continue;
 
-                if($lastChecked <= time()) {
-                    $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
-                    $this->checkMails($keyID, $vCode, $characterID);
-                    $check = false;
-                }
+            $keyID = $api["keyID"];
+            $vCode = $api["vCode"];
+            $characterID = $api["characterID"];
+            $lastChecked = getPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
 
+            if ($lastChecked <= time()) {
+                $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
+                $this->checkMails($keyID, $vCode, $characterID);
                 setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1800); // Reschedule it's check for 30minutes from now
-                $this->nextCheck = time() + (1800 / $this->keyCount); // Next check is in 1800 seconds divided by the amount of keys
+                $check = false;
             }
         }
     }
@@ -105,18 +101,16 @@ class evemails
         $mails = array();
 
         // Sometimes there is only ONE notification, so.. yeah..
-        if(count($data) > 1) {
+        if (count($data) > 1) {
             foreach ($data as $getFuckedCCP)
                 $mails[] = $getFuckedCCP["@attributes"];
-        }
-        else
+        } else
             $mails[] = $data["@attributes"];
 
         usort($mails, array($this, "sortByDate"));
 
-        foreach($mails as $mail)
-        {
-            if(in_array($mail["toCorpOrAllianceID"], $this->toIDs) && $mail["messageID"] > $this->newestMailID) {
+        foreach ($mails as $mail) {
+            if (in_array($mail["toCorpOrAllianceID"], $this->toIDs) && $mail["messageID"] > $this->newestMailID) {
                 $sentBy = $mail["senderName"];
                 $title = $mail["title"];
                 $sentDate = $mail["sentDate"];
@@ -140,7 +134,7 @@ class evemails
                 $updateMaxID = true;
 
                 // set the maxID
-                if($updateMaxID)
+                if ($updateMaxID)
                     setPermCache("newestCorpMailID", $this->maxID);
             }
         }
