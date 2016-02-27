@@ -97,8 +97,8 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 
     switch ($data->t) {
         case "READY":
-            $logger->info("Got READY frame");
-            $logger->info("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
+            $logger->notice("Got READY frame");
+            $logger->notice("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
             // Can't really use the heartbeat interval for anything, since i can't retroactively change the periodic timers.. but it's usually ~40ish seconds
             //$heartbeatInterval = $data->d->heartbeat_interval / 1000.0;
             break;

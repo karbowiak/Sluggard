@@ -79,17 +79,23 @@ class fileReader
                 // Remove |  from the line or whatever else is at the last two characters in the string
                 $message = trim(substr($message, 0, -2));
 
+                $defaultID = 0;
                 foreach($this->channelConfig as $chanName => $chanConfig) {
-                    if($chanConfig["searchString"] == false) {
-                        $message = $chanConfig["textStringPrepend"] . " " . $message . " " .$chanConfig["textStringAppend"];
-                        $channelID = $chanConfig["channelID"];
-                    }
-                    elseif(stristr($message, $chanConfig["searchString"])) {
+                    // If a channel is marked as default (usually the first on the list) we populate defaultID here, just to make sure..
+                    if($chanConfig["default"] == true)
+                        $defaultID = $chanConfig["channelID"];
+
+                    // Search for a channel where the search string matches the actual message
+                    if(stristr($message, $chanConfig["searchString"])) {
                         $message = $chanConfig["textStringPrepend"] . " " . $message . " " . $chanConfig["textStringAppend"];
                         $channelID = $chanConfig["channelID"];
                     }
-                    else {
+                    elseif($chanConfig["searchString"] == false) { // If no match was found, and searchString is false, just use that
+                        $message = $chanConfig["textStringPrepend"] . " " . $message . " " .$chanConfig["textStringAppend"];
                         $channelID = $chanConfig["channelID"];
+                    }
+                    else { // If something fucked up, we'll just go this route..
+                        $channelID = isset($defaultID) ? $defaultID : $chanConfig["channelID"]; // If default ID isn't set, then we just pick whatever we can..
                     }
                 }
 
