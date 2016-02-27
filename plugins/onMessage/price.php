@@ -98,7 +98,7 @@ class price
                     $items[] = $item["typeName"];
 
                 $items = implode(", ", $items);
-                $this->discord->api("channel")->messages()->create($channelID, "**Multiple results found:** {$items}");
+                return $this->discord->api("channel")->messages()->create($channelID, "**Multiple results found:** {$items}");
             }
 
             // If there is a single result, we'll get data now!
