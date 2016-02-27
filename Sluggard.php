@@ -1,4 +1,7 @@
 <?php
+// More memory allowance
+ini_set("memory_limit", "512M");
+
 // Enable garbage collection
 gc_enable();
 
