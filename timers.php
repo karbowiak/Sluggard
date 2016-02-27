@@ -12,6 +12,7 @@ $loop->addPeriodicTimer(30, function() use ($logger, $client, $discord, $config)
         $msg = "**New TQ Status:** ***{$tqStatus}*** / ***{$tqOnline}*** users online.";
         $logger->info("TQ Status changed from {$oldStatus} to {$tqStatus}");
         $discord->api("channel")->messages()->create($config["plugins"]["periodicTQStatus"]["channelID"], $msg);
+        sleep(300);
     }
     setPermCache("eveTQStatus", $tqStatus);
 });
