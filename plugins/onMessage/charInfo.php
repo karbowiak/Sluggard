@@ -83,6 +83,7 @@ class charInfo
             $epeenSize = $stats["ePeenSize"];
             $facepalms = $stats["facepalms"];
 
+
             $msg = "```characterName: {$characterName}
 corporationName: {$corporationName}
 allianceName: {$allianceName}
@@ -101,6 +102,9 @@ ePeenSize: {$epeenSize}
 facepalms: {$facepalms}
 ```";
 
+            if(empty($characterName))
+                $msg = "**Error:** no data available";
+            
             $this->logger->info("Sending character info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, $msg);
         }
