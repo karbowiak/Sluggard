@@ -127,14 +127,13 @@ class price
 typeName: {$typeName}
 solarSystemName: {$solarSystemName}
 Buy:
-   Low: {$lowBuy}
-   Avg: {$avgBuy}
-   High: {$highBuy}
+  Low: {$lowBuy}
+  Avg: {$avgBuy}
+  High: {$highBuy}
 Sell:
-   Low: {$lowSell}
-   Avg: {$avgSell}
-   High: {$highSell}
-   ```";
+  Low: {$lowSell}
+  Avg: {$avgSell}
+  High: {$highSell}```";
                 $this->discord->api("channel")->messages()->create($channelID, $messageData);
             }
             else {
