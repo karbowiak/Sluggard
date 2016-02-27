@@ -50,6 +50,9 @@ class charInfo
             $messageArray = $data["messageArray"];
             $messageString = $data["messageString"];
 
+            // Most EVE players on Discord use their ingame name, so lets support @highlights
+            $messageString = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
+
             $url = "http://rena.karbowiak.dk/api/search/character/{$messageString}/";
             $data = @json_decode(downloadData($url), true)["character"];
 
