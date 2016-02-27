@@ -84,4 +84,7 @@ $config["plugins"] = array(
     "twitterOutput" => array(
         "channelID" => 120474010109607937
     ),
+    "wolframAlpha" => array(
+        "appID" => ""
+    ),
 );
