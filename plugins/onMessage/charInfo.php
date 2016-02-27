@@ -90,6 +90,8 @@ class charInfo
             $amountOfSoloPVPer = @$stats["percentageSoloPVPer"];
             $epeenSize = @$stats["ePeenSize"];
             $facepalms = @$stats["facepalms"];
+            $lastUpdated = @$stats["lastUpdatedOnBackend"];
+            $url = "https://beta.eve-kill.net/character/" . $stats["characterID"];
 
 
             $msg = "```characterName: {$characterName}
@@ -108,7 +110,9 @@ lifeTimeLosses: {$lifeTimeLosses}
 percentageSoloPVPer: {$amountOfSoloPVPer}
 ePeenSize: {$epeenSize}
 facepalms: {$facepalms}
-```";
+lastUpdated: $lastUpdated
+```
+For more info, visit: $url";
 
             if(empty($characterName))
                 $msg = "**Error:** no data available";
