@@ -55,7 +55,7 @@ class about
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
             $gitRevision = gitRevision();
-            $msg = "```Hello, i am Sluggard - i am a bot created for EVE Online related Discord servers.
+            $msg = "```Hello, i am Sluggard - i am a bot created for EVE Online related Discord servers
 Also, i am the half-brother of Sovereign, atleast in the Blasto 7 movie..
 
 About Me:
@@ -65,7 +65,7 @@ Current version: " . $gitRevision["short"]. " (Last Update: " . $gitRevision["la
 Github Repo: https://github.com/karbowiak/Sluggard
 
 Statistics:
-Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Mintues, ".$interval->s." seconds.
+Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Minutes, ".$interval->s." seconds.
 Memory Usage: ~" . round(memory_get_usage() / 1024 / 1024, 3) . "MB```";
 
             $this->logger->info("Sending about info to {$channelName} on {$guildName}");

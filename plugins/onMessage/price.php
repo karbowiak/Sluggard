@@ -129,10 +129,10 @@ solarSystemName: {$solarSystemName}
 Buy:
    Low: {$lowBuy}
    Avg: {$avgBuy}
-   High: {$highBuy})
+   High: {$highBuy}
 Sell:
    Low: {$lowSell}
-   Avg: {$avgSell})
+   Avg: {$avgSell}
    High: {$highSell}
    ```";
                 $this->discord->api("channel")->messages()->create($channelID, $messageData);
