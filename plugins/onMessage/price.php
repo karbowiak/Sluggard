@@ -120,7 +120,7 @@ class price
     function information()
     {
         return array(
-            "name" => "price",
+            "name" => "pc",
             "trigger" => $this->triggers,
             "information" => "Shows price information for items in EVE. Example: **!pc raven**"
         );

@@ -128,7 +128,7 @@ For more info, visit: $url";
     function information()
     {
         return array(
-            "name" => "charInfo",
+            "name" => "char",
             "trigger" => array("!char"),
             "information" => "Returns basic data about a character from projectRena (new EVE-KILL)"
         );

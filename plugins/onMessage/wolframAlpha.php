@@ -82,7 +82,7 @@ class wolframAlpha
     function information()
     {
         return array(
-            "name" => "wolframAlpha",
+            "name" => "wolf",
             "trigger" => array("!wolf"),
             "information" => "Ask questions to WolframAlpha, and get results back."
         );
