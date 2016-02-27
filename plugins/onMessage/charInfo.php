@@ -52,6 +52,8 @@ class charInfo
 
             // Most EVE players on Discord use their ingame name, so lets support @highlights
             $messageString = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
+            if(is_numeric($messageString)) // The person used @highlighting, so now we got a discord id, lets map that to a name
+                $messageString = dbQueryField("SELECT name FROM usersSeen WHERE id = :id", "name", array(":id" => $messageString));
 
             $url = "http://rena.karbowiak.dk/api/search/character/{$messageString}/";
             $data = @json_decode(downloadData($url), true)["character"];
