@@ -68,7 +68,8 @@ class wolframAlpha
                 if(stristr($text, "\n"))
                     $text = str_replace("\n", " | ", $text);
 
-                $this->discord->api("channel")->messages()->create($channelID, $text);
+                if(!empty($text))
+                    $this->discord->api("channel")->messages()->create($channelID, $text);
                 if(!empty($image))
                     $this->discord->api("channel")->messages()->create($channelID, $image);
             }
