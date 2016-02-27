@@ -56,18 +56,21 @@ $config["plugins"] = array(
         "db" => "/tmp/discord.db",
         "channelConfig" => array(
             "pings" => array(
+                "default" => true,
                 "searchString" => false,
                 "textStringPrepend" => "@everyone |",
                 "textStringAppend" => "",
                 "channelID" => 119136919346085888
             ),
             "intel" => array(
+                "default" => false,
                 "searchString" => "intel",
                 "textStringPrepend" => "",
                 "textStringAppend" => "",
                 "channelID" => 149918425018400768
             ),
             "blackops" => array(
+                "default" => false,
                 "searchString" => "blops",
                 "textStringPrepend" => "@everyone |",
                 "textStringAppend" => "",
