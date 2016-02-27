@@ -55,16 +55,18 @@ class about
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
             $gitRevision = gitRevision();
-            $msg = "Hello, i'm EVEBot - i am a bot created for EVE Online related Discord servers. I am utterly useless for almost, anything else ;)\n";
-            $msg .= "Also, i am the half-brother of Sovereign, atleast in the Blasto 7 movie..\n\n";
-            $msg .= "**About Me:**\n";
-            $msg .= "Author: Karbowiak (Discord ID: 118440839776174081)\n";
-            $msg .= "Library: discord-hypertext (PHP)\n";
-            $msg .= "Current version: ``" . $gitRevision["short"]. "`` (Last Update: ``" . $gitRevision["lastChangeDate"] . "``)\n";
-            $msg .= "Github Repo: ``https://github.com/karbowiak/Sluggard``\n\n";
-            $msg .= "**Statistics:**\n";
-            $msg .= "Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Mintues, ".$interval->s." seconds.\n";
-            $msg .= "Memory Usage: ~" . round(memory_get_usage() / 1024 / 1024, 3) . "MB";
+            $msg = "```Hello, i am Sluggard - i am a bot created for EVE Online related Discord servers.
+Also, i am the half-brother of Sovereign, atleast in the Blasto 7 movie..
+
+About Me:
+Author: Karbowiak (Discord ID: 118440839776174081)
+Library: discord-hypertext (PHP)
+Current version: " . $gitRevision["short"]. " (Last Update: " . $gitRevision["lastChangeDate"] . ")
+Github Repo: https://github.com/karbowiak/Sluggard
+
+Statistics:
+Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Mintues, ".$interval->s." seconds.
+Memory Usage: ~" . round(memory_get_usage() / 1024 / 1024, 3) . "MB```";
 
             $this->logger->info("Sending about info to {$channelName} on {$guildName}");
             $this->discord->api("channel")->messages()->create($channelID, $msg);
