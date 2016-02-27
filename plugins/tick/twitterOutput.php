@@ -52,7 +52,7 @@ class twitterOutput
         $this->twitter = new Twitter($config["twitter"]["consumerKey"], $config["twitter"]["consumerSecret"], $config["twitter"]["accessToken"], $config["twitter"]["accessTokenSecret"]);
         $this->lastCheck = time();
         $this->maxID = 0;
-        $this->channelID = 120474010109607937; // outputs to the news channel on the 4M server
+        $this->channelID = $config["plugins"]["twitterOutput"]["channelID"]; // outputs to the news channel on the 4M server
     }
 
     /**
@@ -86,6 +86,9 @@ class twitterOutput
                     $messages[$id] = $msg;
 
                     $continue = true;
+
+                    if (sizeof($data))
+                        setPermCache("twitterLatestID", $this->maxID);
                 }
             } catch (Exception $e) {
                 //$this->logger->err("Twitter Error: " . $e->getMessage()); // Don't show there was an error, it's most likely just a rate limit
@@ -94,11 +97,10 @@ class twitterOutput
             if ($continue == true) {
                 ksort($messages);
 
-                foreach ($messages as $id => $msg)
+                foreach ($messages as $id => $msg) {
                     $this->discord->api("channel")->messages()->create($this->channelID, $msg);
-
-                if (sizeof($data))
-                    setPermCache("twitterLatestID", $this->maxID);
+                    sleep(1); // Lets sleep for a second, so we don't rage spam
+                }
             }
             $this->lastCheck = time() + 95;
         }

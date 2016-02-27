@@ -65,38 +65,8 @@ foreach($pluginDirs as $dir) {
 // Number of plugins loaded
 $logger->info("Loaded: " . count($plugins) . " plugins");
 
-// Check for an updated database every 12 hours
-$loop->addPeriodicTimer(43200, function() use ($logger, $client) {
-    $logger->info("Checking for a new update for the CCP database");
-    updateCCPData($logger);
-});
-
-// Keep alive timer (Default to 30 seconds heartbeat interval)
-$loop->addPeriodicTimer(30, function () use ($logger, $client) {
-    //$logger->info("Sending keepalive"); // schh
-    $client->send(
-        json_encode(
-            array(
-                "op" => 1,
-                "d" => time())
-            ,
-            JSON_NUMERIC_CHECK
-        )
-    );
-});
-
-// Plugin tick timer (1 second)
-$loop->addPeriodicTimer(1, function () use ($logger, $client, $plugins) {
-    foreach ($plugins as $plugin)
-        $plugin->tick();
-});
-
-// Memory reclamation (30 minutes)
-$loop->addPeriodicTimer(1800, function () use ($logger, $client) {
-    $logger->info("Memory in use: " . memory_get_usage() / 1024 / 1024 . "MB");
-    gc_collect_cycles(); // Collect garbage
-    $logger->info("Memory in use after garbage collection: " . memory_get_usage() / 1024 / 1024 . "MB");
-});
+// Load all the timers
+include(__DIR__ . "/timers.php");
 
 // Setup the connection handlers
 $client->on("connect", function () use ($logger, $client, $token) {
@@ -127,11 +97,10 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 
     switch ($data->t) {
         case "READY":
-            $logger->info("Got READY frame");
-            $logger->info("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
+            $logger->notice("Got READY frame");
+            $logger->notice("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
             // Can't really use the heartbeat interval for anything, since i can't retroactively change the periodic timers.. but it's usually ~40ish seconds
             //$heartbeatInterval = $data->d->heartbeat_interval / 1000.0;
-            //$authed = true;
             break;
 
         case "MESSAGE_CREATE":
@@ -170,9 +139,13 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 		        dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
 
             // Run the plugins
-            foreach ($plugins as $plugin)
-                $plugin->onMessage($msgData);
-
+            foreach ($plugins as $plugin) {
+                try {
+                    $plugin->onMessage($msgData);
+                } catch (Exception $e) {
+                    $logger->warn("Error: " . $e->getMessage());
+                }
+            }
             break;
 
         case "TYPING_START": // When a person starts typing

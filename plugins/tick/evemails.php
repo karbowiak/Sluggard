@@ -57,8 +57,8 @@ class evemails
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $this->toIDs = array(98047305, 99005805); // 4M-Corp and The-Culture
-        $this->toDiscordChannel = 120639051261804544; // Corpmails channel
+        $this->toIDs = $config["plugins"]["evemails"]["fromIDs"]; // 4M-Corp and The-Culture
+        $this->toDiscordChannel = $config["plugins"]["evemails"]["channelID"]; // Corpmails channel
         $this->newestMailID = getPermCache("newestCorpMailID");
         $this->maxID = 0;
         $this->keyCount = count($config["eve"]["apiKeys"]);
@@ -126,17 +126,18 @@ class evemails
 
                     // Send the mails to the channel
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+                    sleep(1); // Lets sleep for a second, so we don't rage spam
 
                     // Find the maxID so we don't spit this message out ever again
                     $this->maxID = max($mail["messageID"], $this->maxID);
                     $this->newestMailID = $mail["messageID"];
                     $updateMaxID = true;
+
+                    // set the maxID
+                    if($updateMaxID)
+                        setPermCache("newestCorpMailID", $this->maxID);
                 }
             }
-
-            // set the maxID
-            if($updateMaxID)
-                setPermCache("newestCorpMailID", $this->maxID);
     }
 
     /**

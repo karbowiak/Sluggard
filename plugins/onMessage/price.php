@@ -70,7 +70,7 @@ class price
             $itemName = $data["messageString"];
 
             $single = dbQueryRow("SELECT typeID, typeName FROM invTypes WHERE typeName = :item COLLATE NOCASE", array(":item" => ucfirst($itemName)), "ccp");
-            $multiple = dbQuery("SELECT typeID, typeName FROM invTypes WHERE typeName LIKE :item LIMIT 5 COLLATE NOCASE", array(":item" => "%" . ucfirst($itemName) . "%"), "ccp");
+            $multiple = dbQuery("SELECT typeID, typeName FROM invTypes WHERE typeName LIKE :item COLLATE NOCASE LIMIT 5", array(":item" => "%" . ucfirst($itemName) . "%"), "ccp");
 
             // Quick lookups
             if(isset($quickLookUps[$itemName]))

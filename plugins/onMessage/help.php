@@ -60,7 +60,7 @@ class help
                         $commands[] = $info["name"];
                 }
 
-                $this->discord->api("channel")->messages()->create($channelID, "**Help Error:** No specific plugin requested, here is a list of plugins available: **" . implode("** |  **", $commands) . "**");
+                $this->discord->api("channel")->messages()->create($channelID, "**Help:** No specific plugin requested, here is a list of plugins available: **" . implode("** |  **", $commands) . "**");
             } else {
                 foreach ($plugins as $plugin) {
                     if ($messageString == $plugin->information()["name"]) {

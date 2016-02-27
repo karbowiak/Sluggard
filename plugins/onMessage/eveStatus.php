@@ -1,9 +1,6 @@
 <?php
 
-/**
- * Class item
- */
-class item
+class eveStatus
 {
     /**
      * @var
@@ -49,21 +46,18 @@ class item
 
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
-            $item = $data["messageString"];
+            $trigger = $data["trigger"];
+            $messageArray = $data["messageArray"];
+            $messageString = $data["messageString"];
 
-            if (is_numeric($item))
-                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeID = :item", array(":item" => $item), "ccp");
-            else
-                $data = dbQueryRow("SELECT * FROM invTypes WHERE typeName = :item COLLATE NOCASE", array(":item" => $item), "ccp");
+            $crestData = json_decode(downloadData("https://public-crest.eveonline.com/"), true);
 
-            if ($data) {
-                $msg = "```";
-                foreach ($data as $key => $value)
-                    $msg .= $key . ": " . $value . "\n";
-                $msg .= "```";
-                $this->logger->info("Sending item information info to {$channelName} on {$guildName}");
-                $this->discord->api("channel")->messages()->create($channelID, $msg);
-            }
+            $tqStatus = $crestData["serviceStatus"]["eve"];
+            $tqOnline = $crestData["userCounts"]["eve"];
+
+            $msg = "**TQ Status:** ***{$tqStatus}*** / ***{$tqOnline}*** users online.";
+            $this->logger->info("Sending eve status info to {$channelName} on {$guildName}");
+            $this->discord->api("channel")->messages()->create($channelID, $msg);
         }
     }
 
@@ -73,9 +67,17 @@ class item
     function information()
     {
         return array(
-            "name" => "item",
-            "trigger" => array("!item"),
-            "information" => "Shows information on an item by name or id. Example: **!item raven** or **!item 638**"
+            "name" => "evestatus",
+            "trigger" => array("!status"),
+            "information" => "Shows the current status of Tranquility"
         );
     }
+
+    /**
+     * @param $msgData
+     */
+    function onMessageAdmin($msgData)
+    {
+    }
+
 }
