@@ -87,8 +87,13 @@ $loop->addPeriodicTimer(30, function () use ($logger, $client) {
 
 // Plugin tick timer (1 second)
 $loop->addPeriodicTimer(1, function () use ($logger, $client, $plugins) {
-    foreach ($plugins as $plugin)
-        $plugin->tick();
+    foreach ($plugins as $plugin) {
+        try {
+            $plugin->tick();
+        } catch (Exception $e) {
+            $logger->warn("Error: " . $e->getMessage());
+        }
+    }
 });
 
 // Memory reclamation (30 minutes)
@@ -170,9 +175,13 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 		        dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
 
             // Run the plugins
-            foreach ($plugins as $plugin)
-                $plugin->onMessage($msgData);
-
+            foreach ($plugins as $plugin) {
+                try {
+                    $plugin->onMessage($msgData);
+                } catch (Exception $e) {
+                    $logger->warn("Error: " . $e->getMessage());
+                }
+            }
             break;
 
         case "TYPING_START": // When a person starts typing
