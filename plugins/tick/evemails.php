@@ -57,8 +57,8 @@ class evemails
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $this->toIDs = $config["plugins"]["evemails"]["fromIDs"]; // 4M-Corp and The-Culture
-        $this->toDiscordChannel = $config["plugins"]["evemails"]["channelID"]; // Corpmails channel
+        $this->toIDs = $config["plugins"]["evemails"]["fromIDs"];
+        $this->toDiscordChannel = $config["plugins"]["evemails"]["channelID"];
         $this->newestMailID = getPermCache("newestCorpMailID");
         $this->maxID = 0;
         $this->keyCount = count($config["eve"]["apiKeys"]);
@@ -86,7 +86,6 @@ class evemails
      */
     function tick()
     {
-
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
             if ($check == false)

@@ -32,7 +32,7 @@ $gateway = $discord->api("gateway")->show()["url"] . "/"; // need to end in / fo
 // Setup the event loop and logger
 $loop = \React\EventLoop\Factory::create();
 $logger = new \Zend\Log\Logger();
-$writer = new Zend\Log\Writer\Stream("php://output");
+$writer = new \Zend\Log\Writer\Stream("php://output");
 $logger->addWriter($writer);
 
 // Check that all the databases are created!
@@ -178,7 +178,7 @@ $client->on("message", function ($message) use ($client, $logger, $discord, $plu
 });
 
 $client->open()->then(function () use ($logger, $client) {
-    $logger->notice("Connection open");
+    $logger->notice("Connection opened");
 });
 
 $loop->run();

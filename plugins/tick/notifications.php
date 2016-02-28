@@ -53,7 +53,7 @@ class notifications
         $this->config = $config;
         $this->discord = $discord;
         $this->logger = $logger;
-        $this->toDiscordChannel = $config["plugins"]["notifications"]["channelID"]; // Intel channel
+        $this->toDiscordChannel = $config["plugins"]["notifications"]["channelID"];
         $this->newestNotificationID = getPermCache("newestNotificationID");
         $this->maxID = 0;
         $this->keyCount = count($config["eve"]["apiKeys"]);
@@ -130,10 +130,10 @@ class notifications
             foreach ($fixedData as $notification) {
                 $notificationID = $notification["notificationID"];
                 $typeID = $notification["typeID"];
-                $senderID = $notification["senderID"];
+                //$senderID = $notification["senderID"];
                 $senderName = $notification["senderName"];
                 $sentDate = $notification["sentDate"];
-                $read = $notification["read"];
+                //$read = $notification["read"];
 
                 // If the senderName is in the list of ignores names, then continue and ignore it..
                 if (in_array($senderName, $ignoreNames))
