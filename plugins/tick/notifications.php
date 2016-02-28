@@ -126,7 +126,7 @@ class notifications
     {
         try { // Seriously CCP.. *sigh*
             // Ignore notifications from these douchebags..
-            $ignoreNames = array("CONCORD");
+            $ignoreNames = array("CCP");
             $url = "https://api.eveonline.com/char/Notifications.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
             $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
@@ -161,6 +161,13 @@ class notifications
 
                     // Seriously, get fucked CCP
                     switch ($typeID) {
+						case 5: // War Declared
+							$aggressorAllianceID = trim(explode(": ", $notificationString[2])[1]);
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+							$delayHours = trim(explode(": ", $notificationString[3])[1]);
+                            $msg = "War declared by {$aggressorAllianceName}. Fighting begins in roughly {$delayHours} hours.";
+                            break;
+
                         case 8: // Alliance war invalidated by CONCORD
                             $msg = $notificationString;
                             break;
@@ -190,14 +197,38 @@ class notifications
                             break;
 
                         case 75: // POS / POS Module under attack
-                            $msg = $notificationString;
+                            $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+                            $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
+                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
+                            $aggressorID = trim(explode(": ", $notificationString[2])[1]);
+                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
+                            $armorValue = trim(explode(": ", $notificationString[3])[1]);
+                            $hullValue = trim(explode(": ", $notificationString[4])[1]);
+							$moonID = trim(explode(": ", $notificationString[5])[1]);
+                            $moonName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID), "ccp");
+                            $shieldValue = trim(explode(": ", $notificationString[6])[1]);
+                            $solarSystemID = trim(explode(": ", $notificationString[7])[1]);
+                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+
+                            $msg = "POS under attack in **{$systemName} - {$moonName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                             break;
 
                         case 76: // Tower resource alert
-                            $msg = $notificationString;
+							$moonID = trim(explode(": ", $notificationString[2])[1]);
+                            $moonName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID), "ccp");
+                            $solarSystemID = trim(explode(": ", $notificationString[3])[1]);
+                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+							$blocksRemaining = trim(explode(": ", $notificationString[6])[1]);
+							$typeID = trim(explode(": ", $notificationString[7])[1]);
+							$typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+
+                            $msg = "POS in {$systemName} - {$moonName} needs fuel. Only {$blocksRemaining} {$typeName}'s remaining.";
                             break;
 
                         case 77: // Station service being attacked
+							$aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
                             $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
                             $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
                             $aggressorID = trim(explode(": ", $notificationString[1])[1]);
@@ -210,7 +241,7 @@ class notifications
                             $typeID = trim(explode(": ", $notificationString[5])[1]);
                             $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
 
-                            $msg = "Station service is being attacked in **{$systemName} ({$stationName} / {$typeName})** by {$aggressorCharacterName} / {$aggressorCorpName}. Shield Status: {$shieldValue}";
+                            $msg = "Station service is being attacked in **{$systemName} ({$stationName} / {$typeName})** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}. Shield Status: {$shieldValue}";
                             break;
 
                         case 87: // SBU being attacked
