@@ -55,7 +55,7 @@ class about
         $data = command($message, $this->information()["trigger"]);
         if (isset($data["trigger"])) {
             $gitRevision = gitRevision();
-            $msg = "```Hello, i am Sluggard - i am a bot created for EVE Online related Discord servers
+            $msg = "```Hello, i am Sluggard - i am a bot created for EVE Online related Discord servers.
 Also, i am the half-brother of Sovereign, atleast in the Blasto 7 movie..
 
 About Me:
