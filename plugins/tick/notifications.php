@@ -42,6 +42,18 @@ class notifications
      * @var
      */
     var $maxID;
+    /**
+     * @var
+     */
+    var $charApi;
+    /**
+     * @var
+     */
+    var $corpApi;
+    /**
+     * @var
+     */
+    var $alliApi;
 
     /**
      * @param $config
@@ -59,6 +71,11 @@ class notifications
         $this->keyCount = count($config["eve"]["apiKeys"]);
         $this->keys = $config["eve"]["apiKeys"];
         $this->nextCheck = 0;
+
+        // Rena APIs
+        $this->charApi = "http://rena.karbowiak.dk/api/character/information/";
+        $this->corpApi = "http://rena.karbowiak.dk/api/corporation/information/";
+        $this->alliApi = "http://rena.karbowiak.dk/api/alliance/information/";
 
         // Schedule all the apiKeys for the future
         $keyCounter = 0;
@@ -182,9 +199,9 @@ class notifications
 
                         case 77: // Station service being attacked
                             $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
+                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
                             $aggressorID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
+                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $shieldValue = trim(explode(": ", $notificationString[2])[1]);
                             $systemID = trim(explode(": ", $notificationString[3])[1]);
                             $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
@@ -198,11 +215,11 @@ class notifications
 
                         case 87: // SBU being attacked
                             $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
-                            $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
-                            $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                            $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+                            $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
+                            $aggressorID = trim(explode(": ", $notificationString[1])[1]);
+                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $armorValue = trim(explode(": ", $notificationString[3])[1]);
                             $hullValue = trim(explode(": ", $notificationString[4])[1]);
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
@@ -214,11 +231,11 @@ class notifications
 
                         case 88: // IHUB is being attacked
                             $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
-                            $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
-                            $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                            $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+                            $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
+                            $aggressorID = trim(explode(": ", $notificationString[1])[1]);
+                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $armorValue = trim(explode(": ", $notificationString[3])[1]);
                             $hullValue = trim(explode(": ", $notificationString[4])[1]);
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
@@ -230,9 +247,9 @@ class notifications
 
                         case 93: // Customs office is being attacked
                             $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorAllianceName = dbQueryField("SELECT allianceName FROM alliances WHERE allianceID = :id", "allianceName", array(":id" => $aggressorAllianceID), "ccp");
-                            $aggressorCorpID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCorpName = dbQueryField("SELECT corporationName FROM corporations WHERE corporationID = :id", "corporationName", array(":id" => $aggressorCorpID), "ccp");
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+                            $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
                             $aggressorID = trim(explode(": ", $notificationString[2])[1]);
                             $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
 
@@ -312,6 +329,25 @@ class notifications
      */
     function onMessage($msgData)
     {
+    }
+
+    function apiData($type, $typeID) {
+        $downloadFrom = "";
+
+        switch($type) {
+            case "char":
+                $downloadFrom = $this->charApi;
+                break;
+
+            case "corp":
+                $downloadFrom = $this->corpApi;
+                break;
+
+            case "alli":
+                $downloadFrom = $this->alliApi;
+                break;
+        }
+        return json_decode(downloadData($downloadFrom . $typeID . "/"), true);
     }
 
     /**
