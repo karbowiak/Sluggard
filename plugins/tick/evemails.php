@@ -64,6 +64,21 @@ class evemails
         $this->keyCount = count($config["eve"]["apiKeys"]);
         $this->keys = $config["eve"]["apiKeys"];
         $this->nextCheck = 0;
+
+        // Schedule all the apiKeys for the future
+        $keyCounter = 0;
+        foreach($this->keys as $keyOwner => $apiData) {
+            $keyID = $apiData["keyID"];
+            $characterID = $apiData["characterID"];
+
+            if($keyCounter == 0) // Schedule it for right now
+                setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() - 5);
+            else {
+                $rescheduleTime = time() + ((1805 / $this->keyCount) * $keyCounter);
+                setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", $rescheduleTime);
+            }
+            $keyCounter++;
+        }
     }
 
     /**
