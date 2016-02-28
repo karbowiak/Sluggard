@@ -85,7 +85,7 @@ class evemails
             if ($lastChecked <= time()) {
                 $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
                 $this->checkMails($keyID, $vCode, $characterID);
-                setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1800); // Reschedule it's check for 30minutes from now
+                setPermCache("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1807); // Reschedule it's check for 30minutes from now (plus 7 seconds, because CCP isn't known to adhere strictly to timeouts, lol)
                 $check = false;
             }
         }

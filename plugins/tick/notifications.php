@@ -79,7 +79,7 @@ class notifications
             if ($lastChecked <= time()) {
                 $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
                 $this->getNotifications($keyID, $vCode, $characterID);
-                setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1800); // Reschedule it's check for 30minutes from now
+                setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1805); // Reschedule it's check for 30minutes from now (Plus 5s, ~CCP~)
                 $check = false;
             }
         }
