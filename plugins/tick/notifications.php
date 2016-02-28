@@ -169,31 +169,10 @@ class notifications
                             break;
 
                         case 8: // Alliance war invalidated by CONCORD
-                            $msg = $notificationString;
-                            break;
-
-                        case 10: // Bill issued to corp/alliance
-                            $msg = $notificationString;
-                            break;
-
-                        case 13: // Bill issued to corp/alliance has been paid
-                            $msg = $notificationString;
-                            break;
-
-                        case 16: // New member application
-                            $msg = $notificationString;
-                            break;
-
-                        case 19: // Corp Tax rate Changed
-                            $msg = $notificationString;
-                            break;
-
-                        case 45: // Alliance anchoring alert
-                            $msg = $notificationString;
-                            break;
-
-                        case 52: // Corp member clones moved to new station
-                            $msg = $notificationString;
+                            $aggressorAllianceID = trim(explode(": ", $notificationString[2])[1]);
+                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
+                            $delayHours = trim(explode(": ", $notificationString[3])[1]);
+                            $msg = "War declared by {$aggressorAllianceName} has been invalidated. Fighting ends in roughly {$delayHours} hours.";
                             break;
 
                         case 75: // POS / POS Module under attack
@@ -322,7 +301,8 @@ class notifications
                             break;
 
                         default:
-                            $msg = "ERROR: Unhandled:" . $notificationString;
+                            $msg = "ERROR: Unhandled:" . implode(", ", $notificationString);
+                            var_dump($notificationString);
                             break;
                     }
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
