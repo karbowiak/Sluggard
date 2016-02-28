@@ -251,8 +251,7 @@ class notifications
                             $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
                             $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
                             $aggressorID = trim(explode(": ", $notificationString[2])[1]);
-                            $aggressorCharacterName = dbQueryField("SELECT characterName FROM characters WHERE characterID = :id", "characterName", array(":id" => $aggressorID), "ccp");
-
+                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $planetID = trim(explode(": ", $notificationString[3])[1]);
                             $planetName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $planetID), "ccp");
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
