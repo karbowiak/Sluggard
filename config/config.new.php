@@ -43,6 +43,24 @@ $config["eve"] = array(
     )
 );
 
+$config["enabledPlugins"] = array(
+    "about",
+    "charInfo",
+    "corpApplication",
+    "corpInfo",
+    "eveStatus",
+    "help",
+    "item",
+    "price",
+    "time",
+    "user",
+    "wolframAlpha",
+    "evemails",
+    "fileReader",
+    "notifications",
+    "twitterOutput",
+);
+
 // Example from the 4M server
 $config["plugins"] = array(
     "periodicTQStatus" => array(

@@ -57,6 +57,10 @@ $pluginDirs = array(__DIR__ . "/plugins/tick/*.php", __DIR__ . "/plugins/onMessa
 $plugins = array();
 foreach($pluginDirs as $dir) {
     foreach (glob($dir) as $plugin) {
+        // Only load the plugins we want to load, according to the config
+        if(!in_array(str_replace(".php", "", basename($plugin)), $config["enabledPlugins"]))
+            continue;
+
         require_once($plugin);
         $logger->info("Loading: " . str_replace(".php", "", basename($plugin)));
         $fileName = str_replace(".php", "", basename($plugin));
