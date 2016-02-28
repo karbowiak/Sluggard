@@ -299,11 +299,6 @@ class notifications
 
                             $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
-
-                        default:
-                            $msg = "ERROR: Unhandled:" . implode(", ", $notificationString);
-                            var_dump($notificationString);
-                            break;
                     }
                     $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
 
