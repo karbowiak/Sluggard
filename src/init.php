@@ -45,6 +45,8 @@ $pluginDirs = array("onMessage", "onStart", "onTick", "onTimer");
 $plugins = array();
 foreach($pluginDirs as $pluginDir) {
     $files = glob(PLUGINDIR . $pluginDir . "/*.php");
+    $plugins[$pluginDir] = array();
+
     foreach($files as $plug) {
         $baseName = str_replace(".php", "", basename($plug));
         if(!in_array($baseName, $app->config->getAll("enabledPlugins")))

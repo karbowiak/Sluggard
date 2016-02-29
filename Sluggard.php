@@ -47,43 +47,42 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
 
     // On a message, do all of the following
     $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
-
         // If i sent the message myself, just ignore it..
-        if($msgData->author->username == $app->config->get("botName", "bot"))
-            continue;
+        if($msgData->author->username != $app->config->get("botName", "bot")) {
+            // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
+            if ($app->triggercommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
+                $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
 
-        // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
-        if($app->triggerCommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
-            $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
+                if($channelData->is_private == true)
+                    $channelData->setAttribute("name", $msgData->author->username);
 
-            if ($channelData->is_private)
-                $channelData->name = $channelData->recipient->username;
+                $msgData = (object)array(
+                    "isBotOwner" => false,
+                    "user" => $msgData,
+                    "message" => (object)array(
+                        "lastSeen" => false,
+                        "lastSpoke" => false,
+                        "timestamp" => $msgData->timestamp->toDateTimeString(),
+                        "id" => $msgData->author->id,
+                        "message" => $msgData->content,
+                        "channelID" => $msgData->channel_id,
+                        "from" => $msgData->author->username,
+                        "fromID" => $msgData->author->id,
+                        "fromDiscriminator" => $msgData->author->discriminator,
+                        "fromAvatar" => $msgData->author->avatar
+                    ),
+                    "channel" => $channelData,
+                    "guild" => $channelData->is_private ? (object)array("name" => "private conversation") : \Discord\Parts\Guild\Guild::find($channelData->guild_id),
+                    "botData" => $botData
+                );
 
-            $msgData = (object)array(
-                "isBotOwner" => false,
-                "message" => (object)array(
-                    "lastSeen" => false,
-                    "lastSpoke" => false,
-                    "timestamp" => $msgData->timestamp->toDateTimeString(),
-                    "id" => $msgData->author->id,
-                    "message" => $msgData->content,
-                    "channelID" => $msgData->channel_id,
-                    "from" => $msgData->author->username,
-                    "fromID" => $msgData->author->id,
-                    "fromDiscriminator" => $msgData->author->discriminator,
-                    "fromAvatar" => $msgData->author->avatar
-                ),
-                "channel" => $channelData,
-                "guild" => $channelData->is_private ? (object)array("name" => "private conversation") : \Discord\Parts\Guild\Guild::find($channelData->guild_id),
-                "botData" => $botData
-            );
-
-            // Run the plugins!
-            foreach ($plugins["onMessage"] as $plugin) {
-                try {
-                    $plugin->onMessage($msgData);
-                } catch (\Exception $e) {
-                    $app->log->debug("Error: " . $e->getMessage());
+                // Run the plugins!
+                foreach ($plugins["onMessage"] as $plugin) {
+                    try {
+                        $plugin->onMessage($msgData);
+                    } catch (\Exception $e) {
+                        $app->log->debug("Error: " . $e->getMessage());
+                    }
                 }
             }
         }
