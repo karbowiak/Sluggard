@@ -1,7 +1,7 @@
 <?php
 use Sluggard\SluggardApp;
 
-class databaseCheck {
+class directoryCheck {
     private $config;
     private $discord;
     private $log;

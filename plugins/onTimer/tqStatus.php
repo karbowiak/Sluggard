@@ -1,7 +1,8 @@
 <?php
+
 use Sluggard\SluggardApp;
 
-class databaseCheck {
+class tqStatus {
     private $config;
     private $discord;
     private $log;
