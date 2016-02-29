@@ -1,188 +1,120 @@
 <?php
-// More memory allowance
+use Discord\WebSockets\Event;
+
+// Allow up to 1GB memory usage.
 ini_set("memory_limit", "1024M");
 
-// Enable garbage collection
+// Turn on garbage collection
 gc_enable();
 
-// Just incase we get launched from somewhere else
-chdir(__DIR__);
+// Define the current dir
+define("BASEDIR", __DIR__);
 
-// When the bot started
+// In case we started from a different directory.
+chdir(BASEDIR);
+
+// Bot start time
 $startTime = time();
 
-// Require the vendor stuff
-require_once(__DIR__ . "/vendor/autoload.php");
+// Load all the vendor files
+require_once(BASEDIR . "/vendor/autoload.php");
 
-// Require the config
-if (file_exists(__DIR__ . "/config/config.php"))
-    require_once(__DIR__ . "/config/config.php");
+// Load in the config
+if(file_exists(BASEDIR . "/config/config.php"))
+    require_once(BASEDIR . "/config/config.php");
 else
     throw new Exception("config.php not found (you might wanna start by copying config_new.php)");
 
-// Load the library files (Probably a prettier way to do this that i haven't thought up yet)
-foreach (glob(__DIR__ . "/library/*.php") as $lib)
-    require_once($lib);
+// Start the bot, and load up all the Libraries and Models
+require_once(BASEDIR . "/src/init.php");
 
-// Init the discord library
-$discord = new \Discord\Discord($config["discord"]["email"], $config["discord"]["password"]);
-$token = $discord->token();
-$gateway = $discord->api("gateway")->show()["url"] . "/"; // need to end in / for it to not whine about it.. *sigh*
+$websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
+    $app["log"]->notice("Sluggard Ready");
 
-// Setup the event loop and logger
-$loop = \React\EventLoop\Factory::create();
-$logger = new \Zend\Log\Logger();
-$writer = new \Zend\Log\Writer\Stream("php://output");
-$logger->addWriter($writer);
+    // Run the onStart plugins
+    foreach($plugins as $plugin) {
+        try {
+            $plugin->onStart();
+        } catch(\Exception $e) {
+            $app->log->debug("Error: " . $e->getMessage());
+        }
+    }
 
-// Check that all the databases are created!
-$databases = array("ccpData.sqlite", "sluggard.sqlite");
-$databaseDir = __DIR__ . "/database";
-if(!file_exists($databaseDir))
-    mkdir($databaseDir);
-foreach($databases as $db)
-    if(!file_exists($databaseDir . "/" . $db))
-        touch($databaseDir . "/" . $db);
+    // On a message, do all of the following
+    $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
 
-// Create the sluggard.sqlite tables
-$logger->info("Checking for the pressence of the database tables");
-updateSluggardDB($logger);
-updateCCPData($logger);
-
-// Startup the websocket connection
-$client = new \Devristo\Phpws\Client\WebSocket($gateway, $loop, $logger);
-
-// Load the plugins (Probably a prettier way to do this that i haven't thought up yet)
-$pluginDirs = array(__DIR__ . "/plugins/tick/*.php", __DIR__ . "/plugins/onMessage/*.php");
-$plugins = array();
-foreach($pluginDirs as $dir) {
-    foreach (glob($dir) as $plugin) {
-        // Only load the plugins we want to load, according to the config
-        if(!in_array(str_replace(".php", "", basename($plugin)), $config["enabledPlugins"]))
+        // If i sent the message myself, just ignore it..
+        if($msgData->author->username == $app->config->get("botName", "bot"))
             continue;
 
-        require_once($plugin);
-        $logger->info("Loading: " . str_replace(".php", "", basename($plugin)));
-        $fileName = str_replace(".php", "", basename($plugin));
-        $p = new $fileName();
-        $p->init($config, $discord, $logger);
-        $plugins[] = $p;
-    }
-}
-// Number of plugins loaded
-$logger->info("Loaded: " . count($plugins) . " plugins");
+        // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
+        if($app->triggerCommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
+            $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
 
-// Load all the timers
-include(__DIR__ . "/timers.php");
+            if ($channelData->is_private)
+                $channelData->name = $channelData->recipient->username;
 
-// Setup the connection handlers
-$client->on("connect", function () use ($logger, $client, $token) {
-    $logger->notice("Connected!");
-    $client->send(
-        json_encode(
-            array(
-                "op" => 2,
-                "d" => array(
-                    "token" => $token,
-                    "properties" => array(
-                        "\$os" => "linux",
-                        "\$browser" => "discord.php",
-                        "\$device" => "discord.php",
-                        "\$referrer" => "",
-                        "\$referring_domain" => ""
-                    ),
-                    "v" => 3)
-            ),
-            JSON_NUMERIC_CHECK
-        )
-    );
-});
-
-$client->on("message", function ($message) use ($client, $logger, $discord, $plugins, $config) {
-    // Decode the data
-    $data = json_decode($message->getData());
-
-    switch ($data->t) {
-        case "READY":
-            $logger->notice("Got READY frame");
-            $logger->notice("Heartbeat interval: " . $data->d->heartbeat_interval / 1000.0 . " seconds");
-            // Can't really use the heartbeat interval for anything, since i can't retroactively change the periodic timers.. but it's usually ~40ish seconds
-            //$heartbeatInterval = $data->d->heartbeat_interval / 1000.0;
-            break;
-
-        case "MESSAGE_CREATE":
-            // Map the data to $data, we don't need all the opcodes and whatnots here
-            $data = $data->d;
-
-            // Skip if it's the bot itself that wrote something
-            if($data->author->username == $config["bot"]["name"])
-                continue;
-
-            // Create the data array for the plugins to use
-            $channelData = $discord->api("channel")->show($data->channel_id);
-            if ($channelData["is_private"])
-                $channelData["name"] = $channelData["recipient"]["username"];
-
-            $msgData = array(
-                "isBotOwner" => $data->author->username == $config["discord"]["admin"] || $data->author->id == $config["discord"]["adminID"] ? true : false,
-                "message" => array(
-                    "lastSeen" => dbQueryField("SELECT lastSeen FROM usersSeen WHERE id = :id", "lastSeen", array(":id" => $data->author->id)),
-                    "lastSpoke" => dbQueryField("SELECT lastSpoke FROM usersSeen WHERE id = :id", "lastSpoke", array(":id" => $data->author->id)),
-                    "timestamp" => $data->timestamp,
-                    "id" => $data->id,
-                    "message" => $data->content,
-                    "channelID" => $data->channel_id,
-                    "from" => $data->author->username,
-                    "fromID" => $data->author->id,
-                    "fromDiscriminator" => $data->author->discriminator,
-                    "fromAvatar" => $data->author->avatar
+            $msgData = (object)array(
+                "isBotOwner" => false,
+                "message" => (object)array(
+                    "lastSeen" => false,
+                    "lastSpoke" => false,
+                    "timestamp" => $msgData->timestamp->toDateTimeString(),
+                    "id" => $msgData->author->id,
+                    "message" => $msgData->content,
+                    "channelID" => $msgData->channel_id,
+                    "from" => $msgData->author->username,
+                    "fromID" => $msgData->author->id,
+                    "fromDiscriminator" => $msgData->author->discriminator,
+                    "fromAvatar" => $msgData->author->avatar
                 ),
                 "channel" => $channelData,
-                "guild" => $channelData["is_private"] ? array("name" => "private conversation") : $discord->api("guild")->show($channelData["guild_id"])
+                "guild" => $channelData->is_private ? (object)array("name" => "private conversation") : \Discord\Parts\Guild\Guild::find($channelData->guild_id),
+                "botData" => $botData
             );
 
-            // Update the users status
-            if($data->author->id)
-		        dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $data->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $data->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $data->content));
-
-            // Run the plugins
+            // Run the plugins!
             foreach ($plugins as $plugin) {
                 try {
                     $plugin->onMessage($msgData);
-                } catch (Exception $e) {
-                    $logger->warn("Error: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    $app->log->debug("Error: " . $e->getMessage());
                 }
             }
-            break;
-
-        case "TYPING_START": // When a person starts typing
-        case "VOICE_STATE_UPDATE": // When someone switches voice channel (should be used for the sound part i guess?)
-        case "CHANNEL_UPDATE": // When a channel gets update
-        case "GUILD_UPDATE": // When the guild (server) gets updated
-        case "GUILD_ROLE_UPDATE": // a role was updated in the guild
-        case "MESSAGE_UPDATE": // a message gets updated, ignore it for now
-            //$logger->info("Ignoring: " . $data->t);
-            // Ignore them
-            break;
-
-        case "PRESENCE_UPDATE": // Update a users status
-            if($data->d->user->id) {
-                $id = $data->d->user->id;
-                $lastSeen = date("Y-m-d H:i:s");
-                $lastStatus = $data->d->status;
-                $name = $discord->api("user")->show($id)["username"];
-                dbExecute("REPLACE INTO usersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus)", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
-            }
-            break;
-
-        default:
-            $logger->err("Unknown case: " . $data->t);
-            break;
-    }
+        }
+    });
 });
 
-$client->open()->then(function () use ($logger, $client) {
-    $logger->notice("Connection opened");
-});
+/*
+    const READY = 'READY';
+    const PRESENCE_UPDATE = 'PRESENCE_UPDATE';
+    const TYPING_START = 'TYPING_START';
+    const USER_SETTINGS_UPDATE = 'USER_SETTINGS_UPDATE';
+    const VOICE_STATE_UPDATE = 'VOICE_STATE_UPDATE';
 
-$loop->run();
+    // Guild
+    const GUILD_CREATE = 'GUILD_CREATE';
+    const GUILD_DELETE = 'GUILD_DELETE';
+    const GUILD_UPDATE = 'GUILD_UPDATE';
+
+    const GUILD_BAN_ADD = 'GUILD_BAN_ADD';
+    const GUILD_BAN_REMOVE = 'GUILD_BAN_REMOVE';
+    const GUILD_MEMBER_ADD = 'GUILD_MEMBER_ADD';
+    const GUILD_MEMBER_REMOVE = 'GUILD_MEMBER_REMOVE';
+    const GUILD_MEMBER_UPDATE = 'GUILD_MEMBER_UPDATE';
+    const GUILD_ROLE_CREATE = 'GUILD_ROLE_CREATE';
+    const GUILD_ROLE_UPDATE = 'GUILD_ROLE_UPDATE';
+    const GUILD_ROLE_DELETE = 'GUILD_ROLE_DELETE';
+
+    // Channel
+    const CHANNEL_CREATE = 'CHANNEL_CREATE';
+    const CHANNEL_DELETE = 'CHANNEL_DELETE';
+    const CHANNEL_UPDATE = 'CHANNEL_UPDATE';
+
+    // Messages
+    const MESSAGE_CREATE = 'MESSAGE_CREATE';
+    const MESSAGE_DELETE = 'MESSAGE_DELETE';
+    const MESSAGE_UPDATE = 'MESSAGE_UPDATE';
+ */
+// Start the bot
+$websocket->run();
