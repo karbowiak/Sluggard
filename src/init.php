@@ -25,6 +25,10 @@ foreach($load as $path) {
         $callName = str_replace(".php", "", $baseName);
         $namespace = "\\Sluggard\\" . str_replace(".php", "", str_replace("/", "\\", $exp[1]));
 
+        // If skipAutoLoad exists as a method, we skip loading this library (Should only really be the Db)
+        if(method_exists(new $namespace($app), "skipAutoLoad"))
+            continue;
+
         // Load all the models and Libraries as singletons in Slim..
         $app->singleton(strtolower($callName), function ($container) use ($app, $namespace) {
             return new $namespace($app);

@@ -8,6 +8,8 @@ namespace Sluggard;
  * @property \Sluggard\Lib\log log
  * @property \Sluggard\Lib\config config
  * @property \Sluggard\Lib\triggerCommand triggerCommand
+ * @property \Sluggard\Lib\async async
+ * @property \Sluggard\Lib\Db Db
  */
 
 class SluggardApp implements \ArrayAccess, \Countable, \IteratorAggregate
