@@ -12,5 +12,27 @@ $config["discord"] = array(
 );
 
 $config["enabledplugins"] = array(
-    "databaseCheck"
+    "about",
+    "eveCharInfo",
+    "eveCorpInfo",
+    "eveItem",
+    "evePrice",
+    "eveStatus",
+    "eveTime",
+    "help",
+    "user",
+    "wolframAlpha",
+    "databaseCheck",
+    "eveMails",
+    "eveNotifications",
+    "fileReader",
+    "twitterNotifications",
+    "memoryReclamation",
+    "pluginTick",
+    "tqStatus",
+    "updateDatabase"
+);
+
+$config["wolframalpha"] = array(
+    "appID" => ""
 );
