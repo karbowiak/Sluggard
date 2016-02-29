@@ -9,6 +9,7 @@ gc_enable();
 
 // Define the current dir
 define("BASEDIR", __DIR__);
+define("PLUGINDIR", __DIR__ . "/plugins/");
 
 // In case we started from a different directory.
 chdir(BASEDIR);
@@ -28,11 +29,15 @@ else
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
+//$websocket->loop->addPeriodicTimer(1, function() use ($plugins) {
+
+//});
+
 $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
-    $app["log"]->notice("Sluggard Ready");
+    $app["log"]->notice("Connection Opened");
 
     // Run the onStart plugins
-    foreach($plugins as $plugin) {
+    foreach($plugins["onStart"] as $plugin) {
         try {
             $plugin->onStart();
         } catch(\Exception $e) {
@@ -74,7 +79,7 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
             );
 
             // Run the plugins!
-            foreach ($plugins as $plugin) {
+            foreach ($plugins["onMessage"] as $plugin) {
                 try {
                     $plugin->onMessage($msgData);
                 } catch (\Exception $e) {
@@ -86,6 +91,17 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
 });
 
 /*
+ * From Uniquoooo
+ * ready = ready packet finished parsing
+ * heartbeat = heartbeat sent
+ * close = websocket closed
+ * error = error on websocket
+ * sent-login-frame = when we sent the websocket authentication frame
+ * connectfail = when we can't connect to the websocket
+ * raw = raw websocket data in json
+ * unavailable = when a guild returns unavailable
+ *
+ * From code:
     const READY = 'READY';
     const PRESENCE_UPDATE = 'PRESENCE_UPDATE';
     const TYPING_START = 'TYPING_START';
