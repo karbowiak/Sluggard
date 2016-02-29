@@ -37,10 +37,11 @@ $discord = new Discord($app->config->get("email", "discord"), $app->config->get(
 $websocket = new WebSocket($discord);
 
 // Load in all the plugins
-$pluginDirs = array(BASEDIR . "/plugins/onMessage/*.php", BASEDIR . "/plugins/onStart/*.php", BASEDIR . "/plugins/onTick/*.php", BASEDIR . "/plugins/onTimer/*.php");
+$pluginDirs = array("onMessage", "onStart", "onTick", "onTimer");
 $plugins = array();
 foreach($pluginDirs as $pluginDir) {
-    foreach(glob($pluginDir) as $plug) {
+    $files = glob(PLUGINDIR . $pluginDir . "/*.php");
+    foreach($files as $plug) {
         $baseName = str_replace(".php", "", basename($plug));
         if(!in_array($baseName, $app->config->getAll("enabledPlugins")))
             continue;
@@ -51,6 +52,6 @@ foreach($pluginDirs as $pluginDir) {
 
         /** @var SluggardApp $app */
         $plugin = new $fileName($discord, $app);
-        $plugins[] = $plugin;
+        $plugins[$pluginDir][] = $plugin;
     }
 }
