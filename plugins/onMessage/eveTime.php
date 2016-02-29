@@ -72,34 +72,39 @@ class eveTime {
      */
     public function onMessage($msgData) {
         $message = $msgData->message->message;
-        $channelName = $msgData->channel->name;
-        $guildName = $msgData->guild->name;
-        $channelID = $msgData->message->channelID;
-
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if(isset($data["trigger"])) {
-            $date = date("d-m-Y");
-            $fullDate = date("Y-m-d H:i:s");
-            $dateTime = new DateTime($fullDate);
+            $this->async->async(function() use ($msgData) {
+                $channelName = $msgData->channel->name;
+                $guildName = $msgData->guild->name;
+                $channelID = $msgData->message->channelID;
 
-            $et = $dateTime->setTimezone(new DateTimeZone("America/New_York"));
-            $et = $et->format("H:i:s");
-            $pt = $dateTime->setTimezone(new DateTimeZone("America/Los_Angeles"));
-            $pt = $pt->format("H:i:s");
-            $utc = $dateTime->setTimezone(new DateTimeZone("UTC"));
-            $utc = $utc->format("H:i:s");
-            $cet = $dateTime->setTimezone(new DateTimeZone("Europe/Copenhagen"));
-            $cet = $cet->format("H:i:s");
-            $msk = $dateTime->setTimezone(new DateTimeZone("Europe/Moscow"));
-            $msk = $msk->format("H:i:s");
-            $aest = $dateTime->setTimezone(new DateTimeZone("Australia/Sydney"));
-            $aest = $aest->format("H:i:s");
+                $date = date("d-m-Y");
+                $fullDate = date("Y-m-d H:i:s");
+                $dateTime = new DateTime($fullDate);
 
-            $this->log->info("Sending time info to {$channelName} on {$guildName}");
-            $msgData->user->reply("**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
+                $et = $dateTime->setTimezone(new DateTimeZone("America/New_York"));
+                $et = $et->format("H:i:s");
+                $pt = $dateTime->setTimezone(new DateTimeZone("America/Los_Angeles"));
+                $pt = $pt->format("H:i:s");
+                $utc = $dateTime->setTimezone(new DateTimeZone("UTC"));
+                $utc = $utc->format("H:i:s");
+                $cet = $dateTime->setTimezone(new DateTimeZone("Europe/Copenhagen"));
+                $cet = $cet->format("H:i:s");
+                $msk = $dateTime->setTimezone(new DateTimeZone("Europe/Moscow"));
+                $msk = $msk->format("H:i:s");
+                $aest = $dateTime->setTimezone(new DateTimeZone("Australia/Sydney"));
+                $aest = $aest->format("H:i:s");
+
+                $this->log->info("Sending time info to {$channelName} on {$guildName}");
+                $msgData->user->reply("**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
+
+                echo "sleeping for 10 seconds\n";
+                sleep(10);
+                echo "done sleeping\n";
+            });
         }
-
     }
 
     /**
