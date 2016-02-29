@@ -98,9 +98,9 @@ class eveTime
             $aest = $dateTime->setTimezone(new DateTimeZone("Australia/Sydney"));
             $aest = $aest->format("H:i:s");
 
+            $msg = "**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}";
             $this->log->info("Sending time info to {$channelName} on {$guildName}");
-            $msgData->user->reply("**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
-
+            $msgData->user->reply($msg);
         }
     }
 
