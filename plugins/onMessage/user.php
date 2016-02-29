@@ -78,9 +78,18 @@ class user {
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
 
+            $user = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
 
-            //$this->log->info("Sending time info to {$channelName} on {$guildName}");
-            //$msgData->user->reply($msg);
+            // Get data for user
+            $userData = $this->sluggardDB->queryRow("SELECT * FROM usersSeen WHERE (name = :name COLLATE NOCASE OR id = :name)", array(":name" => $user));
+
+            if($userData) {
+                $msg = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nisAdmin: {$userData["isAdmin"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
+                $this->log->info("Sending time info to {$channelName} on {$guildName}");
+                $msgData->user->reply($msg);
+            } else {
+                $msgData->user->reply("**Error:** no such user in the users table");
+            }
         }
     }
 

@@ -75,9 +75,32 @@ class help {
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if(isset($data["trigger"])) {
+            global $plugins;
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
+            $messageString = $data["messageString"];
 
+            if(!$messageString) {
+                // Show all modules available
+                $commands = array();
+                foreach ($plugins as $type) {
+                    foreach($type as $plugin) {
+                        $info = $plugin->information();
+                        if (!empty($info["name"]))
+                            $commands[] = $info["name"];
+                    }
+                }
+
+                $msgData->user->reply("**Help:** No specific plugin requested, here is a list of plugins available: **" . implode("** | **", $commands) . "**");
+            } else {
+                foreach ($plugins as $type) {
+                    foreach($type as $plugin) {
+                        if ($messageString == $plugin->information()["name"]) {
+                            $msgData->user->reply($plugin->information()["information"]);
+                        }
+                    }
+                }
+            }
 
             //$this->log->info("Sending time info to {$channelName} on {$guildName}");
             //$msgData->user->reply($msg);

@@ -78,9 +78,78 @@ class eveCharInfo {
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
 
+            // Most EVE players on Discord use their ingame name, so lets support @highlights
+            $messageString = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
+            if(is_numeric($messageString)) // The person used @highlighting, so now we got a discord id, lets map that to a name
+                $messageString = $this->sluggardDB->queryField("SELECT name FROM usersSeen WHERE id = :id", "name", array(":id" => $messageString));
 
-            //$this->log->info("Sending time info to {$channelName} on {$guildName}");
-            //$msgData->user->reply($msg);
+            $url = "http://rena.karbowiak.dk/api/search/character/{$messageString}/";
+            $data = @json_decode($this->curl->getData($url), true)["character"];
+
+            if(empty($msgData))
+                return $msgData->user->reply("**Error:** no results was returned.");
+
+            if(count($msgData) > 1) {
+                $results = array();
+                foreach($msgData as $char)
+                    $results[] = $char["characterName"];
+
+                return $msgData->user->reply("**Error:** more than one result was returned: " . implode(", ", $results));
+            }
+
+            // Get stats
+            $characterID = $data[0]["characterID"];
+            $statsURL = "https://beta.eve-kill.net/api/charInfo/characterID/" . urlencode($characterID) ."/";
+            $stats = json_decode($this->curl->getData($statsURL), true);
+
+            if(empty($stats))
+                return $msgData->user->reply("**Error:** no data available");
+
+            $characterName = @$stats["characterName"];
+            $corporationName = @$stats["corporationName"];
+            $allianceName = isset($stats["allianceName"]) ? $stats["allianceName"] : "None";
+            $factionName = isset($stats["factionName"]) ? $stats["factionName"] : "None";
+            $securityStatus = @$stats["securityStatus"];
+            $lastSeenSystem = @$stats["lastSeenSystem"];
+            $lastSeenRegion = @$stats["lastSeenRegion"];
+            $lastSeenShip = @$stats["lastSeenShip"];
+            $lastSeenDate = @$stats["lastSeenDate"];
+            $corporationActiveArea = @$stats["corporationActiveArea"];
+            $allianceActiveArea = @$stats["allianceActiveArea"];
+            $soloKills = @$stats["soloKills"];
+            $blobKills = @$stats["blobKills"];
+            $lifeTimeKills = @$stats["lifeTimeKills"];
+            $lifeTimeLosses = @$stats["lifeTimeLosses"];
+            $amountOfSoloPVPer = @$stats["percentageSoloPVPer"];
+            $ePeenSize = @$stats["ePeenSize"];
+            $facepalms = @$stats["facepalms"];
+            $lastUpdated = @$stats["lastUpdatedOnBackend"];
+            $url = "https://beta.eve-kill.net/character/" . $stats["characterID"] . "/";
+
+
+            $msg = "```characterName: {$characterName}
+corporationName: {$corporationName}
+allianceName: {$allianceName}
+factionName: {$factionName}
+securityStatus: {$securityStatus}
+lastSeenSystem: {$lastSeenSystem}
+lastSeenRegion: {$lastSeenRegion}
+lastSeenShip: {$lastSeenShip}
+lastSeenDate: {$lastSeenDate}
+corporationActiveArea: {$corporationActiveArea}
+allianceActiveArea: {$allianceActiveArea}
+soloKills: {$soloKills}
+blobKills: {$blobKills}
+lifeTimeKills: {$lifeTimeKills}
+lifeTimeLosses: {$lifeTimeLosses}
+percentageSoloPVPer: {$amountOfSoloPVPer}
+ePeenSize: {$ePeenSize}
+facepalms: {$facepalms}
+lastUpdated: $lastUpdated```
+For more info, visit: $url";
+
+            $this->log->info("Sending char info to {$channelName} on {$guildName}");
+            $msgData->user->reply($msg);
         }
     }
 

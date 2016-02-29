@@ -46,6 +46,10 @@ class wolframAlpha {
      * @var \Sluggard\Lib\triggerCommand
      */
     private $trigger;
+    /**
+     * @var
+     */
+    private $wolframAlpha;
 
     /**
      * wolframAlpha constructor.
@@ -63,6 +67,9 @@ class wolframAlpha {
         $this->curl = $app->curl;
         $this->storage = $app->storage;
         $this->trigger = $app->triggercommand;
+        require_once(BASEDIR . "/src/wolframAlpha/WolframAlphaEngine.php");
+        $appID = $this->config->get("appID", "wolframalpha");
+        $this->wolframAlpha = $appID != null ? new WolframAlphaEngine($appID) : null;
     }
 
     /**
@@ -77,8 +84,26 @@ class wolframAlpha {
         if(isset($data["trigger"])) {
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
+            $messageString = $data["messageString"];
 
+            $response = $this->wolframAlpha->getResults($messageString);
 
+            // There was an error
+            if($response->isError())
+                var_dump($response->error);
+
+            $guess = $response->getPods();
+            if(isset($guess[1])) {
+                $guess = $guess[1]->getSubpods();
+                $text = $guess[0]->plaintext;
+                $image = $guess[0]->image->attributes["src"];
+
+                if(stristr($text, "\n"))
+                    $text = str_replace("\n", " | ", $text);
+
+                $msg = "{$text}\n$image";
+                $msgData->user->reply($msg);
+            }
             //$this->log->info("Sending time info to {$channelName} on {$guildName}");
             //$msgData->user->reply($msg);
         }
