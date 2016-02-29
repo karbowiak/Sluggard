@@ -12,7 +12,7 @@ $app = new SluggardApp();
 // Define where the lib/model files are
 $load = array(
     BASEDIR . "/src/Lib/*.php",
-    BASEDIR . "/src/Model/*.php"
+    BASEDIR . "/src/Models/*.php"
 );
 
 // Load the lib/model files

@@ -7,9 +7,13 @@ namespace Sluggard;
  *
  * @property \Sluggard\Lib\log log
  * @property \Sluggard\Lib\config config
- * @property \Sluggard\Lib\triggerCommand triggerCommand
+ * @property \Sluggard\Lib\triggerCommand triggercommand
  * @property \Sluggard\Lib\async async
- * @property \Sluggard\Lib\Db Db
+ * @property \Sluggard\Lib\Db db
+ * @property \Sluggard\Lib\cURL curl
+ * @property \Sluggard\Lib\Storage storage
+ * @property \Sluggard\Models\CCPData ccpdata
+ * @property \Sluggard\Models\SluggardData sluggarddata
  */
 
 class SluggardApp implements \ArrayAccess, \Countable, \IteratorAggregate

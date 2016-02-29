@@ -65,7 +65,7 @@ class Db
                 )
             );
         } catch(\Exception $e) {
-            $this->log->err("PDO Error: " . $e->getMessage());
+            var_dump("PDO Error: " . $e->getMessage());
         }
     }
 
@@ -157,14 +157,20 @@ class Db
      */
     public function execute($query, $parameters = array(), $returnID = false) {
         try {
-            // Start a transaction
-            $this->db->beginTransaction();
+            if(stristr($query, ";")) {
+                $explodedQuery = explode(";", $query);
+                foreach($explodedQuery as $newQry) {
+                    $stmt = $this->db->prepare($newQry);
+                    $stmt->execute($parameters);
+                }
+            }
+            else {
+                // Prepare the query
+                $stmt = $this->db->prepare($query);
 
-            // Prepare the query
-            $stmt = $this->db->prepare($query);
-
-            // Execute with parameters
-            $stmt->execute($parameters);
+                // Execute with parameters
+                $stmt->execute($parameters);
+            }
 
             // Check for errors
             if($stmt->errorCode() != 0) {
@@ -174,9 +180,6 @@ class Db
 
             // Get the ID of what we just inserted, if it exists
             $returnID = $returnID ? $this->db->lastInsertId() : 0;
-
-            // Commit the data
-            $this->db->commit();
 
             // Row count that was changed
             $rowCount = $stmt->rowCount();
