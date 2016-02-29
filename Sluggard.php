@@ -94,11 +94,13 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
         }
     });
     $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
-        $lastSeen = date("Y-m-d H:i:s");
-        $lastStatus = $userData->status;
-        $name = $userData->user->username;
-        $id = $userData->user->id;
-        $app->sluggarddata->execute("REPLACE INTO usersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus)", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
+        if($userData->user->id && $userData->user->username) {
+            $lastSeen = date("Y-m-d H:i:s");
+            $lastStatus = $userData->status;
+            $name = $userData->user->username;
+            $id = $userData->user->id;
+            $app->sluggarddata->execute("REPLACE INTO usersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus)", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
+        }
     });
 });
 
