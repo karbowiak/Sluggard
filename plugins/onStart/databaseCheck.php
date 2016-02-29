@@ -33,6 +33,10 @@ class databaseCheck {
      * @var \Sluggard\Lib\Storage
      */
     private $storage;
+    /**
+     * @var \Sluggard\Lib\triggerCommand
+     */
+    private $trigger;
 
     /**
      * databaseCheck constructor.
@@ -47,6 +51,7 @@ class databaseCheck {
         $this->ccpDB = $app->ccpdata;
         $this->curl = $app->curl;
         $this->storage = $app->storage;
+        $this->trigger = $app->triggercommand;
     }
 
     /**

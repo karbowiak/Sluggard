@@ -49,6 +49,8 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
     $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
         // If i sent the message myself, just ignore it..
         if($msgData->author->username != $app->config->get("botName", "bot")) {
+            $app->log->info("Received Message From: {$msgData->author->username}. Message: {$msgData->content}");
+
             // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
             if ($app->triggercommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
                 $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);

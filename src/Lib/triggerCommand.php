@@ -26,6 +26,9 @@ class triggerCommand {
      * @return array
      */
     public function trigger($message, $commandTrigger) {
+        if(empty($commandTrigger))
+            return null;
+
         $commandTrigger = is_array($commandTrigger) ? $commandTrigger : array($commandTrigger);
 
         foreach($commandTrigger as $trigger) {
