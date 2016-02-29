@@ -9,6 +9,9 @@ use Sluggard\SluggardApp;
 /** @var SluggardApp $app */
 $app = new SluggardApp();
 
+// Put startTime into app
+$app->startTime = $startTime;
+
 // Define where the lib/model files are
 $load = array(
     BASEDIR . "/src/Lib/*.php",

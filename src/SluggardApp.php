@@ -11,6 +11,7 @@ namespace Sluggard;
  * @property \Sluggard\Lib\Db db
  * @property \Sluggard\Lib\cURL curl
  * @property \Sluggard\Lib\Storage storage
+ * @property \Sluggard\Lib\gitRevision gitrevision
  * @property \Sluggard\Models\CCPData ccpdata
  * @property \Sluggard\Models\SluggardData sluggarddata
  */
