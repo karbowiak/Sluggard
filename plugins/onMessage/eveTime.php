@@ -75,10 +75,10 @@ class eveTime {
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if(isset($data["trigger"])) {
+            // Run the command async, meaning it doesn't block the main thread.
             $this->async->async(function() use ($msgData) {
                 $channelName = $msgData->channel->name;
                 $guildName = $msgData->guild->name;
-                $channelID = $msgData->message->channelID;
 
                 $date = date("d-m-Y");
                 $fullDate = date("Y-m-d H:i:s");
@@ -99,10 +99,6 @@ class eveTime {
 
                 $this->log->info("Sending time info to {$channelName} on {$guildName}");
                 $msgData->user->reply("**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}");
-
-                echo "sleeping for 10 seconds\n";
-                sleep(10);
-                echo "done sleeping\n";
             });
         }
     }
