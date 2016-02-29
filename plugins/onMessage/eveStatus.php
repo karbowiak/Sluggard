@@ -87,7 +87,6 @@ class eveStatus
             $tqOnline = (int)$crestData["userCounts"]["eve"];
 
             $msg = "**TQ Status:** {$tqStatus} with {$tqOnline} users online.";
-
             $this->log->info("Sending eveStatus info to {$channelName} on {$guildName}");
             $msgData->user->reply($msg);
         }
