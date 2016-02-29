@@ -51,6 +51,10 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
         if($msgData->author->username != $app->config->get("botName", "bot")) {
             $app->log->info("Received Message From: {$msgData->author->username}. Message: {$msgData->content}");
 
+            // Add this user and it's data to the usersSeen table
+            if($msgData->author->id)
+                $app->sluggarddata->execute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $msgData->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $msgData->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $msgData->content));
+
             // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
             if ($app->triggercommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
                 $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
@@ -62,8 +66,8 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
                     "isBotOwner" => false,
                     "user" => $msgData,
                     "message" => (object)array(
-                        "lastSeen" => false,
-                        "lastSpoke" => false,
+                        "lastSeen" => $app->sluggarddata->queryField("SELECT lastSeen FROM usersSeen WHERE id = :id", "lastSeen", array(":id" => $msgData->author->id)),
+                        "lastSpoke" => $app->sluggarddata->queryField("SELECT lastSpoke FROM usersSeen WHERE id = :id", "lastSpoke", array(":id" => $msgData->author->id)),
                         "timestamp" => $msgData->timestamp->toDateTimeString(),
                         "id" => $msgData->author->id,
                         "message" => $msgData->content,
@@ -88,6 +92,13 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
                 }
             }
         }
+    });
+    $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
+        $lastSeen = date("Y-m-d H:i:s");
+        $lastStatus = $userData->status;
+        $name = $userData->user->username;
+        $id = $userData->user->id;
+        $app->sluggarddata->execute("REPLACE INTO usersSeen (id, name, lastSeen, lastStatus) VALUES (:id, :name, :lastSeen, :lastStatus)", array(":id" => $id, ":lastSeen" => $lastSeen, ":name" => $name, ":lastStatus" => $lastStatus));
     });
 });
 
