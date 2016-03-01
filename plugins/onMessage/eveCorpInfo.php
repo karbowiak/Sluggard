@@ -3,9 +3,9 @@
 use Sluggard\SluggardApp;
 
 /**
- * Class user
+ * Class eveCorpInfo
  */
-class user {
+class eveCorpInfo {
     /**
      * @var SluggardApp
      */
@@ -48,7 +48,7 @@ class user {
     private $trigger;
 
     /**
-     * user constructor.
+     * eveCorpInfo constructor.
      * @param $discord
      * @param SluggardApp $app
      */
@@ -77,19 +77,64 @@ class user {
         if(isset($data["trigger"])) {
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
+            $messageString = $data["messageString"];
 
-            $user = stristr($data["messageString"], "@") ? str_replace("<@", "", str_replace(">", "", $data["messageString"])) : $data["messageString"];
+            $url = "http://rena.karbowiak.dk/api/search/corporation/{$messageString}/";
+            $data = @json_decode($this->curl->getData($url), true)["corporation"];
 
-            // Get data for user
-            $userData = $this->sluggardDB->queryRow("SELECT * FROM usersSeen WHERE (name = :name COLLATE NOCASE OR id = :name)", array(":name" => $user));
+            if(empty($data))
+                return $msgData->user->reply("**Error:** no results was returned.");
 
-            if($userData) {
-                $msg = "```ID: {$userData["id"]}\nName: {$userData["name"]}\nisAdmin: {$userData["isAdmin"]}\nLast Seen: {$userData["lastSeen"]}\nLast Spoken: {$userData["lastSpoke"]}\nLast Status: {$userData["lastStatus"]}```";
-                $this->log->info("Sending time info to {$channelName} on {$guildName}");
-                $msgData->user->reply($msg);
-            } else {
-                $msgData->user->reply("**Error:** no such user in the users table");
+            if(count($data) > 1) {
+                $results = array();
+                foreach($data as $corp)
+                    $results[] = $corp["corporationName"];
+
+                return $msgData->user->reply("**Error:** more than one result was returned: " . implode(", ", $results));
             }
+
+            // Get stats
+            $corporationID = $data[0]["corporationID"];
+            $statsURL = "https://beta.eve-kill.net/api/corpInfo/corporationID/" . urlencode($corporationID) ."/";
+            $stats = json_decode($this->curl->getData($statsURL), true);
+
+            if(empty($stats))
+                return $msgData->user->reply("**Error:** no data available");
+
+            $corporationName = @$stats["corporationName"];
+            $allianceName = isset($stats["allianceName"]) ? $stats["allianceName"] : "None";
+            $factionName = isset($stats["factionName"]) ? $stats["factionName"] : "None";
+            $ceoName = @$stats["ceoName"];
+            $homeStation = @$stats["stationName"];
+            $taxRate = @$stats["taxRate"];
+            $corporationActiveArea = @$stats["corporationActiveArea"];
+            $allianceActiveArea = @$stats["allianceActiveArea"];
+            $lifeTimeKills = @$stats["lifeTimeKills"];
+            $lifeTimeLosses = @$stats["lifeTimeLosses"];
+            $memberCount = @$stats["memberArrayCount"];
+            $superCaps = @count($stats["superCaps"]);
+            $ePeenSize = @$stats["ePeenSize"];
+            $url = "https://beta.eve-kill.net/corporation/" . @$stats["corporationID"] . "/";
+
+
+            $msg = "```corporationName: {$corporationName}
+allianceName: {$allianceName}
+factionName: {$factionName}
+ceoName: {$ceoName}
+homeStation: {$homeStation}
+taxRate: {$taxRate}
+corporationActiveArea: {$corporationActiveArea}
+allianceActiveArea: {$allianceActiveArea}
+lifeTimeKills: {$lifeTimeKills}
+lifeTimeLosses: {$lifeTimeLosses}
+memberCount: {$memberCount}
+superCaps: {$superCaps}
+ePeenSize: {$ePeenSize}
+```
+For more info, visit: $url";
+
+            $this->log->info("Sending corp info to {$channelName} on {$guildName}");
+            $msgData->user->reply($msg);
         }
     }
 
@@ -126,8 +171,8 @@ class user {
      */
     public function information() {
         return array(
-            "name" => "user",
-            "trigger" => array("!user"),
+            "name" => "corp",
+            "trigger" => array("!corp"),
             "information" => "",
             "timerFrequency" => 0
         );

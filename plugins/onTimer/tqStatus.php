@@ -3,10 +3,9 @@
 use Sluggard\SluggardApp;
 
 /**
- * Class eveStatus
+ * Class tqStatus
  */
-class eveStatus
-{
+class tqStatus {
     /**
      * @var SluggardApp
      */
@@ -49,12 +48,11 @@ class eveStatus
     private $trigger;
 
     /**
-     * eveStatus constructor.
+     * tqStatus constructor.
      * @param $discord
      * @param SluggardApp $app
      */
-    public function __construct($discord, SluggardApp $app)
-    {
+    public function __construct($discord, SluggardApp $app) {
         $this->app = $app;
         $this->config = $app->config;
         $this->discord = $discord;
@@ -72,24 +70,43 @@ class eveStatus
      *
      * @param $msgData
      */
-    public function onMessage($msgData)
-    {
-        $message = $msgData->message->message;
-        $data = $this->trigger->trigger($message, $this->information()["trigger"]);
+    public function onMessage($msgData) {
 
-        if (isset($data["trigger"])) {
-            $channelName = $msgData->channel->name;
-            $guildName = $msgData->guild->name;
+    }
 
-            $crestData = json_decode($this->curl->getData("https://public-crest.eveonline.com/"), true);
+    /**
+     * When the bot starts, this is started
+     */
+    public function onStart() {
 
-            $tqStatus = isset($crestData["serviceStatus"]["eve"]) ? $crestData["serviceStatus"]["eve"] : "offline";
-            $tqOnline = (int)$crestData["userCounts"]["eve"];
+    }
 
-            $msg = "**TQ Status:** {$tqStatus} with {$tqOnline} users online.";
-            $this->log->info("Sending eveStatus info to {$channelName} on {$guildName}");
-            $msgData->user->reply($msg);
+    /**
+     * When the bot does a tick (every second), this is started
+     */
+    public function onTick() {
+
+    }
+
+    /**
+     * When the bot's tick hits a specified time, this is started
+     *
+     * Runtime is defined in $this->information(), timerFrequency
+     */
+    public function onTimer() {
+        $crestData = json_decode($this->curl->getData("https://public-crest.eveonline.com/"), true);
+        $tqStatus = isset($crestData["serviceStatus"]["eve"]) ? $crestData["serviceStatus"]["eve"] : "offline";
+        $tqOnline = (int) $crestData["userCounts"]["eve"];
+
+        // Store the current status in the permanent cache
+        $oldStatus = $this->storage->get("eveTQStatus");
+        if($tqStatus !== $oldStatus) {
+            $msg = "**New TQ Status:** ***{$tqStatus}*** / ***{$tqOnline}*** users online.";
+            $this->log->info("TQ Status changed from {$oldStatus} to {$tqStatus}");
+            $channel = \Discord\Parts\Channel\Channel::find($this->config->get("channelID", "periodictqstatus"));
+            $channel->sendMessage($msg);
         }
+        $this->storage->set("eveTQStatus", $tqStatus);
     }
 
     /**
@@ -100,39 +117,12 @@ class eveStatus
      * information: is a short description of the plugin
      * timerFrequency: if this were an onTimer script, it would execute every x seconds, as defined by timerFrequency
      */
-    public function information()
-    {
+    public function information() {
         return array(
-            "name" => "tq",
-            "trigger" => array("!tq"),
-            "information" => "Shows the current status of the Tranquility server",
-            "timerFrequency" => 0
+            "name" => "tqStatus",
+            "trigger" => array(""),
+            "information" => "",
+            "timerFrequency" => 30
         );
-    }
-
-    /**
-     * When the bot starts, this is started
-     */
-    public function onStart()
-    {
-
-    }
-
-    /**
-     * When the bot does a tick (every second), this is started
-     */
-    public function onTick()
-    {
-
-    }
-
-    /**
-     * When the bot's tick hits a specified time, this is started
-     *
-     * Runtime is defined in $this->information(), timerFrequency
-     */
-    public function onTimer()
-    {
-
     }
 }

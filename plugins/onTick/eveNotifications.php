@@ -1,47 +1,76 @@
 <?php
 
+use Sluggard\SluggardApp;
+
 /**
- * Class notifications
+ * Class eveNotifications
  */
-class notifications
-{
+class eveNotifications {
     /**
-     * @var
+     * @var SluggardApp
      */
-    var $config;
+    private $app;
     /**
-     * @var
+     * @var \Sluggard\Lib\config
      */
-    var $discord;
+    private $config;
     /**
-     * @var
+     * @var \Discord\Discord
      */
-    var $logger;
+    private $discord;
+    /**
+     * @var \Sluggard\Lib\log
+     */
+    private $log;
+    /**
+     * @var \Sluggard\Lib\async
+     */
+    private $async;
+    /**
+     * @var \Sluggard\Models\SluggardData
+     */
+    private $sluggardDB;
+    /**
+     * @var \Sluggard\Models\CCPData
+     */
+    private $ccpDB;
+    /**
+     * @var \Sluggard\Lib\cURL
+     */
+    private $curl;
+    /**
+     * @var \Sluggard\Lib\Storage
+     */
+    private $storage;
+    /**
+     * @var \Sluggard\Lib\triggerCommand
+     */
+    private $trigger;
+    /**
+     * @private
+     */
+    private $nextCheck;
+    /**
+     * @private
+     */
+    private $toDiscordChannel;
 
     /**
-     * @var
+     * @private
      */
-    var $nextCheck;
+    private $newestNotificationID;
     /**
-     * @var
+     * @private
      */
-    var $keys;
+    private $maxID;
     /**
-     * @var
+     * @private
      */
-    var $keyCount;
+    private $keyCount;
     /**
-     * @var
+     * @private
      */
-    var $toDiscordChannel;
-    /**
-     * @var
-     */
-    var $newestNotificationID;
-    /**
-     * @var
-     */
-    var $maxID;
+    private $keys;
     /**
      * @var
      */
@@ -56,26 +85,33 @@ class notifications
     var $alliApi;
 
     /**
-     * @param $config
+     * eveNotifications constructor.
      * @param $discord
-     * @param $logger
+     * @param SluggardApp $app
      */
-    function init($config, $discord, $logger)
-    {
-        $this->config = $config;
+    public function __construct($discord, SluggardApp $app) {
+        $this->app = $app;
+        $this->config = $app->config;
         $this->discord = $discord;
-        $this->logger = $logger;
-        $this->toDiscordChannel = $config["plugins"]["notifications"]["channelID"];
-        $this->newestNotificationID = getPermCache("newestNotificationID");
-        $this->maxID = 0;
-        $this->keyCount = count($config["eve"]["apiKeys"]);
-        $this->keys = $config["eve"]["apiKeys"];
-        $this->nextCheck = 0;
+        $this->log = $app->log;
+        $this->async = $app->async;
+        $this->sluggardDB = $app->sluggarddata;
+        $this->ccpDB = $app->ccpdata;
+        $this->curl = $app->curl;
+        $this->storage = $app->storage;
+        $this->trigger = $app->triggercommand;
 
         // Rena APIs
         $this->charApi = "http://rena.karbowiak.dk/api/character/information/";
         $this->corpApi = "http://rena.karbowiak.dk/api/corporation/information/";
         $this->alliApi = "http://rena.karbowiak.dk/api/alliance/information/";
+
+        $this->toDiscordChannel = $this->config->get("channelID", "evemails");
+        $this->newestNotificationID = $this->storage->get("newestCorpMailID");
+        $this->maxID = 0;
+        $this->keyCount = count($this->config->get("apiKeys", "eve"));
+        $this->keys = $this->config->get("apiKeys", "eve");
+        $this->nextCheck = 0;
 
         // Schedule all the apiKeys for the future
         $keyCounter = 0;
@@ -84,20 +120,35 @@ class notifications
             $characterID = $apiData["characterID"];
 
             if($keyCounter == 0) // Schedule it for right now
-                setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() - 5);
+                $this->storage->set("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() - 5);
             else {
                 $rescheduleTime = time() + ((1805 / $this->keyCount) * $keyCounter);
-                setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", $rescheduleTime);
+                $this->storage->set("corpMailCheck{$keyID}{$keyOwner}{$characterID}", $rescheduleTime);
             }
             $keyCounter++;
         }
     }
 
     /**
+     * When a message arrives that contains a trigger, this is started
      *
+     * @param $msgData
      */
-    function tick()
-    {
+    public function onMessage($msgData) {
+
+    }
+
+    /**
+     * When the bot starts, this is started
+     */
+    public function onStart() {
+
+    }
+
+    /**
+     * When the bot does a tick (every second), this is started
+     */
+    public function onTick() {
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
             if ($check == false)
@@ -106,34 +157,61 @@ class notifications
             $keyID = $api["keyID"];
             $vCode = $api["vCode"];
             $characterID = $api["characterID"];
-            $lastChecked = getPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}");
+            $lastChecked = $this->storage->get("notificationCheck{$keyID}{$keyOwner}{$characterID}");
 
             if ($lastChecked <= time()) {
-                $this->logger->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
+                $this->log->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
                 $this->getNotifications($keyID, $vCode, $characterID);
-                setPermCache("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1805); // Reschedule it's check for 30minutes from now (Plus 5s, ~CCP~)
+                $this->storage->set("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1805); // Reschedule it's check for 30minutes from now (Plus 5s, ~CCP~)
                 $check = false;
             }
         }
     }
 
     /**
+     * When the bot's tick hits a specified time, this is started
+     *
+     * Runtime is defined in $this->information(), timerFrequency
+     */
+    public function onTimer() {
+
+    }
+
+    /**
+     * @return array
+     *
+     * name: is the name of the script
+     * trigger: is an array of triggers that can trigger this plugin
+     * information: is a short description of the plugin
+     * timerFrequency: if this were an onTimer script, it would execute every x seconds, as defined by timerFrequency
+     */
+    public function information() {
+        return array(
+            "name" => "",
+            "trigger" => array(""),
+            "information" => "",
+            "timerFrequency" => 0
+        );
+    }
+
+
+    /**
      * @param $keyID
      * @param $vCode
      * @param $characterID
      */
-    function getNotifications($keyID, $vCode, $characterID)
+    private function getNotifications($keyID, $vCode, $characterID)
     {
         try { // Seriously CCP.. *sigh*
             // Ignore notifications from these douchebags..
             $ignoreNames = array("CCP");
             $url = "https://api.eveonline.com/char/Notifications.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}";
-            $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
+            $data = json_decode(json_encode(simplexml_load_string($this->curl->getData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
             $data = $data["result"]["rowset"]["row"];
 
             // If there is no data, just quit..
             if (empty($data))
-                continue;
+                return;
 
             $fixedData = array();
 
@@ -159,12 +237,14 @@ class notifications
                 if ($notificationID > $this->newestNotificationID) {
                     $notificationString = explode("\n", $this->getNotificationText($keyID, $vCode, $characterID, $notificationID));
 
+                    $msg = null;
+
                     // Seriously, get fucked CCP
                     switch ($typeID) {
-						case 5: // War Declared
-							$aggressorAllianceID = trim(explode(": ", $notificationString[2])[1]);
+                        case 5: // War Declared
+                            $aggressorAllianceID = trim(explode(": ", $notificationString[2])[1]);
                             $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
-							$delayHours = trim(explode(": ", $notificationString[3])[1]);
+                            $delayHours = trim(explode(": ", $notificationString[3])[1]);
                             $msg = "War declared by {$aggressorAllianceName}. Fighting begins in roughly {$delayHours} hours.";
                             break;
 
@@ -184,29 +264,29 @@ class notifications
                             $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $armorValue = trim(explode(": ", $notificationString[3])[1]);
                             $hullValue = trim(explode(": ", $notificationString[4])[1]);
-							$moonID = trim(explode(": ", $notificationString[5])[1]);
-                            $moonName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID), "ccp");
+                            $moonID = trim(explode(": ", $notificationString[5])[1]);
+                            $moonName = $this-$this->ccpDB->queryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID));
                             $shieldValue = trim(explode(": ", $notificationString[6])[1]);
                             $solarSystemID = trim(explode(": ", $notificationString[7])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
 
                             $msg = "POS under attack in **{$systemName} - {$moonName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                             break;
 
                         case 76: // Tower resource alert
-							$moonID = trim(explode(": ", $notificationString[2])[1]);
-                            $moonName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID), "ccp");
+                            $moonID = trim(explode(": ", $notificationString[2])[1]);
+                            $moonName = $this->ccpDB->queryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $moonID));
                             $solarSystemID = trim(explode(": ", $notificationString[3])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
-							$blocksRemaining = trim(explode(": ", $notificationString[6])[1]);
-							$typeID = trim(explode(": ", $notificationString[7])[1]);
-							$typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
+                            $blocksRemaining = trim(explode(": ", $notificationString[6])[1]);
+                            $typeID = trim(explode(": ", $notificationString[7])[1]);
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "POS in {$systemName} - {$moonName} needs fuel. Only {$blocksRemaining} {$typeName}'s remaining.";
                             break;
 
                         case 77: // Station service being attacked
-							$aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
+                            $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
                             $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
                             $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
                             $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
@@ -214,11 +294,11 @@ class notifications
                             $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $shieldValue = trim(explode(": ", $notificationString[2])[1]);
                             $systemID = trim(explode(": ", $notificationString[3])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
                             $stationID = trim(explode(": ", $notificationString[4])[1]);
-                            $stationName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $stationID), "ccp");
+                            $stationName = $this->ccpDB->queryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $stationID));
                             $typeID = trim(explode(": ", $notificationString[5])[1]);
-                            $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Station service is being attacked in **{$systemName} ({$stationName} / {$typeName})** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}. Shield Status: {$shieldValue}";
                             break;
@@ -234,7 +314,7 @@ class notifications
                             $hullValue = trim(explode(": ", $notificationString[4])[1]);
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                             $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
 
                             $msg = "SBU under attack in **{$systemName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                             break;
@@ -250,7 +330,7 @@ class notifications
                             $hullValue = trim(explode(": ", $notificationString[4])[1]);
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                             $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
 
                             $msg = "IHUB under attack in **{$systemName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
                             break;
@@ -263,53 +343,57 @@ class notifications
                             $aggressorID = trim(explode(": ", $notificationString[2])[1]);
                             $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
                             $planetID = trim(explode(": ", $notificationString[3])[1]);
-                            $planetName = dbQueryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $planetID), "ccp");
+                            $planetName = $this->ccpDB->queryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $planetID));
                             $shieldValue = trim(explode(": ", $notificationString[5])[1]);
                             $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
                             $typeID = trim(explode(": ", $notificationString[7])[1]);
-                            $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Customs Office under attack in **{$systemName}** ($planetName) by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Shield Status: {$shieldValue}";
                             break;
 
                         case 147: // Entosis has stated
                             $systemID = trim(explode(": ", $notificationString[0])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
                             $typeID = trim(explode(": ", $notificationString[1])[1]);
-                            $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Entosis has started in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
 
                         case 148: // Entosis enabled a module ??????
                             $systemID = trim(explode(": ", $notificationString[0])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
                             $typeID = trim(explode(": ", $notificationString[1])[1]);
-                            $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Entosis has enabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
 
                         case 149: // Entosis disabled a module
                             $systemID = trim(explode(": ", $notificationString[0])[1]);
-                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
                             $typeID = trim(explode(": ", $notificationString[1])[1]);
-                            $typeName = dbQueryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID), "ccp");
+                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
                     }
-                    $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+
+                    if($msg) {
+                        $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
+                        $channel->sendMessage($msg);
+                    }
 
                     // Find the maxID so we don't output this message again in the future
                     $this->maxID = max($notificationID, $this->maxID);
                     $this->newestNotificationID = $this->maxID;
-                    setPermCache("newestNotificationID", $this->maxID);
+                    $this->storage->set("newestNotificationID", $this->maxID);
                 }
             }
         } catch (Exception $e) {
-            var_dump("Notification Error: " . $e->getMessage());
+            $this->log->debug("Error: " . $e->getMessage());
         }
     }
 
@@ -320,23 +404,21 @@ class notifications
      * @param $notificationID
      * @return mixed
      */
-    function getNotificationText($keyID, $vCode, $characterID, $notificationID)
+    private function getNotificationText($keyID, $vCode, $characterID, $notificationID)
     {
         $url = "https://api.eveonline.com/char/NotificationTexts.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&IDs={$notificationID}";
-        $data = json_decode(json_encode(simplexml_load_string(downloadData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
+        $data = json_decode(json_encode(simplexml_load_string($this->curl->getData($url), "SimpleXMLElement", LIBXML_NOCDATA)), true);
         $data = $data["result"]["rowset"]["row"];
 
         return $data;
     }
 
     /**
-     * @param $msgData
+     * @param $type
+     * @param $typeID
+     * @return mixed
      */
-    function onMessage($msgData)
-    {
-    }
-
-    function apiData($type, $typeID) {
+    private function apiData($type, $typeID) {
         $downloadFrom = "";
 
         switch($type) {
@@ -352,18 +434,6 @@ class notifications
                 $downloadFrom = $this->alliApi;
                 break;
         }
-        return json_decode(downloadData($downloadFrom . $typeID . "/"), true);
-    }
-
-    /**
-     * @return array
-     */
-    function information()
-    {
-        return array(
-            "name" => "",
-            "trigger" => array(""),
-            "information" => ""
-        );
+        return json_decode($this->curl->getData($downloadFrom . $typeID . "/"), true);
     }
 }

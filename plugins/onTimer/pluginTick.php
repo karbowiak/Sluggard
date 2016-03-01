@@ -3,10 +3,9 @@
 use Sluggard\SluggardApp;
 
 /**
- * Class eveStatus
+ * Class pluginTick
  */
-class eveStatus
-{
+class pluginTick {
     /**
      * @var SluggardApp
      */
@@ -49,12 +48,11 @@ class eveStatus
     private $trigger;
 
     /**
-     * eveStatus constructor.
+     * pluginTick constructor.
      * @param $discord
      * @param SluggardApp $app
      */
-    public function __construct($discord, SluggardApp $app)
-    {
+    public function __construct($discord, SluggardApp $app) {
         $this->app = $app;
         $this->config = $app->config;
         $this->discord = $discord;
@@ -72,24 +70,40 @@ class eveStatus
      *
      * @param $msgData
      */
-    public function onMessage($msgData)
-    {
-        $message = $msgData->message->message;
-        $data = $this->trigger->trigger($message, $this->information()["trigger"]);
+    public function onMessage($msgData) {
 
-        if (isset($data["trigger"])) {
-            $channelName = $msgData->channel->name;
-            $guildName = $msgData->guild->name;
+    }
 
-            $crestData = json_decode($this->curl->getData("https://public-crest.eveonline.com/"), true);
+    /**
+     * When the bot starts, this is started
+     */
+    public function onStart() {
 
-            $tqStatus = isset($crestData["serviceStatus"]["eve"]) ? $crestData["serviceStatus"]["eve"] : "offline";
-            $tqOnline = (int)$crestData["userCounts"]["eve"];
+    }
 
-            $msg = "**TQ Status:** {$tqStatus} with {$tqOnline} users online.";
-            $this->log->info("Sending eveStatus info to {$channelName} on {$guildName}");
-            $msgData->user->reply($msg);
+    /**
+     * When the bot does a tick (every second), this is started
+     */
+    public function onTick() {
+
+    }
+
+    /**
+     * When the bot's tick hits a specified time, this is started
+     *
+     * Runtime is defined in $this->information(), timerFrequency
+     */
+    public function onTimer() {
+        global $plugins;
+
+        foreach($plugins["onTick"] as $plugin) {
+            try {
+                $plugin->onTick();
+            } catch(\Exception $e) {
+                $this->log->debug("Error: " . $e->getMessage());
+            }
         }
+
     }
 
     /**
@@ -100,39 +114,12 @@ class eveStatus
      * information: is a short description of the plugin
      * timerFrequency: if this were an onTimer script, it would execute every x seconds, as defined by timerFrequency
      */
-    public function information()
-    {
+    public function information() {
         return array(
-            "name" => "tq",
-            "trigger" => array("!tq"),
-            "information" => "Shows the current status of the Tranquility server",
-            "timerFrequency" => 0
+            "name" => "pluginTick",
+            "trigger" => array(""),
+            "information" => "",
+            "timerFrequency" => 1
         );
-    }
-
-    /**
-     * When the bot starts, this is started
-     */
-    public function onStart()
-    {
-
-    }
-
-    /**
-     * When the bot does a tick (every second), this is started
-     */
-    public function onTick()
-    {
-
-    }
-
-    /**
-     * When the bot's tick hits a specified time, this is started
-     *
-     * Runtime is defined in $this->information(), timerFrequency
-     */
-    public function onTimer()
-    {
-
     }
 }

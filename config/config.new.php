@@ -1,16 +1,8 @@
 <?php
-
-$config = array();
-
 $config["bot"] = array(
-    "name" => ""
-);
-
-$config["database"] = array(
-    "host" => "",
-    "user" => "",
-    "pass" => "",
-    "database" => ""
+    "trigger" => "!",
+    "botName" => "EVEBot",
+    "userAgent" => ""
 );
 
 $config["discord"] = array(
@@ -20,7 +12,28 @@ $config["discord"] = array(
     "adminID" => "" // The discordID of the owner of the bot);
 );
 
-// Twitter
+$config["enabledplugins"] = array(
+    "about",
+    "eveCharInfo",
+    "eveCorpInfo",
+    "eveItem",
+    "evePrice",
+    "eveStatus",
+    "eveTime",
+    "help",
+    "user",
+    "wolframAlpha",
+    "databaseCheck",
+    "eveMails",
+    "eveNotifications",
+    "fileReader",
+    "twitterNotifications",
+    "memoryReclamation",
+    "pluginTick",
+    "tqStatus",
+    "updateDatabase"
+);
+
 $config["twitter"] = array(
     "consumerKey" => "",
     "consumerSecret" => "",
@@ -28,14 +41,10 @@ $config["twitter"] = array(
     "accessTokenSecret" => ""
 );
 
+// Should probably load all of these from SeAT?
 $config["eve"] = array(
     "apiKeys" => array(
-        "user1" => array(
-            "keyID" => ,
-            "vCode" => "",
-            "characterID" =>
-        ),
-        "user2" => array(
+        "karbowiak" => array(
             "keyID" => ,
             "vCode" => "",
             "characterID" =>
@@ -43,66 +52,50 @@ $config["eve"] = array(
     )
 );
 
-$config["enabledPlugins"] = array(
-    "about",
-    "charInfo",
-    "corpApplication",
-    "corpInfo",
-    "eveStatus",
-    "help",
-    "item",
-    "price",
-    "time",
-    "user",
-    "wolframAlpha",
-    "evemails",
-    "fileReader",
-    "notifications",
-    "twitterOutput",
+$config["wolframalpha"] = array(
+    "appID" => ""
 );
 
-// Example from the 4M server
-$config["plugins"] = array(
-    "periodicTQStatus" => array(
-        "channelID" => 118441700157816838
-    ),
-    "evemails" => array(
-        "fromIDs" => array(98047305, 99005805),
-        "channelID" => 120639051261804544
-    ),
-    "fileReader" => array(
-        "db" => "/tmp/discord.db",
-        "channelConfig" => array(
-            "pings" => array(
-                "default" => true,
-                "searchString" => false,
-                "textStringPrepend" => "@everyone |",
-                "textStringAppend" => "",
-                "channelID" => 119136919346085888
-            ),
-            "intel" => array(
-                "default" => false,
-                "searchString" => "intel",
-                "textStringPrepend" => "",
-                "textStringAppend" => "",
-                "channelID" => 149918425018400768
-            ),
-            "blackops" => array(
-                "default" => false,
-                "searchString" => "blops",
-                "textStringPrepend" => "@everyone |",
-                "textStringAppend" => "",
-                "channelID" => 149925578135306240
-            )
+$config["filereader"] = array(
+    "channelconfig" => array(
+        "pings" => array(
+            "default" => true,
+            "searchString" => false,
+            "textStringPrepend" => "@everyone |",
+            "textStringAppend" => "",
+            "channelID" => 119136919346085888
         ),
+        "intel" => array(
+            "default" => false,
+            "searchString" => "intel",
+            "textStringPrepend" => "",
+            "textStringAppend" => "",
+            "channelID" => 149918425018400768
+        ),
+        "blackops" => array(
+            "default" => false,
+            "searchString" => "blops",
+            "textStringPrepend" => "@everyone |",
+            "textStringAppend" => "",
+            "channelID" => 149925578135306240
+        )
     ),
-    "notifications" => array(
-        "channelID" => 149918425018400768
-    ),
-    "twitterOutput" => array(
-        "channelID" => 120474010109607937
-    ),
-    "wolframAlpha" => array(
-        "appID" => ""
-    ),
+    "db" => "/tmp/discord.db"
+);
+
+$config["evemails"] = array(
+    "fromIDs" => array(98047305, 99005805),
+    "channelID" => 120639051261804544
+);
+
+$config["periodictqstatus"] = array(
+    "channelID" => 118441700157816838
+);
+
+$config["notifications"] = array(
+    "channelID" => 149918425018400768
+);
+
+$config["twitteroutput"] = array(
+    "channelID" => 120474010109607937
 );

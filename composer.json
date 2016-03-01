@@ -1,4 +1,7 @@
 {
+  "name": "sluggard",
+  "license": "MIT",
+  "description": "Sluggard is a bot for Discord using the DiscordPHP Library",
   "repositories": [
     {
       "type": "vcs",
@@ -6,10 +9,16 @@
     }
   ],
   "require": {
-    "dg/twitter-php": "*",
-    "cleanse/discord-hypertext": "dev-master",
-    "devristo/phpws": "dev-master",
-    "ratchet/pawl": "dev-master"
+    "dg/twitter-php": "3.*",
+    "team-reflex/discord-php": "dev-master",
+    "monolog/monolog": "1.9.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sluggard\\": [
+        "src/"
+      ]
+    }
   },
   "minimum-stability": "stable"
 }

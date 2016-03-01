@@ -3,9 +3,9 @@
 use Sluggard\SluggardApp;
 
 /**
- * Class help
+ * Class eveTime
  */
-class help
+class eveTime
 {
     /**
      * @var SluggardApp
@@ -49,7 +49,7 @@ class help
     private $trigger;
 
     /**
-     * help constructor.
+     * eveTime constructor.
      * @param $discord
      * @param SluggardApp $app
      */
@@ -78,31 +78,29 @@ class help
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if (isset($data["trigger"])) {
-            global $plugins;
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
-            $messageString = $data["messageString"];
 
-            if (!$messageString) {
-                // Show all modules available
-                $commands = array();
-                foreach ($plugins["onMessage"] as $plugin) {
-                    $info = $plugin->information();
-                    if (!empty($info["name"]))
-                        $commands[] = $info["name"];
-                }
+            $date = date("d-m-Y");
+            $fullDate = date("Y-m-d H:i:s");
+            $dateTime = new DateTime($fullDate);
 
-                $msgData->user->reply("**Help:** No specific plugin requested, here is a list of plugins available: **" . implode("** | **", $commands) . "**");
-            } else {
-                foreach ($plugins["onMessage"] as $type) {
-                    if ($messageString == $plugin->information()["name"]) {
-                        $msgData->user->reply($plugin->information()["information"]);
-                    }
-                }
-            }
+            $et = $dateTime->setTimezone(new DateTimeZone("America/New_York"));
+            $et = $et->format("H:i:s");
+            $pt = $dateTime->setTimezone(new DateTimeZone("America/Los_Angeles"));
+            $pt = $pt->format("H:i:s");
+            $utc = $dateTime->setTimezone(new DateTimeZone("UTC"));
+            $utc = $utc->format("H:i:s");
+            $cet = $dateTime->setTimezone(new DateTimeZone("Europe/Copenhagen"));
+            $cet = $cet->format("H:i:s");
+            $msk = $dateTime->setTimezone(new DateTimeZone("Europe/Moscow"));
+            $msk = $msk->format("H:i:s");
+            $aest = $dateTime->setTimezone(new DateTimeZone("Australia/Sydney"));
+            $aest = $aest->format("H:i:s");
 
-            //$this->log->info("Sending time info to {$channelName} on {$guildName}");
-            //$msgData->user->reply($msg);
+            $msg = "**Current EVE Time:** {$utc} / **EVE Date:** {$date} / **PT:** {$pt} / **ET:** {$et} / **CET:** {$cet} / **MSK:** {$msk} / **AEST:** {$aest}";
+            $this->log->info("Sending time info to {$channelName} on {$guildName}");
+            $msgData->user->reply($msg);
         }
     }
 
@@ -117,9 +115,9 @@ class help
     public function information()
     {
         return array(
-            "name" => "help",
-            "trigger" => array("!help"),
-            "information" => "",
+            "name" => "time",
+            "trigger" => array("!time"),
+            "information" => "Shows the current time for various timezones, compared to the current EVE Time. Example: **!time**",
             "timerFrequency" => 0
         );
     }

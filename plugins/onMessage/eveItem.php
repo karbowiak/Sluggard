@@ -3,9 +3,9 @@
 use Sluggard\SluggardApp;
 
 /**
- * Class help
+ * Class eveItem
  */
-class help
+class eveItem
 {
     /**
      * @var SluggardApp
@@ -49,7 +49,7 @@ class help
     private $trigger;
 
     /**
-     * help constructor.
+     * eveItem constructor.
      * @param $discord
      * @param SluggardApp $app
      */
@@ -78,31 +78,25 @@ class help
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if (isset($data["trigger"])) {
-            global $plugins;
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
-            $messageString = $data["messageString"];
+            $item = $data["messageString"];
 
-            if (!$messageString) {
-                // Show all modules available
-                $commands = array();
-                foreach ($plugins["onMessage"] as $plugin) {
-                    $info = $plugin->information();
-                    if (!empty($info["name"]))
-                        $commands[] = $info["name"];
-                }
+            if (is_numeric($item))
+                $data = $this->ccpDB->queryRow("SELECT * FROM invTypes WHERE typeID = :item", array(":item" => $item));
+            else
+                $data = $this->ccpDB->queryRow("SELECT * FROM invTypes WHERE typeName = :item COLLATE NOCASE", array(":item" => $item));
 
-                $msgData->user->reply("**Help:** No specific plugin requested, here is a list of plugins available: **" . implode("** | **", $commands) . "**");
-            } else {
-                foreach ($plugins["onMessage"] as $type) {
-                    if ($messageString == $plugin->information()["name"]) {
-                        $msgData->user->reply($plugin->information()["information"]);
-                    }
+            if ($data) {
+                $msg = "```";
+                foreach ($data as $key => $value) {
+                    $msg .= $key . ": " . $value . "\n";
                 }
+                $msg .= "```";
+
+                $this->log->info("Sending item info to {$channelName} on {$guildName}");
+                $msgData->user->reply($msg);
             }
-
-            //$this->log->info("Sending time info to {$channelName} on {$guildName}");
-            //$msgData->user->reply($msg);
         }
     }
 
@@ -117,9 +111,9 @@ class help
     public function information()
     {
         return array(
-            "name" => "help",
-            "trigger" => array("!help"),
-            "information" => "",
+            "name" => "item",
+            "trigger" => array("!item"),
+            "information" => "Shows item information",
             "timerFrequency" => 0
         );
     }
