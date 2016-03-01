@@ -5,11 +5,29 @@ namespace Sluggard\Lib;
 
 use Sluggard\SluggardApp;
 
+/**
+ * Class SluggardDatabaseUpdater
+ * @package Sluggard\Lib
+ */
 class SluggardDatabaseUpdater
 {
+    /**
+     * @var SluggardApp
+     */
     private $app;
+    /**
+     * @var \Sluggard\Models\SluggardData
+     */
     private $sluggardDB;
+    /**
+     * @var log
+     */
     private $log;
+
+    /**
+     * SluggardDatabaseUpdater constructor.
+     * @param SluggardApp $app
+     */
     function __construct(SluggardApp $app) {
         $this->app = $app;
         $this->log = $app->log;
