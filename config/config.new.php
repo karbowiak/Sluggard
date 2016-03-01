@@ -23,7 +23,6 @@ $config["enabledplugins"] = array(
     "help",
     "user",
     "wolframAlpha",
-    "databaseCheck",
     "eveMails",
     "eveNotifications",
     "fileReader",

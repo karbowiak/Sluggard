@@ -39,11 +39,28 @@ foreach($load as $path) {
     }
 }
 
+// First launch?
+if(!file_exists(BASEDIR . "/config/database/"))
+{
+    // Check all the directories exist (cache, config, config/database)
+    $directories = array(BASEDIR . "/cache/", BASEDIR . "/config/", BASEDIR . "/config/database");
+
+    foreach($directories as $directory) {
+        if(!file_exists($directory)) {
+            $app->log->info("Creating {$directory}");
+            mkdir($directory);
+            chmod($directory, 0755);
+        }
+    }
+
+    $app->sluggarddatabaseupdater->createSluggardDB();
+    $app->ccpdatabaseupdater->createCCPDB();
+}
+
 // Startup discord and the websocket instance
 $discord = new Discord($app->config->get("email", "discord"), $app->config->get("password", "discord"));
 $websocket = new WebSocket($discord);
 
-// Load in all the plugins
 $pluginDirs = array("onMessage", "onStart", "onTick", "onTimer");
 $plugins = array();
 foreach($pluginDirs as $pluginDir) {
