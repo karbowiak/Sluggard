@@ -107,10 +107,10 @@ class updateDatabase {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "updateDatabase",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 43200
         );
     }
 }

@@ -107,10 +107,10 @@ class tqStatus {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "tqStatus",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 30
         );
     }
 }

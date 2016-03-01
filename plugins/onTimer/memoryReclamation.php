@@ -94,7 +94,9 @@ class memoryReclamation {
      * Runtime is defined in $this->information(), timerFrequency
      */
     public function onTimer() {
-
+        $this->log->info("Memory in use: " . memory_get_usage() / 1024 / 1024 . "MB");
+        gc_collect_cycles();
+        $this->log->info("Memory in use after garbage collection: " . memory_get_usage() / 1024 / 1024 . "MB");
     }
 
     /**
@@ -107,10 +109,10 @@ class memoryReclamation {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "memoryReclamation",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 1800
         );
     }
 }

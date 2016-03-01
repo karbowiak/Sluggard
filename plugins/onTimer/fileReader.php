@@ -110,7 +110,7 @@ class fileReader {
             "name" => "",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 1
         );
     }
 }

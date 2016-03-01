@@ -110,7 +110,7 @@ class twitterNotifications {
             "name" => "",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 60
         );
     }
 }

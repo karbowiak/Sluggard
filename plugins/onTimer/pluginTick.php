@@ -94,6 +94,15 @@ class pluginTick {
      * Runtime is defined in $this->information(), timerFrequency
      */
     public function onTimer() {
+        global $plugins;
+
+        foreach($plugins["onTick"] as $plugin) {
+            try {
+                $plugin->onTick();
+            } catch(\Exception $e) {
+                $this->log->debug("Error: " . $e->getMessage());
+            }
+        }
 
     }
 
@@ -107,10 +116,10 @@ class pluginTick {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "pluginTick",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 0
+            "timerFrequency" => 1
         );
     }
 }
