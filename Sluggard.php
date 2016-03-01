@@ -77,6 +77,7 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
                 if($channelData->is_private == true)
                     $channelData->setAttribute("name", $msgData->author->username);
 
+
                 $msgData = (object)array(
                     "isBotOwner" => false,
                     "user" => $msgData,
@@ -108,6 +109,7 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
             }
         }
     });
+
     $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
         if($userData->user->id && $userData->user->username) {
             $lastSeen = date("Y-m-d H:i:s");
