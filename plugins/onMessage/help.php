@@ -94,7 +94,7 @@ class help
 
                 $msgData->user->reply("**Help:** No specific plugin requested, here is a list of plugins available: **" . implode("** | **", $commands) . "**");
             } else {
-                foreach ($plugins["onMessage"] as $type) {
+                foreach ($plugins["onMessage"] as $plugin) {
                     if ($messageString == $plugin->information()["name"]) {
                         $msgData->user->reply($plugin->information()["information"]);
                     }
@@ -119,7 +119,7 @@ class help
         return array(
             "name" => "help",
             "trigger" => array("!help"),
-            "information" => "",
+            "information" => "Shows help for other plugins",
             "timerFrequency" => 0
         );
     }

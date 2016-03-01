@@ -173,7 +173,7 @@ For more info, visit: $url";
         return array(
             "name" => "corp",
             "trigger" => array("!corp"),
-            "information" => "",
+            "information" => "Shows corporation information, fetched from projectRena",
             "timerFrequency" => 0
         );
     }

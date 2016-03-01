@@ -136,7 +136,7 @@ Memory Usage: ~" . round(memory_get_usage() / 1024 / 1024, 3) . "MB```";
         return array(
             "name" => "about",
             "trigger" => array("!about"),
-            "information" => "",
+            "information" => "Shows information about the bot",
             "timerFrequency" => 0
         );
     }
