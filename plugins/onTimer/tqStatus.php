@@ -94,7 +94,19 @@ class tqStatus {
      * Runtime is defined in $this->information(), timerFrequency
      */
     public function onTimer() {
+        $crestData = json_decode($this->curl->getData("https://public-crest.eveonline.com/"), true);
+        $tqStatus = isset($crestData["serviceStatus"]["eve"]) ? $crestData["serviceStatus"]["eve"] : "offline";
+        $tqOnline = (int) $crestData["userCounts"]["eve"];
 
+        // Store the current status in the permanent cache
+        $oldStatus = $this->storage->get("eveTQStatus");
+        if($tqStatus !== $oldStatus) {
+            $msg = "**New TQ Status:** ***{$tqStatus}*** / ***{$tqOnline}*** users online.";
+            $this->log->info("TQ Status changed from {$oldStatus} to {$tqStatus}");
+            $channel = \Discord\Parts\Channel\Channel::find($this->config->get("channelID", "periodictqstatus"));
+            $channel->sendMessage($msg);
+        }
+        $this->storage->set("eveTQStatus", $tqStatus);
     }
 
     /**

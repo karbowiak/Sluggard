@@ -29,9 +29,24 @@ else
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
-//$websocket->loop->addPeriodicTimer(1, function() use ($plugins) {
+$pluginRunTime = array();
+$websocket->loop->addPeriodicTimer(1, function() use ($plugins, &$pluginRunTime, $app) {
+    // Run all the onTimer plugins here and pass along the list of plugins
+    foreach($plugins["onTimer"] as $plugin) {
+        $timerFrequency = $plugin->information()["timerFrequency"];
+        $pluginName = $plugin->information()["name"];
 
-//});
+        // If the currentTime is larger or equals lastRunTime + timerFrequency for this plugin, we'll run it again
+        if(time() >= (@$pluginRunTime[$pluginName] + $timerFrequency)) {
+            try {
+                $pluginRunTime[$pluginName] = time();
+                $plugin->onTimer();
+            } catch(\Exception $e) {
+                $app->log->debug("Error: " . $e->getMessage());
+            }
+        }
+    }
+});
 
 $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
