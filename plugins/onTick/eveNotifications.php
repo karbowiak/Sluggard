@@ -237,6 +237,8 @@ class eveNotifications {
                 if ($notificationID > $this->newestNotificationID) {
                     $notificationString = explode("\n", $this->getNotificationText($keyID, $vCode, $characterID, $notificationID));
 
+                    $msg = null;
+
                     // Seriously, get fucked CCP
                     switch ($typeID) {
                         case 5: // War Declared
@@ -378,8 +380,11 @@ class eveNotifications {
                             $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
                     }
-                    $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
-                    $channel->sendMessage($msg);
+
+                    if($msg) {
+                        $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
+                        $channel->sendMessage($msg);
+                    }
 
                     // Find the maxID so we don't output this message again in the future
                     $this->maxID = max($notificationID, $this->maxID);
