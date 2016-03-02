@@ -188,7 +188,7 @@ For more info, visit: $url";
         return array(
             "name" => "char",
             "trigger" => array("!char"),
-            "information" => "",
+            "information" => "Shows character information, fetched from projectRena",
             "timerFrequency" => 0
         );
     }

@@ -2,21 +2,45 @@
 
 namespace Sluggard\Lib;
 
-
 use Sluggard\SluggardApp;
 
+/**
+ * Class CCPDatabaseUpdater
+ * @package Sluggard\Lib
+ */
 class CCPDatabaseUpdater
 {
+    /**
+     * @var SluggardApp
+     */
     private $app;
+    /**
+     * @var cURL
+     */
     private $curl;
+    /**
+     * @var Storage
+     */
     private $storage;
+    /**
+     * @var log
+     */
     private $log;
+    /**
+     * @var \Sluggard\Models\CCPData
+     */
+    private $ccpDB;
 
+    /**
+     * CCPDatabaseUpdater constructor.
+     * @param SluggardApp $app
+     */
     function __construct(SluggardApp $app) {
         $this->app = $app;
         $this->curl = $app->curl;
         $this->storage = $app->storage;
         $this->log = $app->log;
+        $this->ccpDB = $app->ccpdata;
     }
 
     /**

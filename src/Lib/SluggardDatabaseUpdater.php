@@ -5,11 +5,29 @@ namespace Sluggard\Lib;
 
 use Sluggard\SluggardApp;
 
+/**
+ * Class SluggardDatabaseUpdater
+ * @package Sluggard\Lib
+ */
 class SluggardDatabaseUpdater
 {
+    /**
+     * @var SluggardApp
+     */
     private $app;
+    /**
+     * @var \Sluggard\Models\SluggardData
+     */
     private $sluggardDB;
+    /**
+     * @var log
+     */
     private $log;
+
+    /**
+     * SluggardDatabaseUpdater constructor.
+     * @param SluggardApp $app
+     */
     function __construct(SluggardApp $app) {
         $this->app = $app;
         $this->log = $app->log;
@@ -20,7 +38,7 @@ class SluggardDatabaseUpdater
      *
      */
     public function createSluggardDB() {
-        $tables = array("users", "usersSeen", "storage");
+        $tables = array("users", "usersSeen", "storage", "authentications");
 
         $tableCreateCode = array(
             "users" => "
@@ -62,7 +80,18 @@ class SluggardDatabaseUpdater
                 `value` VARCHAR(255) NOT NULL
             );
             CREATE UNIQUE INDEX key ON storage (key);
-            COMMIT;"
+            COMMIT;",
+            "authentications" => "
+            BEGIN;
+            CREATE TABLE IF NOT EXISTS `authentications` (
+                `discordID` INTEGER PRIMARY KEY,
+                `characterID` BIGINT(40) NOT NULL,
+                `corporationID` BIGINT(40) NOT NULL,
+                `allianceID` BIGINT(40) NOT NULL
+            );
+            CREATE UNIQUE INDEX discordID ON authentications (discordID);
+            COMMIT;
+            "
         );
 
         // Does the file exist?

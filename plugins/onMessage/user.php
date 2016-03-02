@@ -128,7 +128,7 @@ class user {
         return array(
             "name" => "user",
             "trigger" => array("!user"),
-            "information" => "",
+            "information" => "Shows Discord information, on a particular user",
             "timerFrequency" => 0
         );
     }

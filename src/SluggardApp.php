@@ -16,6 +16,7 @@ namespace Sluggard;
  * @property \Sluggard\Lib\SluggardDatabaseUpdater sluggarddatabaseupdater
  * @property \Sluggard\Models\CCPData ccpdata
  * @property \Sluggard\Models\SluggardData sluggarddata
+ * @property \Sluggard\Models\AuthData authdata
  */
 
 class SluggardApp implements \ArrayAccess, \Countable, \IteratorAggregate

@@ -163,7 +163,7 @@ class twitterNotifications
     public function information()
     {
         return array(
-            "name" => "",
+            "name" => "twitterNotifications",
             "trigger" => array(""),
             "information" => "",
             "timerFrequency" => 60

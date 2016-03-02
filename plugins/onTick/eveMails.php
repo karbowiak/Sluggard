@@ -137,15 +137,6 @@ class eveMails {
      * When the bot does a tick (every second), this is started
      */
     public function onTick() {
-
-    }
-
-    /**
-     * When the bot's tick hits a specified time, this is started
-     *
-     * Runtime is defined in $this->information(), timerFrequency
-     */
-    public function onTimer() {
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
             if ($check == false)
@@ -166,6 +157,15 @@ class eveMails {
     }
 
     /**
+     * When the bot's tick hits a specified time, this is started
+     *
+     * Runtime is defined in $this->information(), timerFrequency
+     */
+    public function onTimer() {
+
+    }
+
+    /**
      * @return array
      *
      * name: is the name of the script
@@ -175,7 +175,7 @@ class eveMails {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "eveMails",
             "trigger" => array(""),
             "information" => "",
             "timerFrequency" => 0

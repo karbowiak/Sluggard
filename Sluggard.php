@@ -29,6 +29,18 @@ else
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
+// Run the Tick plugins
+$websocket->loop->addPeriodicTimer(1, function() use ($plugins, $app) {
+    foreach($plugins["onTick"] as $plugin) {
+        try {
+            echo "running " . $plugin->information()["name"];
+            $plugin->onTick();
+        } catch(\Exception $e) {
+            $app->log->err("Error: " . $e->getMessage());
+        }
+    }
+});
+
 $pluginRunTime = array();
 $websocket->loop->addPeriodicTimer(1, function() use ($plugins, &$pluginRunTime, $app) {
     // Run all the onTimer plugins here and pass along the list of plugins
@@ -77,6 +89,7 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
                 if($channelData->is_private == true)
                     $channelData->setAttribute("name", $msgData->author->username);
 
+
                 $msgData = (object)array(
                     "isBotOwner" => false,
                     "user" => $msgData,
@@ -108,6 +121,7 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
             }
         }
     });
+
     $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
         if($userData->user->id && $userData->user->username) {
             $lastSeen = date("Y-m-d H:i:s");

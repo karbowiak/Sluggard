@@ -187,7 +187,7 @@ class eveNotifications {
      */
     public function information() {
         return array(
-            "name" => "",
+            "name" => "eveNotifications",
             "trigger" => array(""),
             "information" => "",
             "timerFrequency" => 0

@@ -144,7 +144,7 @@ class wolframAlpha {
         return array(
             "name" => "wolf",
             "trigger" => array("!wolf"),
-            "information" => "",
+            "information" => "Asks wolframAlpha a question, and returns with an answer. If there is one",
             "timerFrequency" => 0
         );
     }

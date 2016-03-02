@@ -25,7 +25,7 @@ class Db
     /**
      * @var string
      */
-    private $dbLocation = BASEDIR . "/config/database/";
+    protected $dbLocation = BASEDIR . "/config/database/";
     /**
      * @var bool
      */
@@ -39,12 +39,17 @@ class Db
      * @param null $dbHost
      * @param null $dbUser
      * @param null $dbPass
+     * @param null $dbPath
      */
-    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = "sluggard", $dbHost = null, $dbUser = null, $dbPass = null) {
+    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = "sluggard", $dbHost = null, $dbUser = null, $dbPass = null, $dbPath = null) {
         $this->app = $app;
         $this->log = $app->log;
 
         $dsn = "";
+
+        if($dbPath)
+            $this->dbLocation = $dbPath;
+
         switch($dbType) {
             case "sqlite":
                 $dsn = "sqlite:" . $this->dbLocation . $dbName . "." . $dbType;
