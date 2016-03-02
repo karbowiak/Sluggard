@@ -81,11 +81,15 @@ class eveAuthenticator {
 
         if(isset($data["trigger"])) {
             $channelName = $msgData->channel->name;
-            $username = $msgData->user->author->name;
             $guildName = $msgData->guild->name;
             $authString = trim($data["messageString"]);
+            $private = (bool) $msgData->channel->is_private;
 
             $authData = $this->authData->queryRow("SELECT * FROM registrations WHERE authString = :authString AND active = 1", array(":authString" => $authString));
+
+            if($private) {
+                return $msgData->user->reply("**Error:** you are trying to send your auth token in private. This won't work because i need Guild information. Post it in a channel on the server where you want to be authed");
+            }
 
             // Someone had a valid auth string, amazing
             if(!empty($authData)) {
@@ -93,6 +97,11 @@ class eveAuthenticator {
                 $roles = $msgData->guild->roles;
                 $guild = $this->discord->guilds->get("id", $msgData->guild->id);
                 $member = $guild->members->get("id", $msgData->user->author->id);
+                $username = $msgData->user->author->username;
+                $discordID = $msgData->user->author->id;
+                $characterID = $authData["characterID"];
+                $corporationID = $authData["corporationID"];
+                $allianceID = $authData["allianceID"];
 
                 foreach($roles as $role) {
                     $roleName = $role->name;
@@ -103,6 +112,9 @@ class eveAuthenticator {
                         $member->save();
                     }
                 }
+
+                // Add the user data to the local database so we can recheck it
+                $this->sluggardDB->execute("REPLACE INTO authentications (discordID, characterID, corporationID, allianceID) VALUES (:discordID, :characterID, :corporationID, :allianceID)", array("discordID" => $discordID, ":characterID" => $characterID, ":corporationID" => $corporationID, ":allianceID" => $allianceID));
 
                 // Now set the auth to inactive, and we'll be golden
                 $this->authData->execute("UPDATE registrations SET active = 0 WHERE authString = :authString", array(":authString" => $authString));

@@ -29,6 +29,18 @@ else
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
+// Run the Tick plugins
+$websocket->loop->addPeriodicTimer(1, function() use ($plugins, $app) {
+    foreach($plugins["onTick"] as $plugin) {
+        try {
+            echo "running " . $plugin->information()["name"];
+            $plugin->onTick();
+        } catch(\Exception $e) {
+            $app->log->err("Error: " . $e->getMessage());
+        }
+    }
+});
+
 $pluginRunTime = array();
 $websocket->loop->addPeriodicTimer(1, function() use ($plugins, &$pluginRunTime, $app) {
     // Run all the onTimer plugins here and pass along the list of plugins
