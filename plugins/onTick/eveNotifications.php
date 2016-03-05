@@ -284,41 +284,7 @@ class eveNotifications {
 
                             $msg = "POS in {$systemName} - {$moonName} needs fuel. Only {$blocksRemaining} {$typeName}'s remaining.";
                             break;
-
-                        case 77: // Station service being attacked
-                            $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
-                            $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
-                            $aggressorID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
-                            $shieldValue = trim(explode(": ", $notificationString[2])[1]);
-                            $systemID = trim(explode(": ", $notificationString[3])[1]);
-                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
-                            $stationID = trim(explode(": ", $notificationString[4])[1]);
-                            $stationName = $this->ccpDB->queryField("SELECT itemName FROM mapAllCelestials WHERE itemID = :id", "itemName", array(":id" => $stationID));
-                            $typeID = trim(explode(": ", $notificationString[5])[1]);
-                            $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
-
-                            $msg = "Station service is being attacked in **{$systemName} ({$stationName} / {$typeName})** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}. Shield Status: {$shieldValue}";
-                            break;
-
-                        case 87: // SBU being attacked
-                            $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
-                            $aggressorCorpID = trim(explode(": ", $notificationString[0])[1]);
-                            $aggressorCorpName = $this->apiData("corp", $aggressorCorpID)["corporationName"];
-                            $aggressorID = trim(explode(": ", $notificationString[1])[1]);
-                            $aggressorCharacterName = $this->apiData("char", $aggressorID)["characterName"];
-                            $armorValue = trim(explode(": ", $notificationString[3])[1]);
-                            $hullValue = trim(explode(": ", $notificationString[4])[1]);
-                            $shieldValue = trim(explode(": ", $notificationString[5])[1]);
-                            $solarSystemID = trim(explode(": ", $notificationString[6])[1]);
-                            $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $solarSystemID));
-
-                            $msg = "SBU under attack in **{$systemName}** by {$aggressorCharacterName} ({$aggressorCorpName} / {$aggressorAllianceName}). Status: Hull: {$hullValue}, Armor: {$armorValue}, Shield: {$shieldValue}";
-                            break;
-
+                        
                         case 88: // IHUB is being attacked
                             $aggressorAllianceID = trim(explode(": ", $notificationString[0])[1]);
                             $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
@@ -378,6 +344,9 @@ class eveNotifications {
                             $typeName = $this->ccpDB->queryField("SELECT typeName FROM invTypes WHERE typeID = :id", "typeName", array(":id" => $typeID));
 
                             $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
+                            break;
+                        case 160: // Entosis successful
+                            $msg = "Hostile entosis successful. Structure has entered reinforced mode. (Unfortunately this api endpoint doesn't provide any more details)";
                             break;
                     }
 
