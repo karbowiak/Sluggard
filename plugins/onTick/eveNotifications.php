@@ -251,8 +251,7 @@ class eveNotifications {
                         case 8: // Alliance war invalidated by CONCORD
                             $aggressorAllianceID = trim(explode(": ", $notificationString[2])[1]);
                             $aggressorAllianceName = $this->apiData("alli", $aggressorAllianceID)["allianceName"];
-                            $delayHours = trim(explode(": ", $notificationString[3])[1]);
-                            $msg = "War declared by {$aggressorAllianceName} has been invalidated. Fighting ends in roughly {$delayHours} hours.";
+                            $msg = "War declared by {$aggressorAllianceName} has been invalidated. Fighting ends in roughly 24 hours.";
                             break;
 
                         case 75: // POS / POS Module under attack
