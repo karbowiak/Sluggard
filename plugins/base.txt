@@ -62,7 +62,11 @@ class CHANGEME {
      * @param $msgData
      */
     public function onMessage($msgData) {
+        $message = $msgData->message->message;
+        $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
+        if (isset($data["trigger"])) {
+        }
     }
 
     /**
