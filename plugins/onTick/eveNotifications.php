@@ -107,7 +107,7 @@ class eveNotifications {
         $this->alliApi = "http://rena.karbowiak.dk/api/alliance/information/";
 
         $this->toDiscordChannel = $this->config->get("channelID", "evemails");
-        $this->newestNotificationID = $this->storage->get("newestCorpMailID");
+        $this->newestNotificationID = $this->storage->get("newestNotificationID");
         $this->maxID = 0;
         $this->keyCount = count($this->config->get("apiKeys", "eve"));
         $this->keys = $this->config->get("apiKeys", "eve");
