@@ -23,10 +23,6 @@ class eveNotifications {
      */
     private $log;
     /**
-     * @var \Sluggard\Lib\async
-     */
-    private $async;
-    /**
      * @var \Sluggard\Models\SluggardData
      */
     private $sluggardDB;
@@ -54,7 +50,6 @@ class eveNotifications {
      * @private
      */
     private $toDiscordChannel;
-
     /**
      * @private
      */
@@ -94,7 +89,6 @@ class eveNotifications {
         $this->config = $app->config;
         $this->discord = $discord;
         $this->log = $app->log;
-        $this->async = $app->async;
         $this->sluggardDB = $app->sluggarddata;
         $this->ccpDB = $app->ccpdata;
         $this->curl = $app->curl;
