@@ -341,6 +341,11 @@ class eveNotifications {
                         case 160: // Entosis successful
                             $msg = "Hostile entosis successful. Structure has entered reinforced mode. (Unfortunately this api endpoint doesn't provide any more details)";
                             break;
+                        case 161: //  Command Nodes Decloaking
+                            $systemID = trim(explode(": ", $notificationString[2])[1]);
+                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $msg = "Command nodes decloaking for **{$systemName}**";
+                            break;
                     }
 
                     if($msg) {
