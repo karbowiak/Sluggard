@@ -118,10 +118,6 @@ class eveAuthenticator {
             } else {
                 $msgData->user->reply("**Error:** you are trying to use an already used auth code, or a non-existing auth code. Either way, prepare to get #rekt");
             }
-
-            //var_dump($this->authData->query("SELECT * FROM registrations"));
-           //$this->log->info("Sending about info to {$channelName} on {$guildName}");
-           //$msgData->user->reply($msg);
         }
     }
 
