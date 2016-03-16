@@ -132,6 +132,16 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
     });
 });
 
+// Handle close event (Not exactly gracefully, but consider it handled...
+$websocket->on("close", function($webSocket, $discord) {
+    die("Connection closed.. we die..");
+});
+
+// Handle close event (Not exactly gracefully, but consider it handled...
+$websocket->on("error", function($error, $websocket, $discord) {
+    die("Connection gave an error.. we die..");
+});
+
 /*
  * From Uniquoooo
  * ready = ready packet finished parsing
