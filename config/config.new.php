@@ -9,7 +9,14 @@ $config["discord"] = array(
     "email" => "",
     "password" => "",
     "admin" => "", // The owner of the bot
-    "adminID" => "" // The discordID of the owner of the bot);
+    "adminID" => "", // The discordID of the owner of the bot);
+    "token" => "",
+);
+
+$config["auth"] = array(
+    "authSite" => "http://auth.karbowiak.dk",
+    "db" => "/storage/www/auth.karbowiak.dk/config/database/",
+    "dbName" => "auth"
 );
 
 $config["enabledplugins"] = array(
