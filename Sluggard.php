@@ -49,6 +49,11 @@ define("BOTNAME", strtolower($config["bot"]["botName"]));
 // Start the bot, and load up all the Libraries and Models
 include(BASEDIR . "/src/init.php");
 
+// Check if the CCP Database exists
+if(!file_exists(BASEDIR . "/config/database/ccpData.sqlite"))
+    throw new \Exception("Error, ccpData.sqlite does not exist. Please start the bot with --ccp, to update it");
+
+// --ccp was passed, lets update the database!
 if($args["ccp"]) {
     $app->ccpdatabaseupdater->createCCPDB();
     echo "Updated the CCP Database, now exiting, please start the bot without --ccp";

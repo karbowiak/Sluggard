@@ -155,7 +155,7 @@ class updateDatabase {
 
                 $this->storage->set("ccpDataMd5", $md5);
             } catch(\Exception $e) {
-                $this->log->warn("Error updating the CCPDatabase. Bot can't run");
+                $this->log->warn("Error updating the CCPDatabase:" . $e->getMessage());
                 die();
             }
         }
