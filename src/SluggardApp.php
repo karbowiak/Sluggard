@@ -14,6 +14,7 @@ namespace Sluggard;
  * @property \Sluggard\Lib\gitRevision gitrevision
  * @property \Sluggard\Lib\CCPDatabaseUpdater ccpdatabaseupdater
  * @property \Sluggard\Lib\SluggardDatabaseUpdater sluggarddatabaseupdater
+ * @property \Sluggard\Lib\composeMsgData composemsgdata
  * @property \Sluggard\Models\CCPData ccpdata
  * @property \Sluggard\Models\SluggardData sluggarddata
  * @property \Sluggard\Models\AuthData authdata
