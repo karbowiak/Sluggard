@@ -21,6 +21,11 @@ $cmd->option("c")
     ->file(true)
     ->require();
 
+$cmd->option("ccp")
+    ->title("Install the ccp database")
+    ->describedAs("Installs the CCP database. Required before the bot can start properly")
+    ->boolean();
+
 $args = $cmd->getFlagValues();
 
 // Define the path for the logfile
@@ -43,6 +48,12 @@ define("BOTNAME", strtolower($config["bot"]["botName"]));
 
 // Start the bot, and load up all the Libraries and Models
 include(BASEDIR . "/src/init.php");
+
+if($args["ccp"]) {
+    $app->ccpdatabaseupdater->createCCPDB();
+    echo "Updated the CCP Database, now exiting, please start the bot without --ccp";
+    exit();
+}
 
 /** @var \Discord\WebSockets\WebSocket $websocket */
 /** @var \Sluggard\SluggardApp $app */
