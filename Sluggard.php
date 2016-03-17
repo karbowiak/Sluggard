@@ -42,8 +42,11 @@ require_once($configPath);
 define("BOTNAME", strtolower($config["bot"]["botName"]));
 
 // Start the bot, and load up all the Libraries and Models
-require_once(BASEDIR . "/src/init.php");
+include(BASEDIR . "/src/init.php");
 
+/** @var \Discord\WebSockets\WebSocket $websocket */
+/** @var \Sluggard\SluggardApp $app */
+/** @var \Discord\Discord $discord */
 $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
 
@@ -58,8 +61,11 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
             $app->log->debug("Error: " . $e->getMessage());
         }
     }
-
+    
     // On a message, do all of the following
+    /** @var \Discord\WebSockets\WebSocket $websocket */
+    /** @var \Sluggard\SluggardApp $app */
+    /** @var \Discord\Discord $discord */
     $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
         // If i sent the message myself, just ignore it..
         if ($msgData->author->username != $app->config->get("botName", "bot")) {
@@ -106,6 +112,9 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
         }
     });
 
+    /** @var \Discord\WebSockets\WebSocket $websocket */
+    /** @var \Sluggard\SluggardApp $app */
+    /** @var \Discord\Discord $discord */
     $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
         if ($userData->user->id && $userData->user->username) {
             $lastSeen = date("Y-m-d H:i:s");
@@ -148,6 +157,7 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
+/** @var \Sluggard\SluggardApp $app */
 $websocket->on("close", function ($opCode, $reason) use ($app){
     $app->log->err("Connection was closed. OpCode: {$opCode}");
     $app->log->err("Reason for connection closure: {$reason}");
@@ -155,16 +165,20 @@ $websocket->on("close", function ($opCode, $reason) use ($app){
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
+/** @var \Discord\WebSockets\WebSocket $websocket */
+/** @var \Sluggard\SluggardApp $app */
 $websocket->on("error", function ($error, $websocket) use ($app) {
     $app->log->err("Error: {$error}");
 });
 
 // Handle reconnect event
+/** @var \Sluggard\SluggardApp $app */
 $websocket->on("reconnect", function() use ($app) {
     $app->log->info("Reconnecting to Discord");
 });
 
 // Handle reconnected event
+/** @var \Sluggard\SluggardApp $app */
 $websocket->on("reconnected", function() use ($app) {
     $app->log->info("Reconnected to Discord");
 });
