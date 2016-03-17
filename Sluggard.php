@@ -47,6 +47,9 @@ require_once(BASEDIR . "/src/init.php");
 $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
 
+    // Update our presence!
+    $discord->updatePresence($websocket, "Half-Brother of Sovereign", false);
+
     // Run the onStart plugins
     foreach ($plugins["onStart"] as $plugin) {
         try {
@@ -145,13 +148,25 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
-$websocket->on("close", function ($webSocket, $discord) {
-    die("Connection closed.. we die..");
+$websocket->on("close", function ($opCode, $reason) use ($app){
+    $app->log->err("Connection was closed. OpCode: {$opCode}");
+    $app->log->err("Reason for connection closure: {$reason}");
+    die();
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
-$websocket->on("error", function ($error, $websocket, $discord) {
-    die("Connection gave an error.. we die..");
+$websocket->on("error", function ($error, $websocket) use ($app) {
+    $app->log->err("Error: {$error}");
+});
+
+// Handle reconnect event
+$websocket->on("reconnect", function() use ($app) {
+    $app->log->info("Reconnecting to Discord");
+});
+
+// Handle reconnected event
+$websocket->on("reconnected", function() use ($app) {
+    $app->log->info("Reconnected to Discord");
 });
 
 /*
@@ -196,5 +211,9 @@ $websocket->on("error", function ($error, $websocket, $discord) {
     const MESSAGE_DELETE = 'MESSAGE_DELETE';
     const MESSAGE_UPDATE = 'MESSAGE_UPDATE';
  */
+
+// Setup the cache, and use redis..
+\Discord\Cache\Cache::setCache(new \Discord\Cache\Drivers\RedisCacheDriver("127.0.0.1", 6379, null, 1));
+
 // Start the bot
 $websocket->run();

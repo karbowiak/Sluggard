@@ -12,7 +12,8 @@
     "dg/twitter-php": "3.*",
     "team-reflex/discord-php": "dev-master",
     "monolog/monolog": "1.9.*",
-    "nategood/commando": "0.2.*"
+    "nategood/commando": "0.2.*",
+    "predis/predis": "1.0.*"
   },
   "autoload": {
     "psr-4": {
