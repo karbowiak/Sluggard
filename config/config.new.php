@@ -19,10 +19,12 @@ $config["auth"] = array(
     "dbName" => "auth"
 );
 
+// A lot of the plugins are disabled, add them here to enable them
 $config["enabledplugins"] = array(
     "about",
     "eveCharInfo",
     "eveCorpInfo",
+    "eveFitting",
     "eveItem",
     "evePrice",
     "eveStatus",
@@ -32,12 +34,15 @@ $config["enabledplugins"] = array(
     "wolframAlpha",
     "eveMails",
     "eveNotifications",
-    "fileReader",
-    "twitterNotifications",
     "memoryReclamation",
     "pluginTick",
     "tqStatus",
-    "updateDatabase"
+    "updateDatabase",
+    "eightball",
+    "coinflip",
+    "guilds",
+    "join",
+    "meme"
 );
 
 $config["twitter"] = array(
