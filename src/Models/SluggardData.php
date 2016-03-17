@@ -7,10 +7,14 @@ use Sluggard\SluggardApp;
 class SluggardData {
     private $db;
     private $app;
+    private $config;
 
     function __construct(SluggardApp $app) {
         $this->app = $app;
-        $this->db = new Db($app, "sqlite", "sluggard");
+        $this->config = $app->config;
+
+        $dbFileName = $this->config->get("botName", "bot");
+        $this->db = new Db($app, "sqlite", $dbFileName);
     }
 
     public function query($query, $parameters = array()) {
