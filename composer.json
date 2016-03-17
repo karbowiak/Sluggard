@@ -11,7 +11,8 @@
   "require": {
     "dg/twitter-php": "3.*",
     "team-reflex/discord-php": "dev-master",
-    "monolog/monolog": "1.9.*"
+    "monolog/monolog": "1.9.*",
+    "nategood/commando": "0.2.*"
   },
   "autoload": {
     "psr-4": {

@@ -28,7 +28,7 @@ class config {
      */
     public function get($key, $type = null, $default = null) {
         $config = array();
-        include(BASEDIR . "/config/config.php");
+        include(BASEDIR . "/config/config.sluggard.php");
 
         $type = strtolower($type);
         if(!empty($config[$type][$key]))
@@ -43,7 +43,7 @@ class config {
      */
     public function getAll($type = null) {
         $config = array();
-        include(BASEDIR . "/config/config.php");
+        include(BASEDIR . "/config/config.sluggard.php");
 
         $type = strtolower($type);
         if(!empty($config[$type]))

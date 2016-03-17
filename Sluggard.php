@@ -1,12 +1,6 @@
 <?php
 use Discord\WebSockets\Event;
 
-// Allow up to 1GB memory usage.
-ini_set("memory_limit", "1024M");
-
-// Turn on garbage collection
-gc_enable();
-
 // Define the current dir
 define("BASEDIR", __DIR__);
 define("PLUGINDIR", __DIR__ . "/plugins/");
@@ -14,17 +8,35 @@ define("PLUGINDIR", __DIR__ . "/plugins/");
 // In case we started from a different directory.
 chdir(BASEDIR);
 
-// Bot start time
-$startTime = time();
-
 // Load all the vendor files
 require_once(BASEDIR . "/vendor/autoload.php");
 
+$cmd = new \Commando\Command();
+$cmd->beepOnError();
+// Define the logfiles location
+$cmd->option("c")
+    ->aka("config")
+    ->title("Path to configuration file")
+    ->describedAs("Defines the configuration file that the bot will use to run")
+    ->file(true)
+    ->require();
+
+$args = $cmd->getFlagValues();
+
+// Define the path for the logfile
+$configPath = $args["c"] ? $args["c"] : \Exception("Error, config file not loaded");
+
+// Allow up to 1GB memory usage.
+ini_set("memory_limit", "1024M");
+
+// Turn on garbage collection
+gc_enable();
+
+// Bot start time
+$startTime = time();
+
 // Load in the config
-if (file_exists(BASEDIR . "/config/config.php"))
-    require_once(BASEDIR . "/config/config.php");
-else
-    throw new Exception("config.php not found (you might wanna start by copying config_new.php)");
+require_once($configPath);
 
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
