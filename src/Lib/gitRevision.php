@@ -3,15 +3,29 @@ namespace Sluggard\Lib;
 
 use Sluggard\SluggardApp;
 
+/**
+ * Class gitRevision
+ * @package Sluggard\Lib
+ */
 class gitRevision
 {
+    /**
+     * @var SluggardApp
+     */
     private $app;
 
+    /**
+     * gitRevision constructor.
+     * @param SluggardApp $app
+     */
     public function __construct(SluggardApp &$app) {
         $this->app = $app;
     }
 
-    public function getRevision() {
+    /**
+     * @return array
+     */
+    public function getRevision(): array {
         exec('git describe --always', $version_mini_hash);
         exec('git rev-list HEAD | wc -l', $version_number);
         exec('git log -1', $line);

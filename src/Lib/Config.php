@@ -21,12 +21,12 @@ class config {
     }
 
     /**
-     * @param $key
-     * @param null $type
-     * @param null $default
-     * @return null
+     * @param string $key
+     * @param string|null $type
+     * @param string|null $default
+     * @return string|array
      */
-    public function get($key, $type = null, $default = null) {
+    public function get(string $key, string $type = null, string $default = null) {
         $config = array();
         include(BASEDIR . "/config/config." . BOTNAME . ".php");
 
@@ -38,10 +38,10 @@ class config {
     }
 
     /**
-     * @param null $type
+     * @param string|null $type
      * @return array
      */
-    public function getAll($type = null) {
+    public function getAll(string $type = null): array {
         $config = array();
         include(BASEDIR . "/config/config." . BOTNAME . ".php");
 

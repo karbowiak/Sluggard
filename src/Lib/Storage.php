@@ -34,8 +34,9 @@ class Storage
      *
      * @param $key
      * @param $value
+     * @return null
      */
-    public function set($key, $value) {
+    public function set(string $key, string $value) {
         $this->db->execute("REPLACE INTO storage (`key`, value) VALUES (:key, :value)", array(":key" => $key, ":value" => $value));
     }
 
@@ -43,9 +44,9 @@ class Storage
      * Get a permanent storage object from the database
      *
      * @param $key
-     * @return null
+     * @return null|string
      */
-    public function get($key) {
+    public function get(string $key): string {
         return $this->db->queryField("SELECT value FROM storage WHERE `key` = :key COLLATE NOCASE", "value", array(":key" => $key));
     }
 }

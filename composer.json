@@ -9,11 +9,13 @@
     }
   ],
   "require": {
+    "php": "7.*",
     "dg/twitter-php": "3.*",
     "team-reflex/discord-php": "dev-master",
     "monolog/monolog": "1.9.*",
     "nategood/commando": "0.2.*",
-    "predis/predis": "1.0.*"
+    "predis/predis": "1.0.*",
+    "react/promise": "2.2.*"
   },
   "autoload": {
     "psr-4": {

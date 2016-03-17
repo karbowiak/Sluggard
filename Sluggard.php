@@ -155,10 +155,10 @@ $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord,
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
+/** @var \Discord\WebSockets\WebSocket $websocket */
 /** @var \Sluggard\SluggardApp $app */
-$websocket->on("close", function ($opCode, $reason) use ($app) {
-    $app->log->err("Connection was closed. OpCode: {$opCode}");
-    $app->log->err("Reason for connection closure: {$reason}");
+$websocket->on("close", function ($websocket, $discord) use ($app) {
+    $app->log->err("Connection was closed.");
     die();
 });
 

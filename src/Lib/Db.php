@@ -1,6 +1,7 @@
 <?php
 namespace Sluggard\Lib;
 
+use Exception;
 use PDO;
 use Sluggard\SluggardApp;
 
@@ -36,12 +37,12 @@ class Db
      * @param SluggardApp $app
      * @param string $dbType
      * @param string $dbName
-     * @param null $dbHost
-     * @param null $dbUser
-     * @param null $dbPass
-     * @param null $dbPath
+     * @param null|string $dbHost
+     * @param null|string $dbUser
+     * @param null|string $dbPass
+     * @param null|string $dbPath
      */
-    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = null, $dbHost = null, $dbUser = null, $dbPass = null, $dbPath = null) {
+    function __construct(SluggardApp $app, string $dbType = "sqlite", string $dbName = null, string $dbHost = null, string $dbUser = null, string $dbPass = null, string $dbPath = null) {
         $this->app = $app;
         $this->log = $app->log;
 
@@ -71,7 +72,7 @@ class Db
                     PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00',NAMES utf8;",
                 )
             );
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             var_dump("PDO Error: " . $e->getMessage());
         }
     }
@@ -80,12 +81,12 @@ class Db
      * @param $query
      * @param array $parameters
      * @return array|bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function query($query, $parameters = array()) {
+    public function query(string $query, array $parameters = array()): array {
         // Sanity check
         if(strpos($query, ";") !== false) {
-            throw new \Exception("Semicolons are not allowed in queries. Use parameters instead.");
+            throw new Exception("Semicolons are not allowed in queries. Use parameters instead.");
         }
 
         try {
@@ -108,19 +109,19 @@ class Db
 
             // Return the data
             return $result;
-        } catch(\Exception $e) {
-            throw new \Exception("PDO Query Error: " . $e->getMessage());
+        } catch(Exception $e) {
+            throw new Exception("PDO Query Error: " . $e->getMessage());
         }
     }
 
     /**
-     * @param $query
-     * @param $field
+     * @param string $query
+     * @param string $field
      * @param array $parameters
-     * @return null
-     * @throws \Exception
+     * @return null|string
+     * @throws Exception
      */
-    public function queryField($query, $field, $parameters = array()) {
+    public function queryField(string $query, string $field, array $parameters = array()): string {
         // Get the result
         $result = $this->query($query, $parameters);
 
@@ -140,9 +141,9 @@ class Db
      * @param $query
      * @param array $parameters
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function queryRow($query, $parameters = array()) {
+    public function queryRow(string $query, array $parameters = array()): array {
         // Get the result
         $result = $this->query($query, $parameters);
 
@@ -156,13 +157,13 @@ class Db
     }
 
     /**
-     * @param $query
+     * @param string $query
      * @param array $parameters
      * @param bool $returnID
-     * @return bool|int|string
-     * @throws \Exception
+     * @return int
+     * @throws Exception
      */
-    public function execute($query, $parameters = array(), $returnID = false) {
+    public function execute(string $query, array $parameters = array(), bool $returnID = false): int {
         try {
             if(stristr($query, ";")) {
                 $explodedQuery = explode(";", $query);
@@ -199,8 +200,8 @@ class Db
             }
 
             return $rowCount;
-        } catch(\Exception $e) {
-            throw new \Exception("PDO Query Error: " . $e->getMessage());
+        } catch(Exception $e) {
+            throw new Exception("PDO Query Error: " . $e->getMessage());
         }
     }
 

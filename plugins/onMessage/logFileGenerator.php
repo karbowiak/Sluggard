@@ -44,7 +44,7 @@ class logFileGenerator {
      * @param $discord
      * @param SluggardApp $app
      */
-    public function __construct(&$discord, SluggardApp &$app) {
+    public function __construct(\Discord\Discord &$discord, SluggardApp &$app) {
         $this->app = $app;
         $this->config = $app->config;
         $this->discord = $discord;
@@ -61,7 +61,7 @@ class logFileGenerator {
      *
      * @param $msgData
      */
-    public function onMessage($msgData) {
+    public function onMessage(stdClass $msgData) {
         $message = $msgData->message->message;
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
         $receivedTime = $msgData->message->timestamp;

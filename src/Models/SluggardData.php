@@ -17,19 +17,19 @@ class SluggardData {
         $this->db = new Db($app, "sqlite", $dbName);
     }
 
-    public function query($query, $parameters = array()) {
+    public function query(string $query, array $parameters = array()): array {
         return $this->db->query($query, $parameters);
     }
 
-    public function queryField($query, $field, $parameters = array()) {
+    public function queryField(string $query, string $field, array $parameters = array()): string {
         return $this->db->queryField($query, $field, $parameters);
     }
 
-    public function queryRow($query, $parameters = array()) {
+    public function queryRow(string $query, array $parameters = array()): array {
         return $this->db->queryRow($query, $parameters);
     }
 
-    public function execute($query, $parameters = array(), $returnID = false) {
+    public function execute(string $query, array $parameters = array(), bool $returnID = false): int {
         return $this->db->execute($query, $parameters, $returnID);
     }
 }
