@@ -66,8 +66,8 @@ class join {
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if (isset($data["trigger"])) {
-            if (preg_match('/https:\/\/discord.gg\/(.+)/', $params[1], $matches)) {
-                $invite = $discord->acceptInvite($matches[1]);
+            if (preg_match('/https:\/\/discord.gg\/(.+)/', $message, $matches)) {
+                $invite = $this->discord->acceptInvite($message);
                 $msgData->user->reply("Joined server {$invite->guild->name}");
             }
         }

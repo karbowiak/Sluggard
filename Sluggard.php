@@ -67,7 +67,7 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
 
     // Update our presence!
-    $discord->updatePresence($websocket, "Half-Brother of Sovereign", false);
+    $discord->updatePresence($websocket, "I am the vanguard of your destruction", false);
 
     // Run the onStart plugins
     foreach ($plugins["onStart"] as $plugin) {
