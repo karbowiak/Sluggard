@@ -45,7 +45,7 @@ class cURL
             // Setup curl
             curl_setopt_array($curl, array(
                 CURLOPT_USERAGENT => $this->app->config->get("userAgent", "bot", "Discord Bot"),
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 5,
                 CURLOPT_POST => false,
                 CURLOPT_FORBID_REUSE => false,
                 CURLOPT_ENCODING => '',
