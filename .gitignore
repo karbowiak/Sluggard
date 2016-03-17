@@ -3,3 +3,5 @@ vendor/
 database/
 discord/
 .idea/
+logs/
+cache/pisg.cfg
