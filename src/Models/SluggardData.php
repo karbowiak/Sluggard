@@ -13,8 +13,8 @@ class SluggardData {
         $this->app = $app;
         $this->config = $app->config;
 
-        $dbFileName = $this->config->get("botName", "bot");
-        $this->db = new Db($app, "sqlite", $dbFileName);
+        $dbName = $this->config->get("botName", "bot");
+        $this->db = new Db($app, "sqlite", $dbName);
     }
 
     public function query($query, $parameters = array()) {

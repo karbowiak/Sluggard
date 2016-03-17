@@ -41,7 +41,7 @@ class Db
      * @param null $dbPass
      * @param null $dbPath
      */
-    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = "sluggard", $dbHost = null, $dbUser = null, $dbPass = null, $dbPath = null) {
+    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = null, $dbHost = null, $dbUser = null, $dbPass = null, $dbPath = null) {
         $this->app = $app;
         $this->log = $app->log;
 
@@ -49,6 +49,8 @@ class Db
 
         if($dbPath)
             $this->dbLocation = $dbPath;
+        if(!$dbName)
+            $this->dbLocation = $this->dbLocation . $app->config->get("botName", "bot");
 
         switch($dbType) {
             case "sqlite":

@@ -23,6 +23,10 @@ class SluggardDatabaseUpdater
      * @var log
      */
     private $log;
+    /**
+     * @var config
+     */
+    private $config;
 
     /**
      * SluggardDatabaseUpdater constructor.
@@ -31,6 +35,7 @@ class SluggardDatabaseUpdater
     function __construct(SluggardApp $app) {
         $this->app = $app;
         $this->log = $app->log;
+        $this->config = $app->config;
         $this->sluggardDB = $app->sluggarddata;
     }
 
@@ -87,22 +92,33 @@ class SluggardDatabaseUpdater
                 `discordID` INTEGER PRIMARY KEY,
                 `characterID` BIGINT(40) NOT NULL,
                 `corporationID` BIGINT(40) NOT NULL,
-                `allianceID` BIGINT(40) NOT NULL
+                `allianceID` BIGINT(40) NOT NULL,
+                `guildID` BIGINT(128) DEFAULT 0 NOT NULL
             );
             CREATE UNIQUE INDEX discordID ON authentications (discordID);
             COMMIT;
-            "
+            ",
+            "fittings" => "
+            BEGIN;
+            CREATE TABLE `fittings` (
+                `guildID` INTEGER PRIMARY KEY,
+                `fittingName` VARCHAR(255) NOT NULL,
+                `fittingURL` VARCHAR(255) NOT NULL
+            );
+            CREATE UNIQUE INDEX fittingName ON fittings (guildID, fittingName);
+            COMMIT;"
         );
 
+        $dbName = $this->config->get("botName", "bot");
         // Does the file exist?
-        if(!file_exists(BASEDIR . "/config/database/sluggard.sqlite"))
-            touch(BASEDIR . "/config/database/sluggard.sqlite");
+        if(!file_exists(BASEDIR . "/config/database/{$dbName}.sqlite"))
+            touch(BASEDIR . "/config/database/{$dbName}.sqlite");
 
         // Check if the tables exist, if not, create them
         foreach($tables as $table) {
             $exists = $this->sluggardDB->queryField("SELECT name FROM sqlite_master WHERE type = 'table' AND name = :name", "name", array(":name" => $table));
             if(!$exists) {
-                $this->log->warn("Creating {$table} in sluggard.sqlite, since it does not exist");
+                $this->log->warn("Creating {$table} in {$dbName}.sqlite, since it does not exist");
                 $this->sluggardDB->execute(trim($tableCreateCode[$table]));
             }
         }

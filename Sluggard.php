@@ -38,6 +38,9 @@ $startTime = time();
 // Load in the config
 require_once($configPath);
 
+// define the bots name
+define("BOTNAME", strtolower($config["bot"]["botName"]));
+
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
