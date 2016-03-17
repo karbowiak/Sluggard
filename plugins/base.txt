@@ -66,6 +66,7 @@ class CHANGEME {
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if (isset($data["trigger"])) {
+            $msgData->user->reply($msg);
         }
     }
 
