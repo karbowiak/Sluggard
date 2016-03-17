@@ -24,7 +24,7 @@ class cURL
      * cURL constructor.
      * @param SluggardApp $app
      */
-    function __construct(SluggardApp $app)
+    function __construct(SluggardApp &$app)
     {
         $this->app = $app;
         $this->log = $app->log;

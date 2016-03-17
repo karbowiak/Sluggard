@@ -24,7 +24,7 @@ class Storage
      * Storage constructor.
      * @param SluggardApp $app
      */
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $this->db = $app->sluggarddata;
     }

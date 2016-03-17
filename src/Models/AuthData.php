@@ -8,7 +8,7 @@ class AuthData {
     private $db;
     private $app;
 
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $dbLocation = $app->config->get("db", "auth");
         $this->db = new Db($app, "sqlite", "auth", null, null, null, $dbLocation);

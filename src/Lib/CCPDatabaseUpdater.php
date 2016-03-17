@@ -35,7 +35,7 @@ class CCPDatabaseUpdater
      * CCPDatabaseUpdater constructor.
      * @param SluggardApp $app
      */
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $this->curl = $app->curl;
         $this->storage = $app->storage;

@@ -32,7 +32,7 @@ class SluggardDatabaseUpdater
      * SluggardDatabaseUpdater constructor.
      * @param SluggardApp $app
      */
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $this->log = $app->log;
         $this->config = $app->config;

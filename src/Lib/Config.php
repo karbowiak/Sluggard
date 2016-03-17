@@ -16,7 +16,7 @@ class config {
      * config constructor.
      * @param SluggardApp $app
      */
-    public function __construct(SluggardApp $app) {
+    public function __construct(SluggardApp &$app) {
         $this->app = $app;
     }
 

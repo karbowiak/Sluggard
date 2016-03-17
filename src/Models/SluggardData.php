@@ -9,7 +9,7 @@ class SluggardData {
     private $app;
     private $config;
 
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $this->config = $app->config;
 

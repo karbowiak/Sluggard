@@ -24,7 +24,7 @@ class log {
      * log constructor.
      * @param SluggardApp $app
      */
-    public function __construct(SluggardApp $app)
+    public function __construct(SluggardApp &$app)
     {
         $this->app = $app;
         $this->log = new Logger("Sluggard");

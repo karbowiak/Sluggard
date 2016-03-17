@@ -56,7 +56,7 @@ class evePrice {
      * @param $discord
      * @param SluggardApp $app
      */
-    public function __construct($discord, SluggardApp $app) {
+    public function __construct($discord, SluggardApp &$app) {
         $this->app = $app;
         $this->config = $app->config;
         $this->discord = $discord;

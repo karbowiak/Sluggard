@@ -16,7 +16,7 @@ class triggerCommand {
      * triggerCommand constructor.
      * @param SluggardApp $app
      */
-    public function __construct(SluggardApp $app) {
+    public function __construct(SluggardApp &$app) {
         $this->app = $app;
     }
 

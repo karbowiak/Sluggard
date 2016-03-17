@@ -8,7 +8,7 @@ class CCPData {
     private $db;
     private $app;
 
-    function __construct(SluggardApp $app) {
+    function __construct(SluggardApp &$app) {
         $this->app = $app;
         $this->db = new Db($app, "sqlite", "ccpData");
     }
