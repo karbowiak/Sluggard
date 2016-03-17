@@ -68,7 +68,7 @@ class coinflip {
         if (isset($data["trigger"])) {
             $sides = array("Heads", "Tails");
 
-            $msgData->user->reply($sides[array_rand($sides)]);
+            $msgData->user->reply("The result of the coinflip is: " . $sides[array_rand($sides)]);
         }
     }
 

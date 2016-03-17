@@ -109,6 +109,18 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     });
 });
 
+// Silly replies to do
+$websocket->on(Event::MESSAGE_CREATE, function($msgData, $botData) use ($app, $discord, $websocket, $plugins){
+    $message = $msgData->content;
+
+    // Silly replies always to be done..
+    if($message == '(╯°□°）╯︵ ┻━┻')
+        $msgData->reply('┬─┬﻿ ノ( ゜-゜ノ)');
+
+    // Run the logfile generator
+    $app->logfile->writeToLog($app->composemsgdata->data($msgData, $botData));
+});
+
 /** @var \Discord\WebSockets\WebSocket $websocket */
 /** @var \Sluggard\SluggardApp $app */
 /** @var \Discord\Discord $discord */

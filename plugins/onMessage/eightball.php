@@ -74,13 +74,16 @@ class eightball {
                 'You may rely on it',
                 'As I see it, yes',
                 'Most likely',
+                'More than likely',
                 'Outlook good',
                 'Yes',
-                'Signs point to yes',
-                'Reply hazy try again',
+                'No',
+                'Lol no',
+                'Signs point to, yes',
+                'Reply hazy, try again',
                 'Ask again later',
-                'Better not tell you now',
-                'Cannot predict now',
+                'I Better not tell you now',
+                'I Cannot predict now',
                 'Concentrate and ask again',
                 'Don\'t count on it',
                 'My reply is no',
@@ -127,8 +130,8 @@ class eightball {
     public function information() {
         return array(
             "name" => "eightball",
-            "trigger" => array("!eightball"),
-            "information" => "Gives you a randomized reply, like an eightball.",
+            "trigger" => array("!eightball", "!eb"),
+            "information" => "Gives you a randomized reply, like an eightball. Also replies to !eb",
             "timerFrequency" => 0
         );
     }

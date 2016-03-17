@@ -69,9 +69,9 @@ class guilds {
 
             $guilds = "";
             foreach($this->discord->guilds as $guild)
-                $guilds .= "{$guild->name},";
+                $guilds .= "{$guild->name}, ";
 
-            $msgData->user->reply(rtrim($guilds, ","));
+            $msgData->user->reply("I am on the following servers: " . rtrim($guilds, ","));
         }
     }
 
