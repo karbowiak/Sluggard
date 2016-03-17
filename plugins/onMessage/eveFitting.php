@@ -86,11 +86,30 @@ class eveFitting {
                     $msgData->user->reply($msg);
                     break;
 
+                case "delete":
+                    unset($data["messageArray"][0]);
+                    $fittingName = implode(" ", $data["messageArray"]);
+
+                    if(strlen($fittingName) > 1) {
+                        $fittingData = $this->sluggardDB->queryField("SELECT fittingURL FROM fittings WHERE fittingName = :fittingName AND guildID = :guildID", "fittingURL", array(":fittingName" => $fittingName, ":guildID" => $guildID));
+
+                        if ($fittingData) {
+                            $this->sluggardDB->execute("DELETE FROM fittings WHERE fittingName = :fittingName AND guildID = :guildID", array(":fittingName" => $fittingName, ":guildID" => $guildID));
+                            $msg = "Fitting {$fittingName} was deleted";
+                        } else {
+                            $msg = "Fitting {$fittingName} not found for this server";
+                        }
+                    } else {
+                        $msg = "Error with your search";
+                    }
+                    $msgData->user->reply($msg);
+                    break;
+
                 default:
                     $search = $data["messageString"];
 
                     if(strlen($search) > 1) {
-                        $fittingData = $this->sluggardDB->queryField("SELECT fittingURL FROM fittings WHERE fittingName = :fittingName", "fittingURL", array(":fittingName" => $search));
+                        $fittingData = $this->sluggardDB->queryField("SELECT fittingURL FROM fittings WHERE fittingName = :fittingName AND guildID = :guildID", "fittingURL", array(":fittingName" => $search, ":guildID" => $guildID));
 
                         if ($fittingData) {
                             $msg = "Fitting {$search} can be seen here: $fittingData";

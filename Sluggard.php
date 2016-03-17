@@ -21,7 +21,7 @@ $startTime = time();
 require_once(BASEDIR . "/vendor/autoload.php");
 
 // Load in the config
-if(file_exists(BASEDIR . "/config/config.php"))
+if (file_exists(BASEDIR . "/config/config.php"))
     require_once(BASEDIR . "/config/config.php");
 else
     throw new Exception("config.php not found (you might wanna start by copying config_new.php)");
@@ -29,14 +29,14 @@ else
 // Start the bot, and load up all the Libraries and Models
 require_once(BASEDIR . "/src/init.php");
 
-$websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
+$websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
 
     // Run the onStart plugins
-    foreach($plugins["onStart"] as $plugin) {
+    foreach ($plugins["onStart"] as $plugin) {
         try {
             $plugin->onStart();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $app->log->debug("Error: " . $e->getMessage());
         }
     }
@@ -44,55 +44,52 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
     // On a message, do all of the following
     $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
         // If i sent the message myself, just ignore it..
-        if($msgData->author->username != $app->config->get("botName", "bot")) {
+        if ($msgData->author->username != $app->config->get("botName", "bot")) {
             $app->log->info("Received Message From: {$msgData->author->username}. Message: {$msgData->content}");
 
             // Add this user and it's data to the usersSeen table
-            if($msgData->author->id)
+            if ($msgData->author->id)
                 $app->sluggarddata->execute("REPLACE INTO usersSeen (id, name, lastSeen, lastSpoke, lastWritten) VALUES (:id, :name, :lastSeen, :lastSpoke, :lastWritten)", array(":id" => $msgData->author->id, ":lastSeen" => date("Y-m-d H:i:s"), ":name" => $msgData->author->username, ":lastSpoke" => date("Y-m-d H:i:s"), ":lastWritten" => $msgData->content));
 
-            // Does it contain a trigger? if it does, we'll do all of this expensive shit, otherwise ignore it..
-            if ($app->triggercommand->containsTrigger($msgData->content, $app->config->get("trigger", "bot", "!")) == true) {
-                $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
+            $channelData = \Discord\Parts\Channel\Channel::find($msgData["channel_id"]);
 
-                if($channelData->is_private == true)
-                    $channelData->setAttribute("name", $msgData->author->username);
+            if ($channelData->is_private == true)
+                $channelData->setAttribute("name", $msgData->author->username);
 
 
-                $msgData = (object)array(
-                    "isBotOwner" => false,
-                    "user" => $msgData,
-                    "message" => (object)array(
-                        "lastSeen" => $app->sluggarddata->queryField("SELECT lastSeen FROM usersSeen WHERE id = :id", "lastSeen", array(":id" => $msgData->author->id)),
-                        "lastSpoke" => $app->sluggarddata->queryField("SELECT lastSpoke FROM usersSeen WHERE id = :id", "lastSpoke", array(":id" => $msgData->author->id)),
-                        "timestamp" => $msgData->timestamp->toDateTimeString(),
-                        "id" => $msgData->author->id,
-                        "message" => $msgData->content,
-                        "channelID" => $msgData->channel_id,
-                        "from" => $msgData->author->username,
-                        "fromID" => $msgData->author->id,
-                        "fromDiscriminator" => $msgData->author->discriminator,
-                        "fromAvatar" => $msgData->author->avatar
-                    ),
-                    "channel" => $channelData,
-                    "guild" => $channelData->is_private ? (object)array("name" => "private conversation") : \Discord\Parts\Guild\Guild::find($channelData->guild_id),
-                    "botData" => $botData
-                );
+            $msgData = (object)array(
+                "isBotOwner" => false,
+                "user" => $msgData,
+                "message" => (object)array(
+                    "lastSeen" => $app->sluggarddata->queryField("SELECT lastSeen FROM usersSeen WHERE id = :id", "lastSeen", array(":id" => $msgData->author->id)),
+                    "lastSpoke" => $app->sluggarddata->queryField("SELECT lastSpoke FROM usersSeen WHERE id = :id", "lastSpoke", array(":id" => $msgData->author->id)),
+                    "timestamp" => $msgData->timestamp->toDateTimeString(),
+                    "id" => $msgData->author->id,
+                    "message" => $msgData->content,
+                    "channelID" => $msgData->channel_id,
+                    "from" => $msgData->author->username,
+                    "fromID" => $msgData->author->id,
+                    "fromDiscriminator" => $msgData->author->discriminator,
+                    "fromAvatar" => $msgData->author->avatar
+                ),
+                "channel" => $channelData,
+                "guild" => $channelData->is_private ? (object)array("name" => "private conversation") : \Discord\Parts\Guild\Guild::find($channelData->guild_id),
+                "botData" => $botData
+            );
 
-                // Run the plugins!
-                foreach ($plugins["onMessage"] as $plugin) {
-                    try {
-                        $plugin->onMessage($msgData);
-                    } catch (\Exception $e) {
-                        $app->log->debug("Error: " . $e->getMessage());
-                    }
+            // Run the plugins!
+            foreach ($plugins["onMessage"] as $plugin) {
+                try {
+                    $plugin->onMessage($msgData);
+                } catch (\Exception $e) {
+                    $app->log->debug("Error: " . $e->getMessage());
                 }
             }
         }
     });
 
     $websocket->on(Event::PRESENCE_UPDATE, function ($userData) use ($app, $discord, $websocket, $plugins) {
-        if($userData->user->id && $userData->user->username) {
+        if ($userData->user->id && $userData->user->username) {
             $lastSeen = date("Y-m-d H:i:s");
             $lastStatus = $userData->status;
             $name = $userData->user->username;
@@ -102,29 +99,29 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
     });
 
     // Run the Tick plugins
-    $websocket->loop->addPeriodicTimer(1, function() use ($plugins, $app) {
-        foreach($plugins["onTick"] as $plugin) {
+    $websocket->loop->addPeriodicTimer(1, function () use ($plugins, $app) {
+        foreach ($plugins["onTick"] as $plugin) {
             try {
                 $plugin->onTick();
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $app->log->err("Error: " . $e->getMessage());
             }
         }
     });
 
     $pluginRunTime = array();
-    $websocket->loop->addPeriodicTimer(1, function() use ($plugins, &$pluginRunTime, $app) {
+    $websocket->loop->addPeriodicTimer(1, function () use ($plugins, &$pluginRunTime, $app) {
         // Run all the onTimer plugins here and pass along the list of plugins
-        foreach($plugins["onTimer"] as $plugin) {
+        foreach ($plugins["onTimer"] as $plugin) {
             $timerFrequency = $plugin->information()["timerFrequency"];
             $pluginName = $plugin->information()["name"];
 
             // If the currentTime is larger or equals lastRunTime + timerFrequency for this plugin, we'll run it again
-            if(time() >= (@$pluginRunTime[$pluginName] + $timerFrequency)) {
+            if (time() >= (@$pluginRunTime[$pluginName] + $timerFrequency)) {
                 try {
                     $pluginRunTime[$pluginName] = time();
                     $plugin->onTimer();
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $app->log->debug("Error: " . $e->getMessage());
                 }
             }
@@ -133,12 +130,12 @@ $websocket->on("ready", function() use ($websocket, $app, $discord, $plugins) {
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
-$websocket->on("close", function($webSocket, $discord) {
+$websocket->on("close", function ($webSocket, $discord) {
     die("Connection closed.. we die..");
 });
 
 // Handle close event (Not exactly gracefully, but consider it handled...
-$websocket->on("error", function($error, $websocket, $discord) {
+$websocket->on("error", function ($error, $websocket, $discord) {
     die("Connection gave an error.. we die..");
 });
 
