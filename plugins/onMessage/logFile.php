@@ -2,7 +2,7 @@
 
 use Sluggard\SluggardApp;
 
-class logFileGenerator {
+class logFile {
     /**
      * @var SluggardApp
      */

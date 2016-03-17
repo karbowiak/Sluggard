@@ -83,7 +83,7 @@ class Db
      * @return array|bool
      * @throws Exception
      */
-    public function query(string $query, array $parameters = array()): array {
+    public function query(string $query, array $parameters = array()) {
         // Sanity check
         if(strpos($query, ";") !== false) {
             throw new Exception("Semicolons are not allowed in queries. Use parameters instead.");
@@ -121,7 +121,7 @@ class Db
      * @return null|string
      * @throws Exception
      */
-    public function queryField(string $query, string $field, array $parameters = array()): string {
+    public function queryField(string $query, string $field, array $parameters = array()) {
         // Get the result
         $result = $this->query($query, $parameters);
 
@@ -143,7 +143,7 @@ class Db
      * @return array
      * @throws Exception
      */
-    public function queryRow(string $query, array $parameters = array()): array {
+    public function queryRow(string $query, array $parameters = array()) {
         // Get the result
         $result = $this->query($query, $parameters);
 
@@ -163,7 +163,7 @@ class Db
      * @return int
      * @throws Exception
      */
-    public function execute(string $query, array $parameters = array(), bool $returnID = false): int {
+    public function execute(string $query, array $parameters = array(), bool $returnID = false) {
         try {
             if(stristr($query, ";")) {
                 $explodedQuery = explode(";", $query);
