@@ -114,8 +114,10 @@ $websocket->on(Event::MESSAGE_CREATE, function($msgData, $botData) use ($app, $d
     $message = $msgData->content;
 
     // Silly replies always to be done..
-    if($message == '(╯°□°）╯︵ ┻━┻')
-        $msgData->reply('┬─┬﻿ ノ( ゜-゜ノ)');
+    if($message == '(╯°□°）╯︵ ┻━┻') {
+        $channel = \Discord\Parts\Channel\Channel::find($msgData->channel_id);
+        $channel->sendMessage('┬─┬﻿ ノ( ゜-゜ノ)');
+    }
 
     // Run the logfile generator
     if($msgData->author->username != $app->config->get("botName", "bot"))

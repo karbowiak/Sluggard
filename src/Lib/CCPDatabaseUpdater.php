@@ -46,7 +46,7 @@ class CCPDatabaseUpdater
     /**
      *
      */
-    public function createCCPDB(): void {
+    public function createCCPDB() {
         $ccpDataURL = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2";
         $ccpDataMD5URL = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2.md5";
         $dbLocation = BASEDIR . "/config/database/";
