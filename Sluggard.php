@@ -67,7 +67,7 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     $app["log"]->notice("Connection Opened");
 
     // Update our presence!
-    $discord->updatePresence($websocket, "I am the vanguard of your destruction", false);
+    $discord->updatePresence($websocket, "god", false);
 
     // Run the onStart plugins
     foreach ($plugins["onStart"] as $plugin) {
@@ -118,7 +118,8 @@ $websocket->on(Event::MESSAGE_CREATE, function($msgData, $botData) use ($app, $d
         $msgData->reply('┬─┬﻿ ノ( ゜-゜ノ)');
 
     // Run the logfile generator
-    $app->logfile->writeToLog($app->composemsgdata->data($msgData, $botData));
+    if($msgData->author->username != $app->config->get("botName", "bot"))
+        $app->logfile->writeToLog($app->composemsgdata->data($msgData, $botData));
 });
 
 /** @var \Discord\WebSockets\WebSocket $websocket */
