@@ -212,18 +212,20 @@ class eveMails {
                 $sentDate = $mail["sentDate"];
                 $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&ids=" . $mail["messageID"];
                 $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string($this->curl->getData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
+                $messageSplit = str_split($content, 1850);
 
                 // Stitch the mail together
                 $msg = "**Mail By: **{$sentBy}\n";
                 $msg .= "**Sent Date: **{$sentDate}\n";
                 $msg .= "**Title: ** {$title}\n";
                 $msg .= "**Content: **\n";
-                $msg .= htmlspecialchars_decode(trim($content));
+                $msg .= htmlspecialchars_decode(trim($messageSplit[0]));
 
                 // Send the mails to the channel
                 $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
                 $channel->sendMessage($msg);
                 sleep(1); // Lets sleep for a second, so we don't rage spam
+                $channel->sendMessage($messageSplit[1]);
 
                 // Find the maxID so we don't spit this message out ever again
                 $this->maxID = max($mail["messageID"], $this->maxID);
