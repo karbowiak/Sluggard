@@ -42,7 +42,7 @@ class Db
      * @param null|string $dbPass
      * @param null|string $dbPath
      */
-    function __construct(SluggardApp $app, string $dbType = "sqlite", string $dbName = null, string $dbHost = null, string $dbUser = null, string $dbPass = null, string $dbPath = null) {
+    function __construct(SluggardApp $app, $dbType = "sqlite", $dbName = null, $dbHost = null, $dbUser = null, $dbPass = null, $dbPath = null) {
         $this->app = $app;
         $this->log = $app->log;
 
