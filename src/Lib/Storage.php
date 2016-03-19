@@ -46,7 +46,7 @@ class Storage
      * @param $key
      * @return null|string
      */
-    public function get(string $key): string {
+    public function get(string $key) {
         return $this->db->queryField("SELECT value FROM storage WHERE `key` = :key COLLATE NOCASE", "value", array(":key" => $key));
     }
 }

@@ -29,7 +29,7 @@ class composeMsgData
         $this->db = $app->sluggarddata;
     }
 
-    public function data(Message $msgData, Discord $botData): \stdClass {
+    public function data(Message $msgData, Discord $botData) {
         $channelData = Channel::find($msgData["channel_id"]);
 
         if ($channelData->is_private == true)

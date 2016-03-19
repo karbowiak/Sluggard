@@ -41,7 +41,7 @@ class config {
      * @param string|null $type
      * @return array
      */
-    public function getAll(string $type = null): array {
+    public function getAll(string $type = null) {
         $config = array();
         include(BASEDIR . "/config/config." . BOTNAME . ".php");
 

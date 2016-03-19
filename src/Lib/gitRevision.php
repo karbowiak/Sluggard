@@ -25,7 +25,7 @@ class gitRevision
     /**
      * @return array
      */
-    public function getRevision(): array {
+    public function getRevision() {
         exec('git describe --always', $version_mini_hash);
         exec('git rev-list HEAD | wc -l', $version_number);
         exec('git log -1', $line);

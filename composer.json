@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "php": "7.*",
+    "php": "5.6.*",
     "dg/twitter-php": "3.*",
     "team-reflex/discord-php": "dev-master",
     "monolog/monolog": "1.9.*",
