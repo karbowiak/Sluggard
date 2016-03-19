@@ -2,10 +2,7 @@
 
 namespace Sluggard\Lib;
 
-
-use Discord\Discord;
 use Discord\Parts\Channel\Channel;
-use Discord\Parts\Channel\Message;
 use Discord\Parts\Guild\Guild;
 use Sluggard\SluggardApp;
 
@@ -29,7 +26,7 @@ class composeMsgData
         $this->db = $app->sluggarddata;
     }
 
-    public function data(Message $msgData, Discord $botData) {
+    public function data($msgData, $botData) {
         $channelData = Channel::find($msgData["channel_id"]);
 
         if ($channelData->is_private == true)

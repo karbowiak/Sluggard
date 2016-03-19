@@ -37,7 +37,7 @@ class log {
      * @param string $logMessage
      * @param array $logData
      */
-    public function info(string $logMessage, array $logData = array()) {
+    public function info($logMessage, $logData = array()) {
         $this->log->addInfo($logMessage, $logData);
     }
 
@@ -47,7 +47,7 @@ class log {
      * @param $logMessage
      * @param $logData
      */
-    public function debug(string $logMessage, array $logData = array()) {
+    public function debug($logMessage, $logData = array()) {
         $this->log->addDebug($logMessage, $logData);
     }
 
@@ -57,7 +57,7 @@ class log {
      * @param $logMessage
      * @param $logData
      */
-    public function warn(string $logMessage, array $logData = array()) {
+    public function warn($logMessage, $logData = array()) {
         $this->log->addWarning($logMessage, $logData);
     }
 
@@ -67,7 +67,7 @@ class log {
      * @param $logMessage
      * @param $logData
      */
-    public function err(string $logMessage, array $logData = array()) {
+    public function err($logMessage, $logData = array()) {
         $this->log->addError($logMessage, $logData);
     }
 
@@ -77,7 +77,7 @@ class log {
      * @param $logMessage
      * @param $logData
      */
-    public function notice(string $logMessage, array $logData = array()) {
+    public function notice($logMessage, $logData = array()) {
         $this->log->addNotice($logMessage, $logData);
     }
 }

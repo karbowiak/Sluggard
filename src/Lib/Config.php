@@ -26,7 +26,7 @@ class config {
      * @param string|null $default
      * @return string|array
      */
-    public function get(string $key, string $type = null, string $default = null) {
+    public function get($key, $type = null, $default = null) {
         $config = array();
         include(BASEDIR . "/config/config." . BOTNAME . ".php");
 
@@ -41,7 +41,7 @@ class config {
      * @param string|null $type
      * @return array
      */
-    public function getAll(string $type = null) {
+    public function getAll($type = null) {
         $config = array();
         include(BASEDIR . "/config/config." . BOTNAME . ".php");
 

@@ -25,7 +25,7 @@ class triggerCommand {
      * @param $commandTrigger
      * @return array|null
      */
-    public function trigger(string $message, array $commandTrigger) {
+    public function trigger($message, $commandTrigger) {
         if(empty($commandTrigger))
             return null;
 
@@ -51,7 +51,7 @@ class triggerCommand {
      * @param $commandTrigger
      * @return bool
      */
-    public function containsTrigger(string $message, array $commandTrigger) {
+    public function containsTrigger($message, $commandTrigger) {
         $commandTrigger = is_array($commandTrigger) ? $commandTrigger : array($commandTrigger);
 
         foreach($commandTrigger as $trigger) {
