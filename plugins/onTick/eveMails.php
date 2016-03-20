@@ -220,14 +220,16 @@ class eveMails {
                 $msg .= "**Title: ** {$title}\n";
                 $msg .= "**Content: **\n";
                 $msg .= htmlspecialchars_decode(trim($messageSplit[0]));
-                $msgLong = htmlspecialchars_decode(trim($messageSplit[1]));
+                $longMessage = htmlspecialchars_decode(trim($messageSplit[1]));
 
                 // Send the mails to the channel
-                $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msg);
+                $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
+                $channel->sendMessage($msg);
                 sleep(1); // Lets sleep for a second, so we don't rage spam
                 if (strlen($content) > 1850) {
-                    $this->discord->api("channel")->messages()->create($this->toDiscordChannel, $msgLong);
+                    $channel->sendMessage($longMessage);
                 }
+
 
                 // Find the maxID so we don't spit this message out ever again
                 $this->maxID = max($mail["messageID"], $this->maxID);
