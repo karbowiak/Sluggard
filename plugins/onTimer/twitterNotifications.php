@@ -161,7 +161,7 @@ class twitterNotifications
             "name" => "twitterNotifications",
             "trigger" => array(""),
             "information" => "",
-            "timerFrequency" => 60
+            "timerFrequency" => 300
         );
     }
 }
