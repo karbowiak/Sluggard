@@ -134,19 +134,23 @@ class eveMails {
     public function onTick() {
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
-            if ($check == false)
-                return;
+            try {
+                if ($check == false)
+                    return;
 
-            $keyID = $api["keyID"];
-            $vCode = $api["vCode"];
-            $characterID = $api["characterID"];
-            $lastChecked = $this->storage->get("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
+                $keyID = $api["keyID"];
+                $vCode = $api["vCode"];
+                $characterID = $api["characterID"];
+                $lastChecked = $this->storage->get("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
 
-            if ($lastChecked <= time()) {
-                $this->log->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
-                $this->checkMails($keyID, $vCode, $characterID);
-                $this->storage->set("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1807); // Reschedule it's check for 30minutes from now (plus 7 seconds, because CCP isn't known to adhere strictly to timeouts, lol)
-                $check = false;
+                if ($lastChecked <= time()) {
+                    $this->log->info("Checking API Key {$keyID} belonging to {$keyOwner} for new corp mails");
+                    $this->checkMails($keyID, $vCode, $characterID);
+                    $this->storage->set("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() + 1807); // Reschedule it's check for 30minutes from now (plus 7 seconds, because CCP isn't known to adhere strictly to timeouts, lol)
+                    $check = false;
+                }
+            } catch (\Exception $e) {
+                $this->log->err("Error with eve mail checker: " . $e->getMessage());
             }
         }
     }

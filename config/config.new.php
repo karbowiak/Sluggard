@@ -2,7 +2,8 @@
 $config["bot"] = array(
     "trigger" => "!",
     "botName" => "EVEBot",
-    "userAgent" => ""
+    "userAgent" => "",
+    "presenceStatus" => "",
 );
 
 $config["discord"] = array(
@@ -37,7 +38,6 @@ $config["enabledplugins"] = array(
     "memoryReclamation",
     "pluginTick",
     "tqStatus",
-    "updateDatabase",
     "eightball",
     "coinflip",
     "guilds",

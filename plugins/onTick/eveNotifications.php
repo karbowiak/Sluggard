@@ -145,19 +145,23 @@ class eveNotifications {
     public function onTick() {
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
-            if ($check == false)
-                continue;
+            try {
+                if ($check == false)
+                    continue;
 
-            $keyID = $api["keyID"];
-            $vCode = $api["vCode"];
-            $characterID = $api["characterID"];
-            $lastChecked = $this->storage->get("notificationCheck{$keyID}{$keyOwner}{$characterID}");
+                $keyID = $api["keyID"];
+                $vCode = $api["vCode"];
+                $characterID = $api["characterID"];
+                $lastChecked = $this->storage->get("notificationCheck{$keyID}{$keyOwner}{$characterID}");
 
-            if ($lastChecked <= time()) {
-                $this->log->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
-                $this->getNotifications($keyID, $vCode, $characterID);
-                $this->storage->set("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1805); // Reschedule it's check for 30minutes from now (Plus 5s, ~CCP~)
-                $check = false;
+                if ($lastChecked <= time()) {
+                    $this->log->info("Checking API Key {$keyID} belonging to {$keyOwner} for new notifications");
+                    $this->getNotifications($keyID, $vCode, $characterID);
+                    $this->storage->set("notificationCheck{$keyID}{$keyOwner}{$characterID}", time() + 1805); // Reschedule it's check for 30minutes from now (Plus 5s, ~CCP~)
+                    $check = false;
+                }
+            } catch (\Exception $e) {
+                $this->log->err("Error with eve notification checker: " . $e->getMessage());
             }
         }
     }

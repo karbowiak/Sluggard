@@ -133,7 +133,7 @@ class twitterNotifications
                     $this->storage->set("twitterLatestID", $this->maxID);
             }
         } catch (Exception $e) {
-            //$this->log->err("Twitter Error: " . $e->getMessage()); // Don't show there was an error, it's most likely just a rate limit
+            $this->log->err("Twitter Error: " . $e->getMessage()); // Don't show there was an error, it's most likely just a rate limit
         }
 
         if ($continue == true) {

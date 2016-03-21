@@ -105,43 +105,47 @@ class checkCharacter {
             $allianceID = $user["allianceID"];
 
             // Get the information for this user from CCP
-            $ccpData = json_decode(json_encode(new SimpleXMLElement($this->curl->getData("https://api.eveonline.com/eve/CharacterAffiliation.xml.aspx?ids={$characterID}"))), true);
-            $data = $ccpData["result"]["rowset"]["row"]["@attributes"];
-            $currentCharacterID = $data["characterID"];
-            $currentCorporationID = $data["corporationID"];
-            $currentAllianceID = $data["allianceID"];
+            try {
+                $ccpData = json_decode(json_encode(new SimpleXMLElement($this->curl->getData("https://api.eveonline.com/eve/CharacterAffiliation.xml.aspx?ids={$characterID}"))), true);
+                $data = $ccpData["result"]["rowset"]["row"]["@attributes"];
+                $currentCharacterID = $data["characterID"];
+                $currentCorporationID = $data["corporationID"];
+                $currentAllianceID = $data["allianceID"];
 
-            // Lets just be sure we're doing this for the correct character.. CCP is weird sometimes
-            if($currentCharacterID == $characterID) {
-                $remove = false;
+                // Lets just be sure we're doing this for the correct character.. CCP is weird sometimes
+                if ($currentCharacterID == $characterID) {
+                    $remove = false;
 
-                // Remove if the guy switched corp
-                if($currentCorporationID != $corporationID)
-                    $remove = true;
+                    // Remove if the guy switched corp
+                    if ($currentCorporationID != $corporationID)
+                        $remove = true;
 
-                // Remove if the guy switched alliance
-                if($currentAllianceID != $allianceID)
-                    $remove = true;
+                    // Remove if the guy switched alliance
+                    if ($currentAllianceID != $allianceID)
+                        $remove = true;
 
-                // Lets remove the groups from this user (Every single role!)
-                if($remove == true) {
-                    $guild = $this->discord->guilds->get("id", $guildID);
-                    $guildName = $guild->name;
-                    $member = $guild->members->get("id", $discordID);
-                    $memberName = $member->user->username;
-                    $roles = $member->roles;
+                    // Lets remove the groups from this user (Every single role!)
+                    if ($remove == true) {
+                        $guild = $this->discord->guilds->get("id", $guildID);
+                        $guildName = $guild->name;
+                        $member = $guild->members->get("id", $discordID);
+                        $memberName = $member->user->username;
+                        $roles = $member->roles;
 
-                    // Remove all roles, we don't care what roles they are, remove them all..
-                    // Can't remove server owner tho, so.. mehe..
-                    foreach($roles as $role) {
-                        $member->removeRole($role);
+                        // Remove all roles, we don't care what roles they are, remove them all..
+                        // Can't remove server owner tho, so.. mehe..
+                        foreach ($roles as $role) {
+                            $member->removeRole($role);
+                        }
+
+                        // Delete the auth info from the db
+                        $this->sluggardDB->execute("DELETE FROM authentication WHERE discordID = :discordID", array(":discordID" => $discordID));
+
+                        $this->log->info("Deleted all roles for {$memberName} on {$guildName}");
                     }
-
-                    // Delete the auth info from the db
-                    $this->sluggardDB->execute("DELETE FROM authentication WHERE discordID = :discordID", array(":discordID" => $discordID));
-
-                    $this->log->info("Deleted all roles for {$memberName} on {$guildName}");
                 }
+            } catch (\Exception $e) {
+                $this->log->err("Error with character check: " . $e->getMessage());
             }
         }
     }
