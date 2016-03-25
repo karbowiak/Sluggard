@@ -111,6 +111,8 @@ class eveNotifications {
         $keyCounter = 0;
         foreach($this->keys as $keyOwner => $apiData) {
             $keyID = $apiData["keyID"];
+            if($apiData["corpKey"] == true)
+                continue;
             $characterID = $apiData["characterID"];
 
             if($keyCounter == 0) // Schedule it for right now
@@ -151,6 +153,9 @@ class eveNotifications {
 
                 $keyID = $api["keyID"];
                 $vCode = $api["vCode"];
+                if($api["corpKey"] == true)
+                    continue;
+                
                 $characterID = $api["characterID"];
                 $lastChecked = $this->storage->get("notificationCheck{$keyID}{$keyOwner}{$characterID}");
 

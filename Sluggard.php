@@ -131,7 +131,7 @@ $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $
     // Map the message content to $message for easier usage
     $message = $msgData->content;
 
-    // Show every message in the bot window (Except if it's from ourself, then ignore it!
+    // Show every message in the bot window (Except if it's from our self, then ignore it!
     if($msgData->author->username != $app->config->get("botName", "bot"))
         $app->log->info("Received Message From: {$msgData->author->username}. Message: {$message}");
 
@@ -142,7 +142,6 @@ $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $
     // what is the trigger symbol?
     $triggerSymbol = $app->config->get("trigger", "bot", "!");
 
-    // Does the message contain a trigger in the first place?
     // Does the message contain a trigger in the first place?
     $triggered = $app->triggercommand->containsTrigger($message, $triggerSymbol);
 

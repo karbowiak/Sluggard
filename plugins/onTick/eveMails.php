@@ -100,8 +100,10 @@ class eveMails {
         $keyCounter = 0;
         foreach($this->keys as $keyOwner => $apiData) {
             $keyID = $apiData["keyID"];
+            if($apiData["corpKey"] == true)
+                continue;
             $characterID = $apiData["characterID"];
-
+            
             if($keyCounter == 0) // Schedule it for right now
                 $this->storage->set("corpMailCheck{$keyID}{$keyOwner}{$characterID}", time() - 5);
             else {
@@ -140,6 +142,10 @@ class eveMails {
 
                 $keyID = $api["keyID"];
                 $vCode = $api["vCode"];
+                if($api["corpKey"] == true)
+                    continue;
+
+                
                 $characterID = $api["characterID"];
                 $lastChecked = $this->storage->get("corpMailCheck{$keyID}{$keyOwner}{$characterID}");
 
@@ -216,24 +222,29 @@ class eveMails {
                 $sentDate = $mail["sentDate"];
                 $url = "https://api.eveonline.com/char/MailBodies.xml.aspx?keyID={$keyID}&vCode={$vCode}&characterID={$characterID}&ids=" . $mail["messageID"];
                 $content = strip_tags(str_replace("<br>", "\n", json_decode(json_encode(simplexml_load_string($this->curl->getData($url), "SimpleXMLElement", LIBXML_NOCDATA)))->result->rowset->row));
-                $messageSplit = str_split($content, 1850);
+
+                $messageSplit = null;
+                if(strlen($content) > 1850)
+                    $messageSplit = str_split($content, 1850);
 
                 // Stitch the mail together
                 $msg = "**Mail By: **{$sentBy}\n";
                 $msg .= "**Sent Date: **{$sentDate}\n";
                 $msg .= "**Title: ** {$title}\n";
                 $msg .= "**Content: **\n";
-                $msg .= htmlspecialchars_decode(trim($messageSplit[0]));
-                $longMessage = htmlspecialchars_decode(trim($messageSplit[1]));
+                if(!$messageSplit)
+                    $msg .= htmlspecialchars_decode(trim($content));
 
                 // Send the mails to the channel
                 $channel = \Discord\Parts\Channel\Channel::find($this->toDiscordChannel);
-                $channel->sendMessage($msg);
-                sleep(1); // Lets sleep for a second, so we don't rage spam
-                if (strlen($content) > 1850) {
-                    $channel->sendMessage($longMessage);
-                }
 
+                if(strlen($content) > 1850 && !empty($longMessage))
+                    foreach($longMessage as $msg)
+                        $channel->sendMessage($msg);
+                else
+                    $channel->sendMessage($msg);
+
+                sleep(1); // Lets sleep for a second, so we don't rage spam
 
                 // Find the maxID so we don't spit this message out ever again
                 $this->maxID = max($mail["messageID"], $this->maxID);
