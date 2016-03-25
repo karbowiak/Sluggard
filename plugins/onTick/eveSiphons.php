@@ -2,6 +2,9 @@
 
 use Sluggard\SluggardApp;
 
+/**
+ * Class eveSiphons
+ */
 class eveSiphons
 {
     /**
@@ -42,6 +45,10 @@ class eveSiphons
     private $trigger;
 
     /**
+     * @var bool
+     */
+    private $run = false;
+    /**
      * @param $discord
      * @param SluggardApp $app
      */
@@ -69,6 +76,7 @@ class eveSiphons
             if ($apiData["corpKey"] == false)
                 continue;
 
+            $this->run = true;
             if ($keyCounter == 0) // Schedule it for right now
                 $this->storage->set("siphonCheck{$keyID}{$keyOwner}", time() - 5);
             else {
@@ -101,6 +109,10 @@ class eveSiphons
      */
     public function onTick()
     {
+        // If there are no corp api keys, don't run..
+        if($this->run == false)
+            return;
+
         $check = true;
         foreach ($this->keys as $keyOwner => $api) {
             try {
@@ -126,6 +138,10 @@ class eveSiphons
         }
     }
 
+    /**
+     * @param $keyID
+     * @param $vCode
+     */
     private function checkForSiphons($keyID, $vCode)
     {
         try { // Seriously CCP.. *sigh*

@@ -83,9 +83,9 @@ Also, i am the half-brother of Sovereign, atleast in the Blasto 7 movie..
 
 About Me:
 Author: Karbowiak (Discord ID: 118440839776174081)
-Library: discord-hypertext (PHP)
+Library: DiscordPHP (https://github.com/teamreflex/DiscordPHP\)
 Current version: " . $gitRevision["short"]. " (Last Update: " . $gitRevision["lastChangeDate"] . ")
-Github Repo: https://github.com/karbowiak/Sluggard
+Github Repo: https://github.com/karbowiak/Sluggard\
 
 Statistics:
 Uptime: " . $interval->y . " Year(s), " .$interval->m . " Month(s), " . $interval->d ." Days, ". $interval->h . " Hours, " . $interval->i." Minutes, ".$interval->s." seconds.

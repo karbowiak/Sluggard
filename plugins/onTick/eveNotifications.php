@@ -111,7 +111,7 @@ class eveNotifications {
         $keyCounter = 0;
         foreach($this->keys as $keyOwner => $apiData) {
             $keyID = $apiData["keyID"];
-            if($apiData["corpKey"] == true)
+            if(@$apiData["corpKey"] == true)
                 continue;
             $characterID = $apiData["characterID"];
 
@@ -153,7 +153,7 @@ class eveNotifications {
 
                 $keyID = $api["keyID"];
                 $vCode = $api["vCode"];
-                if($api["corpKey"] == true)
+                if(@$api["corpKey"] == true)
                     continue;
                 
                 $characterID = $api["characterID"];

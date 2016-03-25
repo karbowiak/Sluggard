@@ -108,10 +108,23 @@ $websocket->on("ready", function () use ($websocket, $app, $discord, $plugins) {
     });
 });
 
+// Init the cleverbot stuff
+require_once(BASEDIR . "/src/chatterBot/chatterbotapi.php");
+$cleverBotFactory = new ChatterBotFactory();
+$bot = $cleverBotFactory->create(ChatterBotType::CLEVERBOT);
+$botSession = $bot->createSession();
+
 // Silly replies to do
-$websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins) {
+$websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $discord, $websocket, $plugins, $botSession) {
     $message = $msgData->content;
 
+    // If they write directly to me, i'll send it to cleverbot (Also the message has to start with this...
+    if(stristr($message, "<@" . $app->config->get("botID", "bot"). ">")) {
+        $msg = str_replace("<@". $app->config->get("botID", "bot") . ">", $app->config->get("botName", "bot"), $message);
+        $response = $botSession->think($msg);
+        $msgData->reply($response);
+    }
+    
     // Silly replies always to be done..
     if ($message == '(╯°□°）╯︵ ┻━┻') {
         $channel = \Discord\Parts\Channel\Channel::find($msgData->channel_id);
