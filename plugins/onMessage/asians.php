@@ -2,7 +2,7 @@
 
 use Sluggard\SluggardApp;
 
-class bonjour {
+class asians {
     /**
      * @var SluggardApp
      */
@@ -66,7 +66,7 @@ class bonjour {
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
         if (isset($data["trigger"])) {
-            $url = "http://dites.bonjourmadame.fr/archive";
+            $url = "http://iloveasianbitches.tumblr.com/archive";
             $data = $this->curl->getData($url);
             preg_match_all("/http:\/\/(.*).media.tumblr.com\/(.*)\/tumblr(.*).jpg/", $data, $matches);
 
@@ -82,7 +82,7 @@ class bonjour {
 
                 $msgData->user->reply($msg);
             } else {
-                $msg = "**Error:** couldn't retrieve boobies from Bonjour Madame, you gotta go find them yourself at {$url}";
+                $msg = "**Error:** couldn't retrieve boobies from I Love Asian Bitches, you gotta go find them yourself at {$url}";
                 $msgData->user->reply($msg);
             }
         }
@@ -121,9 +121,9 @@ class bonjour {
      */
     public function information() {
         return array(
-            "name" => "bonjourmadamme",
-            "trigger" => array("!bonjour", "!bonjourmadamme", "!bm"),
-            "information" => "Returns an image from Bonjour Madamme",
+            "name" => "asians",
+            "trigger" => array("!asian", "!asians"),
+            "information" => "Returns an image from I Love Asian Bitches",
             "timerFrequency" => 0
         );
     }
