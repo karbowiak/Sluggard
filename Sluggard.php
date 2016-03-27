@@ -124,7 +124,14 @@ $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $
         $response = $botSession->think($msg);
         $msgData->reply($response);
     }
-    
+
+    // We randomly pick things to answer to.... why? why the fuck not
+    if(mt_rand(1, 100) <= 5)  {
+        $response = $botSession->think($message);
+        $channel = \Discord\Parts\Channel\Channel::find($msgData->channel_id);
+        $channel->sendMessage($response);
+    }
+
     // Silly replies always to be done..
     if ($message == '(╯°□°）╯︵ ┻━┻') {
         $channel = \Discord\Parts\Channel\Channel::find($msgData->channel_id);
