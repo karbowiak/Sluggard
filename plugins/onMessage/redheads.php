@@ -39,7 +39,11 @@ class redheads {
      * @var \Sluggard\Lib\triggerCommand
      */
     private $trigger;
-
+    /**
+     * @var
+     */
+    private $channelLimit;
+    
     /**
      * @param $discord
      * @param SluggardApp $app
@@ -54,16 +58,24 @@ class redheads {
         $this->curl = $app->curl;
         $this->storage = $app->storage;
         $this->trigger = $app->triggercommand;
+        $this->channelLimit = $app->config->getAll("channellimit");
     }
 
     /**
      * When a message arrives that contains a trigger, this is started
      *
      * @param $msgData
+     * @return mixed
      */
     public function onMessage($msgData) {
         $message = $msgData->message->message;
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
+
+        // If this channel is not in the allowed channels array for this plugin, we'll just quit
+        if(!in_array($msgData->message->channelID, $this->channelLimit[get_class($this)])) {
+            $msg = "**Error:** this plugin only works in <#{$msgData->message->channelID}>";
+            return $msgData->user->reply($msg);
+        }
 
         if (isset($data["trigger"])) {
             $url = "http://stunningredheads.tumblr.com/archive";
@@ -124,7 +136,8 @@ class redheads {
             "name" => "redheads",
             "trigger" => array("!red", "!redheads"),
             "information" => "Returns an image from Stunning Readheads on Tumblr",
-            "timerFrequency" => 0
+            "timerFrequency" => 0,
+            "channelLimit" => $this->channelLimit
         );
     }
 }

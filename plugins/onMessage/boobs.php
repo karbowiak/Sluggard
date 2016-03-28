@@ -39,7 +39,11 @@ class boobs {
      * @var \Sluggard\Lib\triggerCommand
      */
     private $trigger;
-
+    /**
+     * @var
+     */
+    private $channelLimit;
+    
     /**
      * @param $discord
      * @param SluggardApp $app
@@ -54,17 +58,25 @@ class boobs {
         $this->curl = $app->curl;
         $this->storage = $app->storage;
         $this->trigger = $app->triggercommand;
+        $this->channelLimit = $app->config->getAll("channelLimit");
     }
 
     /**
      * When a message arrives that contains a trigger, this is started
      *
      * @param $msgData
+     * @return mixed
      */
     public function onMessage($msgData) {
         $message = $msgData->message->message;
         $data = $this->trigger->trigger($message, $this->information()["trigger"]);
 
+        // If this channel is not in the allowed channels array for this plugin, we'll just quit
+        if(!in_array($msgData->message->channelID, $this->channelLimit[get_class($this)])) {
+            $msg = "**Error:** this plugin only works in <#{$msgData->message->channelID}>";
+            return $msgData->user->reply($msg);
+        }
+        
         if (isset($data["trigger"])) {
             $maxID = json_decode($this->curl->getData("http://api.oboobs.ru/boobs/"))[0];
             $boobsID = mt_rand(10000, $maxID->id);
@@ -110,7 +122,8 @@ class boobs {
             "name" => "boobs",
             "trigger" => array("!boobs", "!titties", "!tits", "!boobies"),
             "information" => "Returns a set of boobies from oboobs.ru",
-            "timerFrequency" => 0
+            "timerFrequency" => 0,
+            "channelLimit" => $this->channelLimit
         );
     }
 }

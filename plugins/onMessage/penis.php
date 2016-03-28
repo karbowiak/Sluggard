@@ -2,7 +2,7 @@
 
 use Sluggard\SluggardApp;
 
-class bonjour {
+class penis {
     /**
      * @var SluggardApp
      */
@@ -43,7 +43,7 @@ class bonjour {
      * @var
      */
     private $channelLimit;
-
+    
     /**
      * @param $discord
      * @param SluggardApp $app
@@ -76,9 +76,9 @@ class bonjour {
             $msg = "**Error:** this plugin only works in <#{$msgData->message->channelID}>";
             return $msgData->user->reply($msg);
         }
-
+        
         if (isset($data["trigger"])) {
-            $url = "http://dites.bonjourmadame.fr/archive";
+            $url = "http://penisbrotherhood.tumblr.com/archive";
             $data = $this->curl->getData($url);
             preg_match_all("/http:\/\/(.*).media.tumblr.com\/(.*)\/tumblr(.*).jpg/", $data, $matches);
 
@@ -94,7 +94,7 @@ class bonjour {
 
                 $msgData->user->reply($msg);
             } else {
-                $msg = "**Error:** couldn't retrieve boobies from Bonjour Madame, you gotta go find them yourself at {$url}";
+                $msg = "**Error:** couldn't retrieve boobies from I Love Asian Bitches, you gotta go find them yourself at {$url}";
                 $msgData->user->reply($msg);
             }
         }
@@ -133,9 +133,9 @@ class bonjour {
      */
     public function information() {
         return array(
-            "name" => "bonjourmadamme",
-            "trigger" => array("!bonjour", "!bonjourmadamme", "!bm"),
-            "information" => "Returns an image from Bonjour Madamme",
+            "name" => "penis",
+            "trigger" => array("!penis", "!dong", "!donger"),
+            "information" => "Returns an image from Penis Brotherhood",
             "timerFrequency" => 0,
             "channelLimit" => $this->channelLimit
         );

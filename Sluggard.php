@@ -170,7 +170,7 @@ $websocket->on(Event::MESSAGE_CREATE, function ($msgData, $botData) use ($app, $
         foreach ($plugins["onMessage"] as $plugin) {
             // Load plugin information so we can figure out what it's trigger is
             $info = $plugin->information();
-
+            
             // Check if what was written actually triggers this plugin
             $triggered = $app->triggercommand->containsTrigger($message, $info["trigger"]);
 
