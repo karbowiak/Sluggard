@@ -30,27 +30,30 @@ class cURL
         $this->log = $app->log;
     }
 
+
     /**
      * @param $url
-     * @return bool|mixed
+     * @param array $headers
+     * @return bool
      */
-    public function getData($url)
+    public function getData($url, $headers = array())
     {
         // Md5 the url
         $md5 = md5($url);
 
+        $headers = array_merge($headers, array('Connection: keep-alive', 'Keep-Alive: timeout=10, max=1000'));
         try {
             // Init curl
             $curl = curl_init();
             // Setup curl
             curl_setopt_array($curl, array(
+                CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_USERAGENT => $this->app->config->get("userAgent", "bot", "Discord Bot"),
                 CURLOPT_TIMEOUT => 5,
                 CURLOPT_POST => false,
                 CURLOPT_FORBID_REUSE => false,
-                CURLOPT_ENCODING => '',
+                //CURLOPT_ENCODING => '',
                 CURLOPT_URL => $url,
-                CURLOPT_HTTPHEADER => array('Connection: keep-alive', 'Keep-Alive: timeout=10, max=1000'),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FAILONERROR => true,
             ));
