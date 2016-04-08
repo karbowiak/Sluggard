@@ -90,7 +90,8 @@ class eveAuthenticator {
             if(!empty($authData)) {
                 $groups = json_decode($authData["groups"], true);
                 $roles = $msgData->guild->roles;
-                $guild = $this->discord->guilds->get("id", $msgData->guild->id);
+                $guild = $this->discord->guilds->first();
+                //$guild = $this->discord->guilds->get("id", $msgData->guild->id);
                 $member = $guild->members->get("id", $msgData->user->author->id);
                 $username = $msgData->user->author->username;
                 $discordID = $msgData->user->author->id;

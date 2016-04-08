@@ -182,11 +182,21 @@ class porn {
 
                 case "freckles":
                     $urls = array(
-                        "https://api.imgur.com/3/gallery/r/FreckledGirls//time/all/"
+                        "https://api.imgur.com/3/gallery/r/FreckledGirls/time/all/"
                     );
                     break;
+                case "cosplay":
+                    $urls = array("https://api.imgur.com/3/gallery/r/cosplay/time/all/");
+                    break;
+                case "boobs":
+                    $urls = array("https://api.imgur.com/3/gallery/r/boobs/time/all/");
+                    break;
+                case "ass":
+                    $urls = array("https://api.imgur.com/3/gallery/r/ass/time/all/");
+                    break;
+
                 default:
-                    $msg = "No endpoint selected. Currently available are: redheads, blondes, asians, gonewild, realgirls, palegirls, gif, lesbians, tattoos, mgw/militarygonewild, amateur, college, bondage, milf and freckles";
+                    $msg = "No endpoint selected. Currently available are: redheads, blondes, asians, gonewild, realgirls, palegirls, gif, lesbians, tattoos, mgw/militarygonewild, amateur, college, bondage, milf, freckles, boobs, ass and cosplay";
                     $msgData->user->reply($msg);
                     break;
             }
@@ -208,7 +218,8 @@ class porn {
                     $img = $json[array_rand($json)];
 
                     // Get gifv over gif, if it's infact a gif gallery
-                    $imageURL = isset($img["gifv"]) ? $img["gifv"] : $img["link"];
+                    //$imageURL = isset($img["gifv"]) ? $img["gifv"] : $img["link"];
+                    $imageURL = $img["link"]; // gifv doesn't embed properly in discord, yet..
 
                     $message = "**Title:** {$img["title"]} | **Section:** {$img["section"]} | **url:** {$imageURL}";
                     $msgData->user->reply($message);
