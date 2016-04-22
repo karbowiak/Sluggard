@@ -355,6 +355,11 @@ class eveNotifications {
                             $systemName = $this->ccpDB->queryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID));
                             $msg = "Command nodes decloaking for **{$systemName}**";
                             break;
+                        case 163: //  Freeport
+                            $systemID = trim(explode(": ", $notificationString[1])[1]);
+                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $msg = "Station in **{$systemName}** has entered freeport mode.";
+                            break;
                     }
 
                     if($msg) {
