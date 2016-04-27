@@ -348,7 +348,9 @@ class eveNotifications {
                             $msg = "Entosis has disabled a module in **{$systemName}** on **{$typeName}** (Date: **{$sentDate}**)";
                             break;
                         case 160: // Entosis successful
-                            $msg = "Hostile entosis successful. Structure has entered reinforced mode. (Unfortunately this api endpoint doesn't provide any more details)";
+                            $systemID = trim(explode(": ", $notificationString[2])[1]);
+                            $systemName = dbQueryField("SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = :id", "solarSystemName", array(":id" => $systemID), "ccp");
+                            $msg = "Hostile entosis successful. A structure in **{$systemName}** has entered reinforced mode.";
                             break;
                         case 161: // Command Nodes Decloaking
                             $systemID = trim(explode(": ", $notificationString[2])[1]);
