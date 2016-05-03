@@ -76,7 +76,7 @@ class eveStatus
             $channelName = $msgData->channel->name;
             $guildName = $msgData->guild->name;
 
-            $crestData = json_decode($this->curl->getData("https://public-crest.eveonline.com/"), true);
+            $crestData = json_decode($this->curl->getData("https://crest-tq.eveonline.com/"), true);
 
             $tqStatus = isset($crestData["serviceStatus"]["eve"]) ? $crestData["serviceStatus"]["eve"] : "offline";
             $tqOnline = (int)$crestData["userCounts"]["eve"];
